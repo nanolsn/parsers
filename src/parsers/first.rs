@@ -33,7 +33,7 @@ mod tests {
     use crate::parser;
 
     #[test]
-    fn second() {
+    fn first() {
         let p = parser("a") << "b";
 
         assert_eq!(p.parse("ab_"), Ok(("a", "_")));
