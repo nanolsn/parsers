@@ -1,6 +1,5 @@
-use crate::parse::Parse;
+use crate::{Parse, Parser};
 use std::ops::Rem;
-use crate::Parser;
 
 #[derive(Copy, Clone, Debug)]
 pub struct HeadParser<P>(P);
@@ -56,12 +55,11 @@ impl<L, R, K> Rem<K> for ListParser<L, R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::Parser;
+    use crate::parser;
 
     #[test]
     fn test_list() {
-        let a = Parser("a");
-        let ab = a % 'b' % 'c';
+        let ab = parser("a") % 'b' % 'c';
 
         assert_eq!(ab.parse("abc"), Ok((vec!["a", "b", "c"], "")));
     }
