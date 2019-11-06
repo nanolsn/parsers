@@ -55,11 +55,11 @@ impl<L, R, K> Rem<K> for ListParser<L, R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser;
+    use crate::par;
 
     #[test]
     fn test_list() {
-        let ab = parser("a") % 'b' % 'c';
+        let ab = par("a") % 'b' % 'c';
 
         assert_eq!(ab.parse("abc"), Ok((vec!["a", "b", "c"], "")));
     }

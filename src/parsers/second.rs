@@ -18,21 +18,21 @@ impl<L, R, I> Parse<I> for Second<L, R>
 }
 
 impl<L, R> Shr<R> for Parser<L> {
-    type Output = Second<L, R>;
+    type Output = Parser<Second<L, R>>;
 
     fn shr(self, rhs: R) -> Self::Output {
-        Second(self.0, rhs)
+        Parser(Second(self.0, rhs))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser;
+    use crate::par;
 
     #[test]
     fn second() {
-        let p = parser("a") >> "b";
+        let p = par("a") >> "b";
 
         assert_eq!(p.parse("ab_"), Ok(("b", "_")));
         assert_eq!(p.parse("wb"), Err(()));

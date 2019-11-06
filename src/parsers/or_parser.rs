@@ -19,27 +19,27 @@ impl<L, R, I> Parse<I> for OrParser<L, R>
 }
 
 impl<L, R> BitOr<R> for Parser<L> {
-    type Output = OrParser<L, R>;
+    type Output = Parser<OrParser<L, R>>;
 
     fn bitor(self, rhs: R) -> Self::Output {
-        OrParser(self.0, rhs)
+        Parser(OrParser(self.0, rhs))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser;
+    use crate::par;
 
     #[test]
     fn or_parser() {
-        let p = parser("a") | "b";
+        let p = par("a") | "b";
 
         assert_eq!(p.parse("a_"), Ok(("a", "_")));
         assert_eq!(p.parse("b_"), Ok(("b", "_")));
         assert_eq!(p.parse("_"), Err(()));
 
-        let p = parser("") | "a";
+        let p = par("") | "a";
 
         assert_eq!(p.parse("a"), Ok(("", "a")));
     }

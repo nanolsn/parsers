@@ -20,21 +20,21 @@ impl<L, R, I> Parse<I> for First<L, R>
 }
 
 impl<L, R> Shl<R> for Parser<L> {
-    type Output = First<L, R>;
+    type Output = Parser<First<L, R>>;
 
     fn shl(self, rhs: R) -> Self::Output {
-        First(self.0, rhs)
+        Parser(First(self.0, rhs))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser;
+    use crate::par;
 
     #[test]
     fn first() {
-        let p = parser("a") << "b";
+        let p = par("a") << "b";
 
         assert_eq!(p.parse("ab_"), Ok(("a", "_")));
         assert_eq!(p.parse("wb"), Err(()));

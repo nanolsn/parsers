@@ -5,20 +5,6 @@ pub trait Parse<I> {
     type Out;
 
     fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err>;
-
-    fn map<F>(self, f: F) -> Map<Self, F>
-        where
-            Self: Sized,
-    {
-        Map(self, f)
-    }
-
-    fn map_err<F>(self, f: F) -> MapErr<Self, F>
-        where
-            Self: Sized,
-    {
-        MapErr(self, f)
-    }
 }
 
 impl<'i> Parse<&'i str> for str {
@@ -123,40 +109,10 @@ impl_tuple!(P0, P1, P2, P3, P4; r0, r1, r2, r3, r4);
 impl_tuple!(P0, P1, P2, P3, P4, P5; r0, r1, r2, r3, r4, r5);
 impl_tuple!(P0, P1, P2, P3, P4, P5, P6; r0, r1, r2, r3, r4, r5, r6);
 
-pub struct Map<P, F>(P, F);
-
-impl<P, F, A, B, I> Parse<I> for Map<P, F>
-    where
-        P: Parse<I, Out=A>,
-        F: Fn(A) -> B,
-{
-    type Err = P::Err;
-    type Out = B;
-
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
-        self.0.parse(input).map(|(out, rest)| ((self.1)(out), rest))
-    }
-}
-
-pub struct MapErr<P, F>(P, F);
-
-impl<P, F, E, G, I> Parse<I> for MapErr<P, F>
-    where
-        P: Parse<I, Err=E>,
-        F: Fn(E) -> G + Copy,
-{
-    type Err = G;
-    type Out = P::Out;
-
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
-        self.0.parse(input).map_err(self.1)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser;
+    use crate::par;
 
     #[test]
     fn parse_str() {
@@ -217,50 +173,34 @@ mod tests {
 
     #[test]
     fn parse_tuple() {
-        let t = (parser("0"), "1");
+        let t = (par("0"), "1");
 
         assert_eq!(t.parse("0123"), Ok((("0", "1"), "23")));
         assert_eq!(t.parse("0!"), Err(()));
 
-        let t = (parser("0").map(|_| 0), "1", "2");
+        let t = (par("0").map(|_| 0), "1", "2");
 
         assert_eq!(t.parse("0123"), Ok(((0, "1", "2"), "3")));
         assert_eq!(t.parse("01"), Err(()));
 
-        let t = (parser("0").map(|_| true), "1", "2", "3");
+        let t = (par("0").map(|_| true), "1", "2", "3");
 
         assert_eq!(t.parse("0123"), Ok(((true, "1", "2", "3"), "")));
         assert_eq!(t.parse("012"), Err(()));
 
-        let t = (parser("0"), "1", "2", "3", "4");
+        let t = (par("0"), "1", "2", "3", "4");
 
         assert_eq!(t.parse("01234"), Ok((("0", "1", "2", "3", "4"), "")));
         assert_eq!(t.parse("0123"), Err(()));
 
-        let t = (parser("0"), "1", "2", "3", "4", "5");
+        let t = (par("0"), "1", "2", "3", "4", "5");
 
         assert_eq!(t.parse("012345"), Ok((("0", "1", "2", "3", "4", "5"), "")));
         assert_eq!(t.parse("01234"), Err(()));
 
-        let t = (parser("0"), "1", "2", "3", "4", "5", "6");
+        let t = (par("0"), "1", "2", "3", "4", "5", "6");
 
         assert_eq!(t.parse("0123456"), Ok((("0", "1", "2", "3", "4", "5", "6"), "")));
         assert_eq!(t.parse("012345"), Err(()));
-    }
-
-    #[test]
-    fn parse_map() {
-        let l = parser("a").map(|_| 1);
-
-        assert_eq!(l.parse("ab"), Ok((1, "b")));
-        assert_eq!(l.parse("c"), Err(()));
-    }
-
-    #[test]
-    fn parse_map_err() {
-        let l = parser("a").map_err(|_| 1);
-
-        assert_eq!(l.parse("ab"), Ok(("a", "b")));
-        assert_eq!(l.parse("c"), Err(1));
     }
 }
