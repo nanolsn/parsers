@@ -10,6 +10,7 @@ mod parsers {
     pub mod first;
     pub mod or_parser;
     pub mod repeat;
+    pub mod range;
 }
 
 pub use parsers::{

@@ -1,5 +1,6 @@
 use crate::{Parse, Repeat, Second, OrParser};
 use crate::maps::{Map, MapErr};
+use crate::parsers::range::Range;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Parser<P>(pub(crate) P);
@@ -15,6 +16,22 @@ impl<P> Parser<P> {
 
     pub fn repeat(self, times: usize) -> Parser<Repeat<P>> {
         Parser(Repeat(self.0, times))
+    }
+
+    pub fn range(self, from: usize, to: usize) -> Parser<Range<P>> {
+        Parser(Range {
+            parser: self.0,
+            from,
+            to: Some(to),
+        })
+    }
+
+    pub fn n_or_more(self, n: usize) -> Parser<Range<P>> {
+        Parser(Range {
+            parser: self.0,
+            from: n,
+            to: None,
+        })
     }
 
     pub fn map<F>(self, f: F) -> Parser<Map<P, F>> {
