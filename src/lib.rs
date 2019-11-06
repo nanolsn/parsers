@@ -1,3 +1,5 @@
+#[macro_use]
+mod impl_tuple;
 mod parse;
 
 mod parsers {

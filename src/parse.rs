@@ -116,22 +116,12 @@ impl<'i> Parse<&'i str> for RangeInclusive<char> {
     }
 }
 
-impl<P1, P2, I, R1, R2, E> Parse<I> for (P1, P2)
-    where
-        P1: Parse<I, Out=R1, Err=E>,
-        P2: Parse<I, Out=R2, Err=E>,
-{
-    type Err = E;
-    type Out = (R1, R2);
-
-    fn parse(&self, input: I) -> Result<((R1, R2), I), E> {
-        self.0.parse(input).and_then(
-            |(r1, rest)| self.1.parse(rest).map(
-                |(r2, rest)| ((r1, r2), rest)
-            )
-        )
-    }
-}
+impl_tuple!(P0, P1; r0, r1);
+impl_tuple!(P0, P1, P2; r0, r1, r2);
+impl_tuple!(P0, P1, P2, P3; r0, r1, r2, r3);
+impl_tuple!(P0, P1, P2, P3, P4; r0, r1, r2, r3, r4);
+impl_tuple!(P0, P1, P2, P3, P4, P5; r0, r1, r2, r3, r4, r5);
+impl_tuple!(P0, P1, P2, P3, P4, P5, P6; r0, r1, r2, r3, r4, r5, r6);
 
 pub struct Map<P, F>(P, F);
 
@@ -223,6 +213,39 @@ mod tests {
         assert_eq!(l.parse("b"), Ok(("b", "")));
         assert_eq!(l.parse("c"), Ok(("c", "")));
         assert_eq!(l.parse("d"), Err(()));
+    }
+
+    #[test]
+    fn parse_tuple() {
+        let t = (parser("0"), "1");
+
+        assert_eq!(t.parse("0123"), Ok((("0", "1"), "23")));
+        assert_eq!(t.parse("0!"), Err(()));
+
+        let t = (parser("0").map(|_| 0), "1", "2");
+
+        assert_eq!(t.parse("0123"), Ok(((0, "1", "2"), "3")));
+        assert_eq!(t.parse("01"), Err(()));
+
+        let t = (parser("0").map(|_| true), "1", "2", "3");
+
+        assert_eq!(t.parse("0123"), Ok(((true, "1", "2", "3"), "")));
+        assert_eq!(t.parse("012"), Err(()));
+
+        let t = (parser("0"), "1", "2", "3", "4");
+
+        assert_eq!(t.parse("01234"), Ok((("0", "1", "2", "3", "4"), "")));
+        assert_eq!(t.parse("0123"), Err(()));
+
+        let t = (parser("0"), "1", "2", "3", "4", "5");
+
+        assert_eq!(t.parse("012345"), Ok((("0", "1", "2", "3", "4", "5"), "")));
+        assert_eq!(t.parse("01234"), Err(()));
+
+        let t = (parser("0"), "1", "2", "3", "4", "5", "6");
+
+        assert_eq!(t.parse("0123456"), Ok((("0", "1", "2", "3", "4", "5", "6"), "")));
+        assert_eq!(t.parse("012345"), Err(()));
     }
 
     #[test]
