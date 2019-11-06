@@ -10,7 +10,9 @@ mod parsers {
     pub mod first;
     pub mod or_parser;
     pub mod repeat;
+    pub mod repeat_concat;
     pub mod range;
+    pub mod range_concat;
     pub mod concat;
 }
 
@@ -21,7 +23,9 @@ pub use parsers::{
     first::First,
     or_parser::OrParser,
     repeat::Repeat,
+    repeat_concat::RepeatConcat,
     range::Range,
+    range_concat::RangeConcat,
     concat::Concat,
 };
 
