@@ -37,14 +37,31 @@ pub use parsers::{
 
 pub use parse::Parse;
 
+#[macro_export]
+macro_rules! match_this {
+    ($p:pat) => {
+        |a| match a {
+            $p => true,
+            _ => false,
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test() {
-        let p = par("hello") & ' ' & "world" & '!';
+        let digit = par(match_this!('0'..='9'));
+        let space = par(' ') ^ ..;
+        let what = space >> (digit ^ (1..));
 
-        assert_eq!(p.parse("hello world!"), Ok(("hello world!", "")));
+        assert_eq!(what.parse("    12@"), Ok(("12", "@")));
+
+        //let float = (what & '.' & (digit ^ ..));
+            //.map(|s: &str| s.parse::<f32>().unwrap());
+
+        //assert_eq!(float.parse_result("  12.45"), Ok("12.45"));
     }
 }

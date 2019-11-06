@@ -42,8 +42,8 @@ mod tests {
         assert_eq!(p.parse("ab"), Ok(("ab", "")));
         assert_eq!(p.parse("abc"), Ok(("ab", "c")));
 
-        let p = par("") & "" & "." & "";
+        let p = par("~") & "#_" & "." & "" & "$";
 
-        assert_eq!(p.parse(".*"), Ok((".", "*")));
+        assert_eq!(p.parse("~#_.$*"), Ok(("~#_.$", "*")));
     }
 }

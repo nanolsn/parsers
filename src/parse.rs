@@ -5,6 +5,10 @@ pub trait Parse<I> {
     type Out;
 
     fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err>;
+
+    fn parse_result(&self, input: I) -> Result<Self::Out, Self::Err> {
+        self.parse(input).map(|(r, _)| r)
+    }
 }
 
 impl<'i> Parse<&'i str> for str {
