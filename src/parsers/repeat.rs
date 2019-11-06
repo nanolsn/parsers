@@ -36,7 +36,7 @@ mod tests {
     use std::iter::FromIterator;
 
     #[test]
-    fn first() {
+    fn repeat() {
         let p = (par('.') * 3).map(|v| String::from_iter(v));
 
         assert_eq!(p.parse("...."), Ok((String::from("..."), ".")));

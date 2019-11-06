@@ -121,7 +121,7 @@ mod tests {
     use crate::par;
 
     #[test]
-    fn range() {
+    fn range_concat() {
         let r = par("!") ^ (1..3);
 
         assert_eq!(r.parse("~"), Err(()));
@@ -138,7 +138,7 @@ mod tests {
     }
 
     #[test]
-    fn range_inclusive() {
+    fn range_inclusive_concat() {
         let r = par("!") ^ (0..=0);
 
         assert_eq!(r.parse("."), Ok(("", ".")));
@@ -153,7 +153,7 @@ mod tests {
     }
 
     #[test]
-    fn range_to() {
+    fn range_to_concat() {
         let r = par("!") ^ ..2;
 
         assert_eq!(r.parse("~"), Ok(("", "~")));
@@ -162,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn range_to_inclusive() {
+    fn range_to_inclusive_concat() {
         let r = par("!") ^ ..=1;
 
         assert_eq!(r.parse("~"), Ok(("", "~")));
@@ -171,7 +171,7 @@ mod tests {
     }
 
     #[test]
-    fn range_from() {
+    fn range_from_concat() {
         let r = par("!") ^ (2..);
 
         assert_eq!(r.parse(""), Err(()));
@@ -182,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn range_full() {
+    fn range_full_concat() {
         let r = par("!") ^ ..;
 
         assert_eq!(r.parse(""), Ok(("", "")));

@@ -39,7 +39,7 @@ mod tests {
     use crate::{par, Parse};
 
     #[test]
-    fn first() {
+    fn repeat_concat() {
         let p = par('.') ^ 3;
 
         assert_eq!(p.parse(String::from("....").as_str()), Ok(("...", ".")));
