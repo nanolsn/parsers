@@ -15,7 +15,7 @@ impl<'i> Parse<&'i str> for Any {
             Some(c) => {
                 let (left, right) = input.split_at(c.len_utf8());
                 Ok((left.to_string(), right))
-            },
+            }
         }
     }
 }

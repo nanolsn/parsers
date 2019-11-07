@@ -22,7 +22,7 @@ impl<'i, P, U> Parse<&'i str> for Until<P, U>
                         Ok((out, r)) => {
                             rest = r;
                             s.push_str(&out);
-                        },
+                        }
                         Err(e) => break Err(e),
                     }
                 }

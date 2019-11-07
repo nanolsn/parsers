@@ -23,7 +23,7 @@ impl<'i, P, U, I> Parse<I> for UntilVec<P, U>
                         Ok((out, r)) => {
                             rest = r;
                             v.push(out);
-                        },
+                        }
                         Err(e) => break Err(e),
                     }
                 }
