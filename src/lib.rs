@@ -11,6 +11,7 @@ mod parsers {
     pub mod or_parser;
     pub mod repeat;
     pub mod range;
+    pub mod range_vec;
     pub mod concat;
     pub mod any;
     pub mod until;
@@ -27,6 +28,7 @@ pub use parsers::{
     concat::Concat,
     any::{Any, ANY},
     until::Until,
+    range_vec::RangeVec,
 };
 
 pub use parse::Parse;
@@ -45,13 +47,35 @@ macro_rules! match_this {
 mod tests {
     use super::*;
 
+    #[derive(Debug, PartialOrd, PartialEq)]
+    enum Var {
+        Number(u32),
+        Float(f32),
+        Word(String),
+    }
+
     #[test]
     fn test() {
-        let digit = par(match_this!('0'..='9'));
         let space = par(' ') * ..;
-        let float = (space >> (digit * (1..)) & '.' & (digit * ..))
-            .map(|s: String| s.as_str().parse::<f32>().unwrap());
+        let word = (par(match_this!('a'..='z')) | match_this!('A'..='Z')) * (1..);
+        let digit = par(match_this!('0'..='9'));
+        let num = digit * (1..);
+        let float = num & '.' & (digit * ..);
 
-        assert_eq!(float.parse_result("  12.45"), Ok(12.45));
+        let var = space >>
+            (float.map(|f: String| Var::Float(f.as_str().parse::<f32>().unwrap()))
+                | num.map(|n: String| Var::Number(n.as_str().parse::<u32>().unwrap()))
+                | word.map(|w| Var::Word(w)));
+
+        let code = var ^ ..;
+
+        assert_eq!(
+            code.parse_result("12.45 42  qwe"),
+            Ok(vec![
+                Var::Float(12.45),
+                Var::Number(42),
+                Var::Word("qwe".to_string()),
+            ])
+        );
     }
 }

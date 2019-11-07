@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, Until};
+use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 
@@ -28,6 +28,22 @@ impl<P> Parser<P> {
 
     pub fn n_or_more(self, n: usize) -> Parser<Range<P>> {
         Parser(Range {
+            parser: self.0,
+            from: n,
+            to: None,
+        })
+    }
+
+    pub fn range_vec(self, from: usize, to: usize) -> Parser<RangeVec<P>> {
+        Parser(RangeVec {
+            parser: self.0,
+            from,
+            to: Some(to),
+        })
+    }
+
+    pub fn n_or_more_vec(self, n: usize) -> Parser<RangeVec<P>> {
+        Parser(RangeVec {
             parser: self.0,
             from: n,
             to: None,
