@@ -32,9 +32,9 @@ mod tests {
 
     #[test]
     fn until() {
-        let u = (par("@") | "#").pred(|s: &String| s.as_str() == "@");
+        let u = (par("@") | "#").pred(|s: &&str| *s == "@");
 
-        assert_eq!(u.parse("@"), Ok(("@".to_string(), "")));
+        assert_eq!(u.parse("@"), Ok(("@", "")));
         assert_eq!(u.parse("#"), Err(()));
     }
 }

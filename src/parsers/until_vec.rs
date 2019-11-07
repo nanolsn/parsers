@@ -41,14 +41,7 @@ mod tests {
     fn until() {
         let u = par(ANY).until_vec("%^");
 
-        assert_eq!(u.parse("@#_%_$%^&"), Ok(((vec![
-            "@".to_string(),
-            "#".to_string(),
-            "_".to_string(),
-            "%".to_string(),
-            "_".to_string(),
-            "$".to_string(),
-        ], "%^".to_string()), "&")));
+        assert_eq!(u.parse("@#_%_$%^&"), Ok(((vec!["@", "#", "_", "%", "_", "$"], "%^"), "&")));
 
         let u = par(ANY).until("!");
 

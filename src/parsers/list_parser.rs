@@ -60,8 +60,7 @@ mod tests {
     #[test]
     fn test_list() {
         let ab = par("a") % 'b' % 'c';
-        let e = vec!["a".to_string(), "b".to_string(), "c".to_string()];
 
-        assert_eq!(ab.parse("abc"), Ok((e, "")));
+        assert_eq!(ab.parse("abc"), Ok((vec!["a", "b", "c"], "")));
     }
 }

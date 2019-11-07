@@ -34,7 +34,7 @@ mod tests {
     fn second() {
         let p = par('a') >> "b";
 
-        assert_eq!(p.parse("ab_"), Ok(("b".to_string(), "_")));
+        assert_eq!(p.parse("ab_"), Ok(("b", "_")));
         assert_eq!(p.parse("wb"), Err(()));
     }
 }

@@ -20,7 +20,7 @@ mod parsers {
 }
 
 pub use parsers::{
-    parser::{par, Parser},
+    parser::{par, stringed_par, Parser},
     list_parser::{ListParser, HeadParser},
     second::Second,
     first::First,

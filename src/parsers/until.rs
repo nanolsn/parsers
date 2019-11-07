@@ -3,9 +3,10 @@ use crate::Parse;
 #[derive(Copy, Clone, Debug)]
 pub struct Until<P, U>(pub(crate) P, pub(crate) U);
 
-impl<'i, P, U> Parse<&'i str> for Until<P, U>
+impl<'i, P, S, U> Parse<&'i str> for Until<P, U>
     where
-        P: Parse<&'i str, Out=String>,
+        P: Parse<&'i str, Out=S>,
+        S: AsRef<str>,
         U: Parse<&'i str>,
 {
     type Err = P::Err;
@@ -21,7 +22,7 @@ impl<'i, P, U> Parse<&'i str> for Until<P, U>
                     match self.0.parse(rest) {
                         Ok((out, r)) => {
                             rest = r;
-                            s.push_str(&out);
+                            s.push_str(out.as_ref());
                         }
                         Err(e) => break Err(e),
                     }
@@ -40,7 +41,7 @@ mod tests {
     fn until() {
         let u = par(ANY).until("%^");
 
-        assert_eq!(u.parse("@#_%_$%^&"), Ok((("@#_%_$".to_string(), "%^".to_string()), "&")));
+        assert_eq!(u.parse("@#_%_$%^&"), Ok((("@#_%_$".to_string(), "%^"), "&")));
 
         let u = par(ANY).until("!");
 

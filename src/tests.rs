@@ -12,7 +12,7 @@ enum Var {
 }
 
 use Var::*;
-use crate::{par, Parse};
+use crate::{par, Parse, stringed_par};
 
 #[test]
 fn test() {
@@ -20,7 +20,7 @@ fn test() {
     let digit = par(pattern!('0'..='9'));
     let letter = par(pattern!('a'..='z')) | pattern!('A'..='Z');
     let letter_or_underscore = letter | '_';
-    let ident = letter_or_underscore & (letter_or_underscore | digit) * ..;
+    let ident = stringed_par(letter_or_underscore) & (letter_or_underscore | digit) * ..;
     let text = (letter | ' ') * (1..);
     let str_literal = par('\'') >> (text << '\'');
     let num = digit * (1..);

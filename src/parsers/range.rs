@@ -8,9 +8,10 @@ pub struct Range<P> {
     pub(crate) to: Option<usize>,
 }
 
-impl<P, I> Parse<I> for Range<P>
+impl<P, I, S> Parse<I> for Range<P>
     where
-        P: Parse<I, Out=String>,
+        P: Parse<I, Out=S>,
+        S: AsRef<str>,
         I: Copy,
 {
     type Err = P::Err;
@@ -29,7 +30,7 @@ impl<P, I> Parse<I> for Range<P>
                 Ok((out, r)) => {
                     count += 1;
                     rest = r;
-                    s.push_str(&out);
+                    s.push_str(out.as_ref());
                 }
                 Err(e) => {
                     break if count >= self.from {
@@ -122,14 +123,14 @@ mod tests {
 
     #[test]
     fn range() {
-        let r = par("a") * (1..3);
+        let r = par("a").map_to_string() * (1..3);
 
         assert_eq!(r.parse("~"), Err(()));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
         assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
         assert_eq!(r.parse("aaa"), Ok(("aa".to_string(), "a")));
 
-        let r = par("a") * (0..3);
+        let r = par("a").map_to_string() * (0..3);
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
@@ -139,12 +140,12 @@ mod tests {
 
     #[test]
     fn range_inclusive() {
-        let r = par("a") * (0..=0);
+        let r = par("a").map_to_string() * (0..=0);
 
         assert_eq!(r.parse("."), Ok(("".to_string(), ".")));
         assert_eq!(r.parse("a"), Ok(("".to_string(), "a")));
 
-        let r = par("a") * (0..=2);
+        let r = par("a").map_to_string() * (0..=2);
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
@@ -154,7 +155,7 @@ mod tests {
 
     #[test]
     fn range_to() {
-        let r = par("a") * ..2;
+        let r = par("a").map_to_string() * ..2;
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
@@ -163,7 +164,7 @@ mod tests {
 
     #[test]
     fn range_to_inclusive() {
-        let r = par("a") * ..=1;
+        let r = par("a").map_to_string() * ..=1;
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
@@ -172,7 +173,7 @@ mod tests {
 
     #[test]
     fn range_from() {
-        let r = par("a") * (2..);
+        let r = par("a").map_to_string() * (2..);
 
         assert_eq!(r.parse(""), Err(()));
         assert_eq!(r.parse("a"), Err(()));
@@ -183,7 +184,7 @@ mod tests {
 
     #[test]
     fn range_full() {
-        let r = par("a") * ..;
+        let r = par("a").map_to_string() * ..;
 
         assert_eq!(r.parse(""), Ok(("".to_string(), "")));
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));

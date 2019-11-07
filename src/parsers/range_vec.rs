@@ -125,16 +125,16 @@ mod tests {
         let r = par("a") ^ (1..3);
 
         assert!(r.parse("~").is_err());
-        assert_eq!(r.parse("a").unwrap(), (vec!["a".to_string()], ""));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string(), "a".to_string()], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a".to_string(), "a".to_string()], "a"));
+        assert_eq!(r.parse("a").unwrap(), (vec!["a"], ""));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a"], "a"));
 
         let r = par("a") ^ (0..3);
 
         assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("a").unwrap(), (vec!["a".to_string()], ""));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string(), "a".to_string()], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a".to_string(), "a".to_string()], "a"));
+        assert_eq!(r.parse("a").unwrap(), (vec!["a"], ""));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a"], "a"));
     }
 
     #[test]
@@ -147,9 +147,9 @@ mod tests {
         let r = par("a") ^ (0..=2);
 
         assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("a").unwrap(), (vec!["a".to_string()], ""));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string(), "a".to_string()], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a".to_string(), "a".to_string()], "a"));
+        assert_eq!(r.parse("a").unwrap(), (vec!["a"], ""));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a"], "a"));
     }
 
     #[test]
@@ -157,8 +157,8 @@ mod tests {
         let r = par("a") ^ ..2;
 
         assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string()], "a"));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a".to_string()], "aa"));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a"], "a"));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a"], "aa"));
     }
 
     #[test]
@@ -166,8 +166,8 @@ mod tests {
         let r = par("a") ^ ..=1;
 
         assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string()], "a"));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a".to_string()], "aa"));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a"], "a"));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a"], "aa"));
     }
 
     #[test]
@@ -176,18 +176,9 @@ mod tests {
 
         assert!(r.parse("").is_err());
         assert!(r.parse("a").is_err());
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string(), "a".to_string()], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec![
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-        ], ""));
-        assert_eq!(r.parse("aaaa").unwrap(), (vec![
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-        ], ""));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a", "a"], ""));
+        assert_eq!(r.parse("aaaa").unwrap(), (vec!["a", "a", "a", "a"], ""));
     }
 
     #[test]
@@ -196,19 +187,10 @@ mod tests {
 
         assert_eq!(r.parse("").unwrap(), (vec![], ""));
         assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("a~").unwrap(), (vec!["a".to_string()], "~"));
-        assert_eq!(r.parse("a").unwrap(), (vec!["a".to_string()], ""));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a".to_string(), "a".to_string()], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec![
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-        ], ""));
-        assert_eq!(r.parse("aaaa").unwrap(), (vec![
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-            "a".to_string(),
-        ], ""));
+        assert_eq!(r.parse("a~").unwrap(), (vec!["a"], "~"));
+        assert_eq!(r.parse("a").unwrap(), (vec!["a"], ""));
+        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
+        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a", "a"], ""));
+        assert_eq!(r.parse("aaaa").unwrap(), (vec!["a", "a", "a", "a"], ""));
     }
 }

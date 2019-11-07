@@ -7,15 +7,12 @@ pub struct Any;
 
 impl<'i> Parse<&'i str> for Any {
     type Err = ();
-    type Out = String;
+    type Out = &'i str;
 
     fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
         match input.chars().next() {
             None => Err(()),
-            Some(c) => {
-                let (left, right) = input.split_at(c.len_utf8());
-                Ok((left.to_string(), right))
-            }
+            Some(c) => Ok(input.split_at(c.len_utf8())),
         }
     }
 }
@@ -26,7 +23,7 @@ mod tests {
 
     #[test]
     fn any() {
-        assert_eq!(ANY.parse("%^&"), Ok(("%".to_string(), "^&")));
+        assert_eq!(ANY.parse("%^&"), Ok(("%", "^&")));
         assert_eq!(ANY.parse(""), Err(()));
     }
 }

@@ -80,6 +80,15 @@ impl<P> Parser<P> {
     }
 }
 
+impl<'i, P> Parser<P>
+    where
+        P: Parse<&'i str>,
+{
+    pub fn map_to_string(self) -> Parser<Map<P, impl Fn(&'i str) -> String>> {
+        Parser(Map(self.0, |s: &str| s.to_string()))
+    }
+}
+
 impl<P, I> Parse<I> for Parser<P>
     where
         P: Parse<I>,
@@ -99,6 +108,13 @@ pub fn par<P, I>(parse: P) -> Parser<P>
     Parser(parse)
 }
 
+pub fn stringed_par<'i, P>(parse: P) -> Parser<Map<P, impl Fn(&'i str) -> String>>
+    where
+        P: Parse<&'i str>,
+{
+    Parser(parse).map_to_string()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -106,6 +122,19 @@ mod tests {
     #[test]
     fn parser() {
         let p = super::par("a");
+
+        assert_eq!(p.parse("a b"), Ok(("a", " b")));
+        assert_eq!(p.parse("b"), Err(()));
+    }
+
+    #[test]
+    fn parser_map_to_string() {
+        let p = super::par("a").map_to_string();
+
+        assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
+        assert_eq!(p.parse("b"), Err(()));
+
+        let p = super::stringed_par("a");
 
         assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
         assert_eq!(p.parse("b"), Err(()));
