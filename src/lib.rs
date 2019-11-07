@@ -44,15 +44,12 @@ macro_rules! match_this {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::iter::FromIterator;
 
     #[test]
     fn test() {
         let digit = par(match_this!('0'..='9'));
-        let space = (par(' ') * ..).map(|v| String::from_iter(v));
-        let one_or_more = (digit * (1..)).map(|v| String::from_iter(v));
-        let zero_or_more = (digit * ..).map(|v| String::from_iter(v));
-        let float = (space >> one_or_more & '.' & zero_or_more)
+        let space = par(' ') * ..;
+        let float = (space >> (digit * (1..)) & '.' & (digit * ..))
             .map(|s: String| s.as_str().parse::<f32>().unwrap());
 
         assert_eq!(float.parse_result("  12.45"), Ok(12.45));

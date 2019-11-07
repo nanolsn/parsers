@@ -6,19 +6,25 @@ pub struct Repeat<P>(pub(crate) P, pub(crate) usize);
 
 impl<P, I> Parse<I> for Repeat<P>
     where
-        P: Parse<I>,
+        P: Parse<I, Out=String>,
 {
     type Err = P::Err;
-    type Out = Vec<P::Out>;
+    type Out = String;
 
     fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
-        let mut v = Vec::with_capacity(self.1);
-        for _ in 0..self.1 {
+        if self.1 == 0 {
+            return Ok((String::new(), rest));
+        }
+
+        let (mut s, r) = self.0.parse(rest)?;
+        rest = r;
+
+        for _ in 1..self.1 {
             let (out, r) = self.0.parse(rest)?;
             rest = r;
-            v.push(out);
+            s.push_str(&out);
         }
-        Ok((v, rest))
+        Ok((s, rest))
     }
 }
 
@@ -33,11 +39,10 @@ impl<P> Mul<usize> for Parser<P> {
 #[cfg(test)]
 mod tests {
     use crate::{par, Parse};
-    use std::iter::FromIterator;
 
     #[test]
     fn repeat() {
-        let p = (par('.') * 3).map(|v| String::from_iter(v));
+        let p = par('.') * 3;
 
         assert_eq!(p.parse("...."), Ok(("...".to_string(), ".")));
         assert_eq!(p.parse("..."), Ok(("...".to_string(), "")));
@@ -45,6 +50,6 @@ mod tests {
 
         let p = par('#') * 0;
 
-        assert_eq!(p.parse("@"), Ok((vec![], "@")));
+        assert_eq!(p.parse("@"), Ok((String::new(), "@")));
     }
 }

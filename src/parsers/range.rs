@@ -10,34 +10,30 @@ pub struct Range<P> {
 
 impl<P, I> Parse<I> for Range<P>
     where
-        P: Parse<I>,
+        P: Parse<I, Out=String>,
         I: Copy,
 {
     type Err = P::Err;
-    type Out = Vec<P::Out>;
+    type Out = String;
 
     fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
         let mut count = 0;
-        let mut v = Vec::with_capacity(if let Some(to) = self.to {
-            to
-        } else {
-            self.from
-        });
+        let mut s = String::new();
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
-                break Ok((v, rest));
+                break Ok((s, rest));
             }
 
             match self.parser.parse(rest) {
                 Ok((out, r)) => {
                     count += 1;
                     rest = r;
-                    v.push(out);
+                    s.push_str(&out);
                 }
                 Err(e) => {
                     break if count >= self.from {
-                        Ok((v, rest))
+                        Ok((s, rest))
                     } else {
                         Err(e)
                     };
@@ -124,58 +120,54 @@ mod tests {
     use super::*;
     use crate::par;
 
-    macro_rules! a {
-        () => ("a".to_string());
-    }
-
     #[test]
     fn range() {
         let r = par("a") * (1..3);
 
         assert_eq!(r.parse("~"), Err(()));
-        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
+        assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
+        assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
+        assert_eq!(r.parse("aaa"), Ok(("aa".to_string(), "a")));
 
         let r = par("a") * (0..3);
 
-        assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
+        assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
+        assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
+        assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
+        assert_eq!(r.parse("aaa"), Ok(("aa".to_string(), "a")));
     }
 
     #[test]
     fn range_inclusive() {
         let r = par("a") * (0..=0);
 
-        assert_eq!(r.parse("."), Ok((vec![], ".")));
-        assert_eq!(r.parse("a"), Ok((vec![], "a")));
+        assert_eq!(r.parse("."), Ok(("".to_string(), ".")));
+        assert_eq!(r.parse("a"), Ok(("".to_string(), "a")));
 
         let r = par("a") * (0..=2);
 
-        assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
+        assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
+        assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
+        assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
+        assert_eq!(r.parse("aaa"), Ok(("aa".to_string(), "a")));
     }
 
     #[test]
     fn range_to() {
         let r = par("a") * ..2;
 
-        assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!()], "a")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!()], "aa")));
+        assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
+        assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
+        assert_eq!(r.parse("aaa"), Ok(("a".to_string(), "aa")));
     }
 
     #[test]
     fn range_to_inclusive() {
         let r = par("a") * ..=1;
 
-        assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!()], "a")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!()], "aa")));
+        assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
+        assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
+        assert_eq!(r.parse("aaa"), Ok(("a".to_string(), "aa")));
     }
 
     #[test]
@@ -184,21 +176,21 @@ mod tests {
 
         assert_eq!(r.parse(""), Err(()));
         assert_eq!(r.parse("a"), Err(()));
-        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!(), a!()], "")));
-        assert_eq!(r.parse("aaaa"), Ok((vec![a!(), a!(), a!(), a!()], "")));
+        assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
+        assert_eq!(r.parse("aaa"), Ok(("aaa".to_string(), "")));
+        assert_eq!(r.parse("aaaa"), Ok(("aaaa".to_string(), "")));
     }
 
     #[test]
     fn range_full() {
         let r = par("a") * ..;
 
-        assert_eq!(r.parse(""), Ok((vec![], "")));
-        assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("a~"), Ok((vec![a!()], "~")));
-        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
-        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
-        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!(), a!()], "")));
-        assert_eq!(r.parse("aaaa"), Ok((vec![a!(), a!(), a!(), a!()], "")));
+        assert_eq!(r.parse(""), Ok(("".to_string(), "")));
+        assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
+        assert_eq!(r.parse("a~"), Ok(("a".to_string(), "~")));
+        assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
+        assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
+        assert_eq!(r.parse("aaa"), Ok(("aaa".to_string(), "")));
+        assert_eq!(r.parse("aaaa"), Ok(("aaaa".to_string(), "")));
     }
 }

@@ -1,5 +1,5 @@
 use crate::{Parse, Parser};
-use std::ops::{Shr};
+use std::ops::Shr;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Second<L, R>(pub(crate) L, pub(crate) R);
