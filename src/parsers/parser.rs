@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, RepeatConcat, RangeConcat, Until, UntilConcat};
+use crate::{Parse, Repeat, Second, OrParser, Until};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 
@@ -18,10 +18,6 @@ impl<P> Parser<P> {
         Parser(Repeat(self.0, times))
     }
 
-    pub fn repeat_concat(self, times: usize) -> Parser<RepeatConcat<P>> {
-        Parser(RepeatConcat(self.0, times))
-    }
-
     pub fn range(self, from: usize, to: usize) -> Parser<Range<P>> {
         Parser(Range {
             parser: self.0,
@@ -38,28 +34,8 @@ impl<P> Parser<P> {
         })
     }
 
-    pub fn range_concat(self, from: usize, to: usize) -> Parser<RangeConcat<P>> {
-        Parser(RangeConcat {
-            parser: self.0,
-            from,
-            to: Some(to),
-        })
-    }
-
-    pub fn n_or_more_concat(self, n: usize) -> Parser<RangeConcat<P>> {
-        Parser(RangeConcat {
-            parser: self.0,
-            from: n,
-            to: None,
-        })
-    }
-
     pub fn until<U>(self, parser: U) -> Parser<Until<P, U>> {
         Parser(Until(self.0, parser))
-    }
-
-    pub fn until_concat<U>(self, parser: U) -> Parser<UntilConcat<P, U>> {
-        Parser(UntilConcat(self.0, parser))
     }
 
     pub fn map<F>(self, f: F) -> Parser<Map<P, F>> {
@@ -98,7 +74,7 @@ mod tests {
     fn parser() {
         let p = super::par("a");
 
-        assert_eq!(p.parse("a b"), Ok(("a", " b")));
+        assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
         assert_eq!(p.parse("b"), Err(()));
     }
 }

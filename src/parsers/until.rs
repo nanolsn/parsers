@@ -36,7 +36,7 @@ mod tests {
     fn until() {
         let u = par(ANY).until("%^");
 
-        assert_eq!(u.parse("@#_%_$%^&"), Ok(("%^", "&")));
+        assert_eq!(u.parse("@#_%_$%^&"), Ok(("%^".to_string(), "&")));
 
         let u = par(ANY).until("!");
 

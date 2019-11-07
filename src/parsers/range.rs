@@ -26,7 +26,7 @@ impl<P, I> Parse<I> for Range<P>
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
-                break Ok((v, rest))
+                break Ok((v, rest));
             }
 
             match self.parser.parse(rest) {
@@ -40,7 +40,7 @@ impl<P, I> Parse<I> for Range<P>
                         Ok((v, rest))
                     } else {
                         Err(e)
-                    }
+                    };
                 }
             }
         }
@@ -124,77 +124,81 @@ mod tests {
     use super::*;
     use crate::par;
 
+    macro_rules! a {
+        () => ("a".to_string());
+    }
+
     #[test]
     fn range() {
-        let r = par("!") * (1..3);
+        let r = par("a") * (1..3);
 
         assert_eq!(r.parse("~"), Err(()));
-        assert_eq!(r.parse("!"), Ok((vec!["!"], "")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!", "!"], "")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!", "!"], "!")));
+        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
 
-        let r = par("!") * (0..3);
+        let r = par("a") * (0..3);
 
         assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("!"), Ok((vec!["!"], "")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!", "!"], "")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!", "!"], "!")));
+        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
     }
 
     #[test]
     fn range_inclusive() {
-        let r = par("!") * (0..=0);
+        let r = par("a") * (0..=0);
 
         assert_eq!(r.parse("."), Ok((vec![], ".")));
-        assert_eq!(r.parse("!"), Ok((vec![], "!")));
+        assert_eq!(r.parse("a"), Ok((vec![], "a")));
 
-        let r = par("!") * (0..=2);
+        let r = par("a") * (0..=2);
 
         assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("!"), Ok((vec!["!"], "")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!", "!"], "")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!", "!"], "!")));
+        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!()], "a")));
     }
 
     #[test]
     fn range_to() {
-        let r = par("!") * ..2;
+        let r = par("a") * ..2;
 
         assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!"], "!")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!"], "!!")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!()], "a")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!()], "aa")));
     }
 
     #[test]
     fn range_to_inclusive() {
-        let r = par("!") * ..=1;
+        let r = par("a") * ..=1;
 
         assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!"], "!")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!"], "!!")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!()], "a")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!()], "aa")));
     }
 
     #[test]
     fn range_from() {
-        let r = par("!") * (2..);
+        let r = par("a") * (2..);
 
         assert_eq!(r.parse(""), Err(()));
-        assert_eq!(r.parse("!"), Err(()));
-        assert_eq!(r.parse("!!"), Ok((vec!["!", "!"], "")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!", "!", "!"], "")));
-        assert_eq!(r.parse("!!!!"), Ok((vec!["!", "!", "!", "!"], "")));
+        assert_eq!(r.parse("a"), Err(()));
+        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!(), a!()], "")));
+        assert_eq!(r.parse("aaaa"), Ok((vec![a!(), a!(), a!(), a!()], "")));
     }
 
     #[test]
     fn range_full() {
-        let r = par("!") * ..;
+        let r = par("a") * ..;
 
         assert_eq!(r.parse(""), Ok((vec![], "")));
         assert_eq!(r.parse("~"), Ok((vec![], "~")));
-        assert_eq!(r.parse("!~"), Ok((vec!["!"], "~")));
-        assert_eq!(r.parse("!"), Ok((vec!["!"], "")));
-        assert_eq!(r.parse("!!"), Ok((vec!["!", "!"], "")));
-        assert_eq!(r.parse("!!!"), Ok((vec!["!", "!", "!"], "")));
-        assert_eq!(r.parse("!!!!"), Ok((vec!["!", "!", "!", "!"], "")));
+        assert_eq!(r.parse("a~"), Ok((vec![a!()], "~")));
+        assert_eq!(r.parse("a"), Ok((vec![a!()], "")));
+        assert_eq!(r.parse("aa"), Ok((vec![a!(), a!()], "")));
+        assert_eq!(r.parse("aaa"), Ok((vec![a!(), a!(), a!()], "")));
+        assert_eq!(r.parse("aaaa"), Ok((vec![a!(), a!(), a!(), a!()], "")));
     }
 }

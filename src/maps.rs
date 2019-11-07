@@ -46,7 +46,7 @@ mod tests {
     fn parse_map_err() {
         let l = par("a").map_err(|_| 1);
 
-        assert_eq!(l.parse("ab"), Ok(("a", "b")));
+        assert_eq!(l.parse("ab"), Ok(("a".to_string(), "b")));
         assert_eq!(l.parse("c"), Err(1));
     }
 }

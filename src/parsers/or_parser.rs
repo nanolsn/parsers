@@ -35,13 +35,13 @@ mod tests {
     fn or_parser() {
         let p = par("a") | "b" | "c";
 
-        assert_eq!(p.parse("a_"), Ok(("a", "_")));
-        assert_eq!(p.parse("b_"), Ok(("b", "_")));
-        assert_eq!(p.parse("c_"), Ok(("c", "_")));
+        assert_eq!(p.parse("a_"), Ok(("a".to_string(), "_")));
+        assert_eq!(p.parse("b_"), Ok(("b".to_string(), "_")));
+        assert_eq!(p.parse("c_"), Ok(("c".to_string(), "_")));
         assert_eq!(p.parse("_"), Err(()));
 
         let p = par("") | "a";
 
-        assert_eq!(p.parse("a"), Ok(("", "a")));
+        assert_eq!(p.parse("a"), Ok(("".to_string(), "a")));
     }
 }

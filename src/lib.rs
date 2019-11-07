@@ -10,13 +10,10 @@ mod parsers {
     pub mod first;
     pub mod or_parser;
     pub mod repeat;
-    pub mod repeat_concat;
     pub mod range;
-    pub mod range_concat;
     pub mod concat;
     pub mod any;
     pub mod until;
-    pub mod until_concat;
 }
 
 pub use parsers::{
@@ -26,13 +23,10 @@ pub use parsers::{
     first::First,
     or_parser::OrParser,
     repeat::Repeat,
-    repeat_concat::RepeatConcat,
     range::Range,
-    range_concat::RangeConcat,
     concat::Concat,
     any::{Any, ANY},
     until::Until,
-    until_concat::UntilConcat,
 };
 
 pub use parse::Parse;
@@ -50,18 +44,17 @@ macro_rules! match_this {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::iter::FromIterator;
 
     #[test]
     fn test() {
         let digit = par(match_this!('0'..='9'));
-        let space = par(' ') ^ ..;
-        let what = space >> (digit ^ (1..));
+        let space = (par(' ') * ..).map(|v| String::from_iter(v));
+        let one_or_more = (digit * (1..)).map(|v| String::from_iter(v));
+        let zero_or_more = (digit * ..).map(|v| String::from_iter(v));
+        let float = (space >> one_or_more & '.' & zero_or_more)
+            .map(|s: String| s.as_str().parse::<f32>().unwrap());
 
-        assert_eq!(what.parse("    12@"), Ok(("12", "@")));
-
-        //let float = (what & '.' & (digit ^ ..));
-            //.map(|s: &str| s.parse::<f32>().unwrap());
-
-        //assert_eq!(float.parse_result("  12.45"), Ok("12.45"));
+        assert_eq!(float.parse_result("  12.45"), Ok(12.45));
     }
 }

@@ -39,8 +39,8 @@ mod tests {
     fn repeat() {
         let p = (par('.') * 3).map(|v| String::from_iter(v));
 
-        assert_eq!(p.parse("...."), Ok((String::from("..."), ".")));
-        assert_eq!(p.parse("..."), Ok((String::from("..."), "")));
+        assert_eq!(p.parse("...."), Ok(("...".to_string(), ".")));
+        assert_eq!(p.parse("..."), Ok(("...".to_string(), "")));
         assert_eq!(p.parse(".."), Err(()));
 
         let p = par('#') * 0;
