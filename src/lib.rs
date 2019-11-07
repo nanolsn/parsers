@@ -15,6 +15,7 @@ mod parsers {
     pub mod concat;
     pub mod any;
     pub mod until;
+    pub mod until_vec;
 }
 
 pub use parsers::{
@@ -25,16 +26,17 @@ pub use parsers::{
     or_parser::OrParser,
     repeat::Repeat,
     range::Range,
+    range_vec::RangeVec,
     concat::Concat,
     any::{Any, ANY},
     until::Until,
-    range_vec::RangeVec,
+    until_vec::UntilVec,
 };
 
 pub use parse::Parse;
 
 #[macro_export]
-macro_rules! match_this {
+macro_rules! pattern {
     ($p:pat) => {
         |a| match a {
             $p => true,
@@ -54,27 +56,28 @@ mod tests {
         Word(String),
     }
 
+    use Var::*;
+
     #[test]
     fn test() {
         let space = par(' ') * ..;
-        let word = (par(match_this!('a'..='z')) | match_this!('A'..='Z')) * (1..);
-        let digit = par(match_this!('0'..='9'));
+        let word = (par(pattern!('a'..='z')) | pattern!('A'..='Z')) * (1..);
+        let digit = par(pattern!('0'..='9'));
         let num = digit * (1..);
         let float = num & '.' & (digit * ..);
 
-        let var = space >>
-            (float.map(|f: String| Var::Float(f.as_str().parse::<f32>().unwrap()))
-                | num.map(|n: String| Var::Number(n.as_str().parse::<u32>().unwrap()))
-                | word.map(|w| Var::Word(w)));
+        let var = float.map(|f: String| Float(f.as_str().parse::<f32>().unwrap()))
+            | num.map(|n: String| Number(n.as_str().parse::<u32>().unwrap()))
+            | word.map(|w| Word(w));
 
-        let code = var ^ ..;
+        let code = (space >> var) ^ ..;
 
         assert_eq!(
-            code.parse_result("12.45 42  qwe"),
+            code.parse_result("  12. 42qwe"),
             Ok(vec![
-                Var::Float(12.45),
-                Var::Number(42),
-                Var::Word("qwe".to_string()),
+                Float(12.0),
+                Number(42),
+                Word("qwe".to_string()),
             ])
         );
     }

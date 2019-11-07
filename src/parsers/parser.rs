@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec};
+use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 
@@ -52,6 +52,10 @@ impl<P> Parser<P> {
 
     pub fn until<U>(self, parser: U) -> Parser<Until<P, U>> {
         Parser(Until(self.0, parser))
+    }
+
+    pub fn until_vec<U>(self, parser: U) -> Parser<UntilVec<P, U>> {
+        Parser(UntilVec(self.0, parser))
     }
 
     pub fn map<F>(self, f: F) -> Parser<Map<P, F>> {

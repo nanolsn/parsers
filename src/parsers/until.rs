@@ -3,22 +3,26 @@ use crate::Parse;
 #[derive(Copy, Clone, Debug)]
 pub struct Until<P, U>(pub(crate) P, pub(crate) U);
 
-impl<P, U, I> Parse<I> for Until<P, U>
+impl<'i, P, U> Parse<&'i str> for Until<P, U>
     where
-        P: Parse<I>,
-        U: Parse<I>,
-        I: Copy,
+        P: Parse<&'i str, Out=String>,
+        U: Parse<&'i str>,
 {
     type Err = P::Err;
-    type Out = U::Out;
+    type Out = (String, U::Out);
 
-    fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, mut rest: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+        let mut s = String::new();
+
         loop {
             match self.1.parse(rest) {
-                Ok(res) => break Ok(res),
+                Ok((u, rest)) => break Ok(((s, u), rest)),
                 Err(_) => {
                     match self.0.parse(rest) {
-                        Ok((_, r)) => rest = r,
+                        Ok((out, r)) => {
+                            rest = r;
+                            s.push_str(&out);
+                        },
                         Err(e) => break Err(e),
                     }
                 }
@@ -36,7 +40,7 @@ mod tests {
     fn until() {
         let u = par(ANY).until("%^");
 
-        assert_eq!(u.parse("@#_%_$%^&"), Ok(("%^".to_string(), "&")));
+        assert_eq!(u.parse("@#_%_$%^&"), Ok((("@#_%_$".to_string(), "%^".to_string()), "&")));
 
         let u = par(ANY).until("!");
 

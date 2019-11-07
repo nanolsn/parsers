@@ -106,6 +106,47 @@ impl<'i> Parse<&'i str> for RangeInclusive<char> {
     }
 }
 
+impl<'i, T> Parse<&'i [T]> for [T]
+    where
+        T: PartialEq + Clone,
+{
+    type Err = ();
+    type Out = Vec<T>;
+
+    fn parse<'s>(&'s self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+        if input.starts_with(self) {
+            let (left, right) = input.split_at(self.len());
+            Ok((left.to_vec(), right))
+        } else {
+            Err(())
+        }
+    }
+}
+
+impl<'i, T> Parse<&'i [T]> for &[T]
+    where
+        T: PartialEq + Clone,
+{
+    type Err = ();
+    type Out = Vec<T>;
+
+    fn parse(&self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+        self.as_ref().parse(input)
+    }
+}
+
+impl<'i, T> Parse<&'i [T]> for Vec<T>
+    where
+        T: PartialEq + Clone,
+{
+    type Err = ();
+    type Out = Vec<T>;
+
+    fn parse(&self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+        self.as_slice().parse(input)
+    }
+}
+
 impl_tuple!(P0, P1; r0, r1);
 impl_tuple!(P0, P1, P2; r0, r1, r2);
 impl_tuple!(P0, P1, P2, P3; r0, r1, r2, r3);
@@ -173,6 +214,27 @@ mod tests {
         assert_eq!(l.parse("b"), Ok(("b".to_string(), "")));
         assert_eq!(l.parse("c"), Ok(("c".to_string(), "")));
         assert_eq!(l.parse("d"), Err(()));
+    }
+
+    #[test]
+    fn parse_slice() {
+        let t = [1, 2];
+
+        assert_eq!(t.as_ref().parse(&[1, 2, 3]), Ok((vec![1, 2], [3].as_ref())));
+        assert_eq!(t.as_ref().parse(&[5]), Err(()));
+
+        let empty = [];
+
+        assert_eq!(empty.as_ref().parse(&[1]), Ok((vec![], [1].as_ref())));
+        assert_eq!(empty.as_ref().parse(&[]), Ok((vec![], [].as_ref())));
+    }
+
+    #[test]
+    fn parse_vec() {
+        let s = vec![0];
+
+        assert_eq!(s.parse(&[0, 4, 5]), Ok((vec![0], [4, 5].as_ref())));
+        assert_eq!(s.parse(&[5]), Err(()));
     }
 
     #[test]
