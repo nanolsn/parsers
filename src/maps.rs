@@ -1,5 +1,6 @@
 use crate::Parse;
 
+#[derive(Copy, Clone, Debug)]
 pub struct Map<P, F>(pub(crate) P, pub(crate) F);
 
 impl<P, F, A, B, I> Parse<I> for Map<P, F>
@@ -15,6 +16,7 @@ impl<P, F, A, B, I> Parse<I> for Map<P, F>
     }
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct MapErr<P, F>(pub(crate) P, pub(crate) F);
 
 impl<P, F, E, G, I> Parse<I> for MapErr<P, F>
