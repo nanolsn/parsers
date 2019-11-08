@@ -213,14 +213,15 @@ mod tests {
     #[test]
     fn range_full() {
         let r = par("a") ^ ..;
+        let v: Vec<&str> = vec![];
 
-        assert_eq!(r.parse("").unwrap(), (vec![], ""));
-        assert_eq!(r.parse("~").unwrap(), (vec![], "~"));
-        assert_eq!(r.parse("a~").unwrap(), (vec!["a"], "~"));
-        assert_eq!(r.parse("a").unwrap(), (vec!["a"], ""));
-        assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
-        assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a", "a"], ""));
-        assert_eq!(r.parse("aaaa").unwrap(), (vec!["a", "a", "a", "a"], ""));
+        assert_eq!(r.parse_unwrap(""), v);
+        assert_eq!(r.parse_unwrap("~"), v);
+        assert_eq!(r.parse_unwrap("a~"), vec!["a"]);
+        assert_eq!(r.parse_unwrap("a"), vec!["a"]);
+        assert_eq!(r.parse_unwrap("aa"), vec!["a", "a"]);
+        assert_eq!(r.parse_unwrap("aaa"), vec!["a", "a", "a"]);
+        assert_eq!(r.parse_unwrap("aaaa"), vec!["a", "a", "a", "a"]);
     }
 
     #[test]
@@ -228,8 +229,8 @@ mod tests {
         let r = par("a").map(|_| 1) ^ ..;
         let r = r.reduce(|a, b| a + b);
 
-        assert_eq!(r.parse("a").unwrap(), (1, ""));
-        assert_eq!(r.parse("aa").unwrap(), (2, ""));
-        assert_eq!(r.parse("aaa").unwrap(), (3, ""));
+        assert_eq!(r.parse_unwrap("a"), 1);
+        assert_eq!(r.parse_unwrap("aa"), 2);
+        assert_eq!(r.parse_unwrap("aaa"), 3);
     }
 }

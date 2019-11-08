@@ -9,6 +9,10 @@ pub trait Parse<I> {
     fn parse_result(&self, input: I) -> Result<Self::Out, Self::Err> {
         self.parse(input).map(|(r, _)| r)
     }
+
+    fn parse_unwrap(&self, input: I) -> Self::Out {
+        self.parse(input).ok().unwrap().0
+    }
 }
 
 impl<'i> Parse<&'i str> for str {
@@ -55,9 +59,9 @@ impl<'i> Parse<&'i str> for char {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct PredWrapper<F>(pub(crate) F);
+pub struct PredFn<F>(pub(crate) F);
 
-impl<'i, F> Parse<&'i str> for PredWrapper<F>
+impl<'i, F> Parse<&'i str> for PredFn<F>
     where
         F: Fn(char) -> bool,
 {
@@ -70,6 +74,13 @@ impl<'i, F> Parse<&'i str> for PredWrapper<F>
             _ => Err(()),
         }
     }
+}
+
+pub fn pred_fn<F>(f: F) -> PredFn<F>
+    where
+        F: Fn(char) -> bool,
+{
+    PredFn(f)
 }
 
 impl<F, I, O, E> Parse<I> for F
@@ -191,7 +202,7 @@ mod tests {
 
     #[test]
     fn parse_fn() {
-        let f = PredWrapper(|c| match c {
+        let f = pred_fn(|c| match c {
             '0' => true,
             _ => false,
         });

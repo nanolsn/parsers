@@ -12,13 +12,13 @@ enum Var {
 }
 
 use Var::*;
-use crate::{par, Parse, stringed_par, PredWrapper};
+use crate::{par, Parse, stringed_par, pred_fn};
 
 #[test]
 fn test() {
     let space = par(' ') * ..;
-    let digit = par(pattern!('0'..='9'));
-    let letter = par(pattern!('a'..='z')) | pattern!('A'..='Z');
+    let digit = par(pred_fn(pattern!('0'..='9')));
+    let letter = par(pred_fn(pattern!('a'..='z'))) | pred_fn(pattern!('A'..='Z'));
     let ident = stringed_par(letter | '_') & (letter | '_' | digit) * ..;
     let text = (letter | ' ') * (1..);
     let str_literal = par('\'') >> text << '\'';

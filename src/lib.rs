@@ -2,6 +2,7 @@
 mod impl_tuple;
 mod parse;
 mod maps;
+mod template;
 
 mod parsers {
     pub mod parser;
@@ -36,15 +37,20 @@ pub use parsers::{
 };
 
 pub use parse::Parse;
-pub use parse::PredWrapper;
+pub use parse::{PredFn, pred_fn};
+pub use template::{
+    Template,
+    template,
+    IncludedTemplate,
+};
 
 #[macro_export]
 macro_rules! pattern {
     ($p:pat) => {
-        PredWrapper(|a| match a {
+        |a| match a {
             $p => true,
             _ => false,
-        })
+        }
     };
 }
 
