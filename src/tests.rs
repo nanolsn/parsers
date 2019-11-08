@@ -12,19 +12,18 @@ enum Var {
 }
 
 use Var::*;
-use crate::{par, Parse, stringed_par};
+use crate::{par, Parse, stringed_par, PredWrapper};
 
 #[test]
 fn test() {
     let space = par(' ') * ..;
     let digit = par(pattern!('0'..='9'));
     let letter = par(pattern!('a'..='z')) | pattern!('A'..='Z');
-    let letter_or_underscore = letter | '_';
-    let ident = stringed_par(letter_or_underscore) & (letter_or_underscore | digit) * ..;
+    let ident = stringed_par(letter | '_') & (letter | '_' | digit) * ..;
     let text = (letter | ' ') * (1..);
-    let str_literal = par('\'') >> (text << '\'');
+    let str_literal = par('\'') >> text << '\'';
     let num = digit * (1..);
-    let float = num & '.' & (digit * ..);
+    let float = num & '.' & digit * ..;
 
     let to_str = str_literal.map(|s| Str(s));
     let to_ident = ident.map(|i| Ident(i));
@@ -32,7 +31,10 @@ fn test() {
     let to_num = num.map(|n: String| Number(n.as_str().parse().unwrap()));
     let float_or_num = to_float | to_num;
 
-    let mul = par((float_or_num, space >> '*' >> space >> float_or_num));
+    let mul_rhs = space >> '*' >> space >> float_or_num;
+    let mul_rhs = (mul_rhs ^ (1..)).reduce(|a, b| Mul(Box::new(a), Box::new(b)));
+
+    let mul = par((float_or_num, mul_rhs));
     let to_mul = mul.map(|(l, r)| Mul(Box::new(l), Box::new(r)));
 
     let mul_or_num = to_mul | float_or_num;
@@ -41,12 +43,12 @@ fn test() {
 
     let to_var = to_sum | to_mul | to_float | to_num | to_str | to_ident;
 
-    let statement = space >> (to_var << space << ';' << space);
+    let statement = space >> to_var << space << ';' << space;
     let to_statement = statement.map(|v| Statement(Box::new(v)));
     let code = to_statement ^ ..;
 
     assert_eq!(
-        code.parse_result("_hello2;  12. *  42 + 123*23 ;'text string'; "),
+        code.parse_result("_hello2;  12. *  42 *23 + 123*23 ;'text string'; "),
         Ok(vec![
             Statement(Box::new(
                 Ident("_hello2".to_string()),
@@ -55,8 +57,11 @@ fn test() {
                 Sum(
                     Box::new(Mul(
                         Box::new(Float(12.0)),
-                        Box::new(Number(42))),
-                    ),
+                        Box::new(Mul(
+                            Box::new(Number(42)),
+                            Box::new(Number(23)),
+                        )),
+                    )),
                     Box::new(Mul(
                         Box::new(Number(123)),
                         Box::new(Number(23))

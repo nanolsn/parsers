@@ -123,14 +123,14 @@ mod tests {
 
     #[test]
     fn range() {
-        let r = par("a").map_to_string() * (1..3);
+        let r = par("a").into_stringed_par() * (1..3);
 
         assert_eq!(r.parse("~"), Err(()));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
         assert_eq!(r.parse("aa"), Ok(("aa".to_string(), "")));
         assert_eq!(r.parse("aaa"), Ok(("aa".to_string(), "a")));
 
-        let r = par("a").map_to_string() * (0..3);
+        let r = par("a").into_stringed_par() * (0..3);
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
@@ -140,12 +140,12 @@ mod tests {
 
     #[test]
     fn range_inclusive() {
-        let r = par("a").map_to_string() * (0..=0);
+        let r = par("a").into_stringed_par() * (0..=0);
 
         assert_eq!(r.parse("."), Ok(("".to_string(), ".")));
         assert_eq!(r.parse("a"), Ok(("".to_string(), "a")));
 
-        let r = par("a").map_to_string() * (0..=2);
+        let r = par("a").into_stringed_par() * (0..=2);
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("a"), Ok(("a".to_string(), "")));
@@ -155,7 +155,7 @@ mod tests {
 
     #[test]
     fn range_to() {
-        let r = par("a").map_to_string() * ..2;
+        let r = par("a").into_stringed_par() * ..2;
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
@@ -164,7 +164,7 @@ mod tests {
 
     #[test]
     fn range_to_inclusive() {
-        let r = par("a").map_to_string() * ..=1;
+        let r = par("a").into_stringed_par() * ..=1;
 
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));
         assert_eq!(r.parse("aa"), Ok(("a".to_string(), "a")));
@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn range_from() {
-        let r = par("a").map_to_string() * (2..);
+        let r = par("a").into_stringed_par() * (2..);
 
         assert_eq!(r.parse(""), Err(()));
         assert_eq!(r.parse("a"), Err(()));
@@ -184,7 +184,7 @@ mod tests {
 
     #[test]
     fn range_full() {
-        let r = par("a").map_to_string() * ..;
+        let r = par("a").into_stringed_par() * ..;
 
         assert_eq!(r.parse(""), Ok(("".to_string(), "")));
         assert_eq!(r.parse("~"), Ok(("".to_string(), "~")));

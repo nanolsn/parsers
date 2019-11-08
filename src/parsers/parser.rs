@@ -1,6 +1,7 @@
 use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
+use std::ops::Deref;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Parser<P>(pub(crate) P);
@@ -84,8 +85,8 @@ impl<'i, P> Parser<P>
     where
         P: Parse<&'i str>,
 {
-    pub fn map_to_string(self) -> Parser<Map<P, impl Fn(&'i str) -> String>> {
-        Parser(Map(self.0, |s: &str| s.to_string()))
+    pub fn into_stringed_par(self) -> Parser<StringedParser<P>> {
+        stringed_par(self.0)
     }
 }
 
@@ -108,11 +109,34 @@ pub fn par<P, I>(parse: P) -> Parser<P>
     Parser(parse)
 }
 
-pub fn stringed_par<'i, P>(parse: P) -> Parser<Map<P, impl Fn(&'i str) -> String>>
+#[derive(Copy, Clone, Debug)]
+pub struct StringedParser<P>(P);
+
+impl<'i, P> Parse<&'i str> for StringedParser<P>
+    where
+        P: Parse<&'i str, Out=&'i str>,
+{
+    type Err = P::Err;
+    type Out = String;
+
+    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+        self.0.parse(input).map(|(out, rest)| (out.to_string(), rest))
+    }
+}
+
+pub fn stringed_par<'i, P>(parse: P) -> Parser<StringedParser<P>>
     where
         P: Parse<&'i str>,
 {
-    Parser(parse).map_to_string()
+    Parser(StringedParser(parse))
+}
+
+impl<P> Deref for Parser<P> {
+    type Target = P;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
 }
 
 #[cfg(test)]
@@ -129,7 +153,7 @@ mod tests {
 
     #[test]
     fn parser_map_to_string() {
-        let p = super::par("a").map_to_string();
+        let p = super::par("a").into_stringed_par();
 
         assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
         assert_eq!(p.parse("b"), Err(()));

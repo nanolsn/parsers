@@ -8,6 +8,12 @@ pub struct RangeVec<P> {
     pub(crate) to: Option<usize>,
 }
 
+impl<P> RangeVec<P> {
+    pub fn reduce<F>(self, f: F) -> Parser<Reduce<Self, F>> {
+        Parser(Reduce(self, f))
+    }
+}
+
 impl<P, I> Parse<I> for RangeVec<P>
     where
         P: Parse<I>,
@@ -115,6 +121,29 @@ impl<P> BitXor<RangeFull> for Parser<P> {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct Reduce<P, F>(pub(crate) P, pub(crate) F);
+
+impl<P, F, I, R> Parse<I> for Reduce<P, F>
+    where
+        P: Parse<I, Out=Vec<R>>,
+        F: Fn(R, R) -> R + Copy,
+{
+    type Err = P::Err;
+    type Out = R;
+
+    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+        let (v, rest) = self.0.parse(input)?;
+        assert!(v.len() > 0);
+
+        let mut it = v.into_iter();
+        let first = it.next().unwrap();
+        let result = it.fold(first, self.1);
+
+        Ok((result, rest))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,5 +221,15 @@ mod tests {
         assert_eq!(r.parse("aa").unwrap(), (vec!["a", "a"], ""));
         assert_eq!(r.parse("aaa").unwrap(), (vec!["a", "a", "a"], ""));
         assert_eq!(r.parse("aaaa").unwrap(), (vec!["a", "a", "a", "a"], ""));
+    }
+
+    #[test]
+    fn reduce() {
+        let r = par("a").map(|_| 1) ^ ..;
+        let r = r.reduce(|a, b| a + b);
+
+        assert_eq!(r.parse("a").unwrap(), (1, ""));
+        assert_eq!(r.parse("aa").unwrap(), (2, ""));
+        assert_eq!(r.parse("aaa").unwrap(), (3, ""));
     }
 }

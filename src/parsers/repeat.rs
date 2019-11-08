@@ -42,13 +42,13 @@ mod tests {
 
     #[test]
     fn repeat() {
-        let p = par('.').map_to_string() * 3;
+        let p = par('.').into_stringed_par() * 3;
 
         assert_eq!(p.parse("...."), Ok(("...".to_string(), ".")));
         assert_eq!(p.parse("..."), Ok(("...".to_string(), "")));
         assert_eq!(p.parse(".."), Err(()));
 
-        let p = par('#').map_to_string() * 0;
+        let p = par('#').into_stringed_par() * 0;
 
         assert_eq!(p.parse("@"), Ok((String::new(), "@")));
     }

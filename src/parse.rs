@@ -54,7 +54,10 @@ impl<'i> Parse<&'i str> for char {
     }
 }
 
-impl<'i, F> Parse<&'i str> for F
+#[derive(Copy, Clone, Debug)]
+pub struct PredWrapper<F>(pub(crate) F);
+
+impl<'i, F> Parse<&'i str> for PredWrapper<F>
     where
         F: Fn(char) -> bool,
 {
@@ -63,9 +66,21 @@ impl<'i, F> Parse<&'i str> for F
 
     fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
         match input.chars().next() {
-            Some(c) if self(c) => Ok(input.split_at(c.len_utf8())),
+            Some(c) if (self.0)(c) => Ok(input.split_at(c.len_utf8())),
             _ => Err(()),
         }
+    }
+}
+
+impl<F, I, O, E> Parse<I> for F
+    where
+        F: Fn(I) -> Result<(O, I), E>,
+{
+    type Err = E;
+    type Out = O;
+
+    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+        self(input)
     }
 }
 
@@ -176,10 +191,10 @@ mod tests {
 
     #[test]
     fn parse_fn() {
-        let f = |c| match c {
+        let f = PredWrapper(|c| match c {
             '0' => true,
             _ => false,
-        };
+        });
 
         assert_eq!(f.parse("01"), Ok(("0", "1")));
         assert_eq!(f.parse("1"), Err(()));

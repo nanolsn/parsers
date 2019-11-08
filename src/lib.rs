@@ -29,21 +29,22 @@ pub use parsers::{
     range::Range,
     range_vec::RangeVec,
     concat::Concat,
-    any::{Any, ANY},
+    any::{Any, ANY, any},
     until::Until,
     until_vec::UntilVec,
     pred::Pred,
 };
 
 pub use parse::Parse;
+pub use parse::PredWrapper;
 
 #[macro_export]
 macro_rules! pattern {
     ($p:pat) => {
-        |a| match a {
+        PredWrapper(|a| match a {
             $p => true,
             _ => false,
-        }
+        })
     };
 }
 

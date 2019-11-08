@@ -1,4 +1,4 @@
-use crate::Parse;
+use crate::{Parse, Parser};
 
 pub const ANY: Any = Any;
 
@@ -15,6 +15,10 @@ impl<'i> Parse<&'i str> for Any {
             Some(c) => Ok(input.split_at(c.len_utf8())),
         }
     }
+}
+
+pub fn any() -> Parser<Any> {
+    Parser(Any)
 }
 
 #[cfg(test)]
