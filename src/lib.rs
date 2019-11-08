@@ -19,6 +19,8 @@ mod parsers {
     pub mod until;
     pub mod until_vec;
     pub mod pred;
+    pub mod not;
+    pub mod opt;
 }
 
 pub use parsers::{
@@ -36,6 +38,8 @@ pub use parsers::{
     until::Until,
     until_vec::UntilVec,
     pred::Pred,
+    not::Not,
+    opt::Opt,
 };
 
 pub use parse::Parse;

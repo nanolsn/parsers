@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred};
+use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred, Opt};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 use std::ops::Deref;
@@ -64,6 +64,10 @@ impl<P> Parser<P> {
             F: Fn(&A) -> bool,
     {
         Parser(Pred(self.0, f))
+    }
+
+    pub fn opt(self) -> Parser<Opt<P>> {
+        Parser(Opt(self.0))
     }
 
     pub fn map<F, A, B>(self, f: F) -> Parser<Map<P, F>>
