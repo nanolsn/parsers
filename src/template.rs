@@ -5,12 +5,12 @@ pub struct Template<T>(pub(crate) T);
 
 impl<T> Template<T>
 {
-    pub fn include<P, R, I>(self, sub: P) -> Parser<IncludedTemplate<P, T>>
+    pub fn bind<P, R, I>(self, sub: P) -> Parser<BoundTemplate<P, T>>
         where
             T: Fn(P) -> R,
             R: Parse<I>,
     {
-        Parser(IncludedTemplate(sub, self.0))
+        Parser(BoundTemplate(sub, self.0))
     }
 }
 
@@ -23,9 +23,9 @@ pub fn template<T, P, R, I>(f: T) -> Template<T>
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct IncludedTemplate<P, T>(pub(crate) P, pub(crate) T);
+pub struct BoundTemplate<P, T>(pub(crate) P, pub(crate) T);
 
-impl<T, P, R, I> Parse<I> for IncludedTemplate<P, T>
+impl<T, P, R, I> Parse<I> for BoundTemplate<P, T>
     where
         T: Fn(P) -> R,
         P: Copy,
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn template() {
         let t = super::template(|a| par('[') >> a << ']');
-        let p = t.include("hello");
+        let p = t.bind("hello");
 
         assert_eq!(p.parse("[hello]").unwrap(), ("hello", ""));
     }

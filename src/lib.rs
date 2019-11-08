@@ -11,6 +11,7 @@ mod parsers {
     pub mod first;
     pub mod or_parser;
     pub mod repeat;
+    pub mod repeat_vec;
     pub mod range;
     pub mod range_vec;
     pub mod concat;
@@ -27,6 +28,7 @@ pub use parsers::{
     first::First,
     or_parser::OrParser,
     repeat::Repeat,
+    repeat_vec::RepeatVec,
     range::Range,
     range_vec::RangeVec,
     concat::Concat,
@@ -41,7 +43,7 @@ pub use parse::{PredFn, pred_fn};
 pub use template::{
     Template,
     template,
-    IncludedTemplate,
+    BoundTemplate,
 };
 
 #[macro_export]
