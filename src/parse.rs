@@ -281,4 +281,16 @@ mod tests {
         assert_eq!(t.parse("0123456"), Ok((("0", "1", "2", "3", "4", "5", "6"), "")));
         assert_eq!(t.parse("012345"), Err(()));
     }
+
+    #[test]
+    fn dyn_test() {
+        let p = par("hello");
+        let d: &dyn Parse<&str, Out=&str, Err=()> = &p;
+
+        assert_eq!(d.parse("hello!"), Ok(("hello", "!")));
+
+        let b: Box<dyn Parse<&str, Out=&str, Err=()>> = Box::new(p);
+
+        assert_eq!(b.parse("hello!"), Ok(("hello", "!")));
+    }
 }

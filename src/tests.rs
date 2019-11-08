@@ -41,7 +41,12 @@ fn test() {
     let sum = par((mul_or_num, space >> '+' >> space >> mul_or_num));
     let to_sum = sum.map(|(l, r)| Sum(Box::new(l), Box::new(r)));
 
-    let to_var = to_sum | to_mul | to_float | to_num | to_str | to_ident;
+    let to_var = to_sum.boxed()
+        | to_mul.boxed()
+        | to_float.boxed()
+        | to_num.boxed()
+        | to_str.boxed()
+        | to_ident.boxed();
 
     let statement = space >> to_var << space << ';' << space;
     let to_statement = statement.map(|v| Statement(Box::new(v)));

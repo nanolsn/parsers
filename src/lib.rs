@@ -21,6 +21,7 @@ mod parsers {
     pub mod pred;
     pub mod not;
     pub mod opt;
+    pub mod boxed;
 }
 
 pub use parsers::{
@@ -40,6 +41,7 @@ pub use parsers::{
     pred::Pred,
     not::Not,
     opt::Opt,
+    boxed::Boxed,
 };
 
 pub use parse::Parse;

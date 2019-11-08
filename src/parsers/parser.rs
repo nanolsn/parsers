@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred, Opt};
+use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred, Opt, Boxed};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 use std::ops::Deref;
@@ -68,6 +68,13 @@ impl<P> Parser<P> {
 
     pub fn opt(self) -> Parser<Opt<P>> {
         Parser(Opt(self.0))
+    }
+
+    pub fn boxed<I>(self) -> Parser<Boxed<I, P::Out, P::Err>>
+        where
+            P: Parse<I> + 'static,
+    {
+        Parser(Boxed(Box::new(self.0)))
     }
 
     pub fn map<F, A, B>(self, f: F) -> Parser<Map<P, F>>
