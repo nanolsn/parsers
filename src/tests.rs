@@ -23,7 +23,7 @@ fn test() {
     let text = (letter | ' ') * (1..);
     let str_literal = par('\'') >> text << '\'';
     let num = digit * (1..);
-    let float = num & '.' & digit * ..;
+    let float = num & '.' & par(move || digit) * ..;
 
     let to_str = str_literal.map(|s| Str(s));
     let to_ident = ident.map(|i| Ident(i));

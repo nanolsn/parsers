@@ -41,7 +41,7 @@ pub use parsers::{
     pred::Pred,
     not::Not,
     opt::Opt,
-    boxed::Boxed,
+    boxed::{Boxed, BoxedParser, BoxedStrParser},
 };
 
 pub use parse::Parse;

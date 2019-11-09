@@ -15,6 +15,19 @@ pub trait Parse<I> {
     }
 }
 
+impl<F, P, I> Parse<I> for F
+    where
+        F: Fn() -> P,
+        P: Parse<I>,
+{
+    type Err = P::Err;
+    type Out = P::Out;
+
+    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+        self().parse(input)
+    }
+}
+
 impl<'i> Parse<&'i str> for str {
     type Err = ();
     type Out = &'i str;
@@ -83,18 +96,6 @@ pub fn pred_fn<F>(f: F) -> PredFn<F>
     PredFn(f)
 }
 
-impl<F, I, O, E> Parse<I> for F
-    where
-        F: Fn(I) -> Result<(O, I), E>,
-{
-    type Err = E;
-    type Out = O;
-
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
-        self(input)
-    }
-}
-
 impl<'i> Parse<&'i str> for Range<char> {
     type Err = ();
     type Out = &'i str;
@@ -159,6 +160,15 @@ impl<'i, T> Parse<&'i [T]> for Vec<T>
     }
 }
 
+impl<'i> Parse<&'i str> for () {
+    type Err = ();
+    type Out = String;
+
+    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+        Ok((String::new(), input))
+    }
+}
+
 impl_tuple!(P0, P1; r0, r1);
 impl_tuple!(P0, P1, P2; r0, r1, r2);
 impl_tuple!(P0, P1, P2, P3; r0, r1, r2, r3);
@@ -169,7 +179,7 @@ impl_tuple!(P0, P1, P2, P3, P4, P5, P6; r0, r1, r2, r3, r4, r5, r6);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::par;
+    use crate::{par, stringed_par, BoxedStrParser};
 
     #[test]
     fn parse_str() {
@@ -250,6 +260,14 @@ mod tests {
     }
 
     #[test]
+    fn parse_unit() {
+        assert_eq!(
+            ().parse("hello"),
+            Ok(("".to_string(), "hello")),
+        );
+    }
+
+    #[test]
     fn parse_tuple() {
         let t = (par("0"), "1");
 
@@ -292,5 +310,15 @@ mod tests {
         let b: Box<dyn Parse<&str, Out=&str, Err=()>> = Box::new(p);
 
         assert_eq!(b.parse("hello!"), Ok(("hello", "!")));
+    }
+
+    #[test]
+    fn fn_test() {
+        fn dots() -> BoxedStrParser<String> {
+            let p = stringed_par('.') & (stringed_par('!') | dots);
+            p.boxed()
+        }
+
+        assert_eq!(dots.parse("...!"), Ok(("...!".to_string(), "")));
     }
 }
