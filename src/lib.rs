@@ -25,7 +25,7 @@ mod parsers {
 }
 
 pub use parsers::{
-    parser::{par, stringed_par, Parser},
+    parser::{par, stringed_par, Parser, OrElse, AndThen},
     list_parser::{ListParser, HeadParser},
     second::Second,
     first::First,

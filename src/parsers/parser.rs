@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Second, OrParser, Until, RangeVec, UntilVec, Pred, Opt, Boxed};
+use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 use std::ops::Deref;
@@ -7,12 +7,23 @@ use std::ops::Deref;
 pub struct Parser<P>(pub(crate) P);
 
 impl<P> Parser<P> {
-    pub fn and_then<U>(self, parser: U) -> Parser<Second<P, U>> {
-        Parser(Second(self.0, parser))
+    pub fn and_then<F, N, I>(self, f: F) -> Parser<AndThen<P, F>>
+        where
+            P: Parse<I>,
+            F: Fn(P::Out) -> N,
+            N: Parse<I, Err=P::Err>,
+    {
+        Parser(AndThen(self.0, f))
     }
 
-    pub fn or_else<U>(self, parser: U) -> Parser<OrParser<P, U>> {
-        Parser(OrParser(self.0, parser))
+    pub fn or_else<F, N, I>(self, f: F) -> Parser<OrElse<P, F>>
+        where
+            P: Parse<I>,
+            F: Fn(P::Err) -> N,
+            N: Parse<I, Out=P::Out>,
+            I: Copy,
+    {
+        Parser(OrElse(self.0, f))
     }
 
     pub fn repeat(self, times: usize) -> Parser<Repeat<P>> {
@@ -150,6 +161,41 @@ impl<P> Deref for Parser<P> {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct AndThen<P, F>(pub(crate) P, pub(crate) F);
+
+impl<P, F, N, I> Parse<I> for AndThen<P, F>
+    where
+        P: Parse<I>,
+        F: Fn(P::Out) -> N,
+        N: Parse<I, Err=P::Err>,
+{
+    type Err = P::Err;
+    type Out = N::Out;
+
+    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+        self.0.parse(input).and_then(|(out, rest)| (self.1)(out).parse(rest))
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct OrElse<P, F>(pub(crate) P, pub(crate) F);
+
+impl<P, F, N, I> Parse<I> for OrElse<P, F>
+    where
+        P: Parse<I>,
+        F: Fn(P::Err) -> N,
+        N: Parse<I, Out=P::Out>,
+        I: Copy,
+{
+    type Err = N::Err;
+    type Out = P::Out;
+
+    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+        self.0.parse(input).or_else(|e| (self.1)(e).parse(input))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -173,5 +219,23 @@ mod tests {
 
         assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
         assert_eq!(p.parse("b"), Err(()));
+    }
+
+    #[test]
+    fn parser_and_then() {
+        let num = par('0'..='9') * ..;
+        let p = num.and_then(|n| par(':') >> n);
+
+        assert_eq!(p.parse_result("12:12"), Ok("12"));
+        assert_eq!(p.parse_result("12:01"), Err(()));
+    }
+
+    #[test]
+    fn parser_or_else() {
+        let p = par('w').map_err(|_| 'q').or_else(|e| par(e));
+
+        assert_eq!(p.parse_result("w"), Ok("w"));
+        assert_eq!(p.parse_result("q"), Ok("q"));
+        assert_eq!(p.parse_result("e"), Err(()));
     }
 }
