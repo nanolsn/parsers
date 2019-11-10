@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed};
+use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed, PredFn};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 use std::ops::Deref;
@@ -10,7 +10,7 @@ impl<P> Parser<P> {
     pub fn and_then<F, N, I>(self, f: F) -> Parser<AndThen<P, F>>
         where
             P: Parse<I>,
-            F: Fn(P::Out) -> N,
+            F: Fn(&P::Out) -> N,
             N: Parse<I, Err=P::Err>,
     {
         Parser(AndThen(self.0, f))
@@ -131,6 +131,13 @@ pub fn par<P, I>(parse: P) -> Parser<P>
     Parser(parse)
 }
 
+pub fn pred_fn<F>(f: F) -> Parser<PredFn<F>>
+    where
+        F: Fn(char) -> bool,
+{
+    Parser(PredFn(f))
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct StringedParser<P>(P);
 
@@ -167,14 +174,17 @@ pub struct AndThen<P, F>(pub(crate) P, pub(crate) F);
 impl<P, F, N, I> Parse<I> for AndThen<P, F>
     where
         P: Parse<I>,
-        F: Fn(P::Out) -> N,
+        F: Fn(&P::Out) -> N,
         N: Parse<I, Err=P::Err>,
 {
     type Err = P::Err;
-    type Out = N::Out;
+    type Out = (P::Out, N::Out);
 
     fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
-        self.0.parse(input).and_then(|(out, rest)| (self.1)(out).parse(rest))
+        self.0.parse(input)
+            .and_then(|(p, rest)| (self.1)(&p).parse(rest)
+                .map(|(n, rest)| ((p, n), rest))
+            )
     }
 }
 
@@ -224,9 +234,9 @@ mod tests {
     #[test]
     fn parser_and_then() {
         let num = (par('a'..='z') | par('A'..='Z')) * ..;
-        let p = num.and_then(|n| par(':') >> n);
+        let p = num.and_then(|n: &String| par(':') >> n.clone());
 
-        assert_eq!(p.parse_result("Hello:Hello"), Ok("Hello"));
+        assert_eq!(p.parse_result("Hello:Hello"), Ok(("Hello".to_string(), "Hello")));
         assert_eq!(p.parse_result("Hello:Hi!"), Err(()));
     }
 

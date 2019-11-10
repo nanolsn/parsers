@@ -1,4 +1,4 @@
-#![cfg(test)]
+mod xml;
 
 #[derive(Debug, PartialOrd, PartialEq)]
 enum Var {
@@ -17,8 +17,8 @@ use crate::{par, Parse, stringed_par, pred_fn};
 #[test]
 fn test() {
     let space = par(' ') * ..;
-    let digit = par(pred_fn(pattern!('0'..='9')));
-    let letter = par(pred_fn(pattern!('a'..='z'))) | pred_fn(pattern!('A'..='Z'));
+    let digit = pred_fn(pattern!('0'..='9'));
+    let letter = pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z'));
     let ident = stringed_par(letter | '_') & (letter | '_' | digit) * ..;
     let text = (letter | ' ') * (1..);
     let str_literal = par('\'') >> text << '\'';
@@ -69,7 +69,7 @@ fn test() {
                     )),
                     Box::new(Mul(
                         Box::new(Number(123)),
-                        Box::new(Number(23))
+                        Box::new(Number(23)),
                     )),
                 ),
             )),

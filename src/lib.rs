@@ -22,10 +22,11 @@ mod parsers {
     pub mod not;
     pub mod opt;
     pub mod boxed;
+    pub mod ret;
 }
 
 pub use parsers::{
-    parser::{par, stringed_par, Parser, OrElse, AndThen},
+    parser::{par, stringed_par, pred_fn, Parser, OrElse, AndThen},
     list_parser::{ListParser, HeadParser},
     second::Second,
     first::First,
@@ -42,10 +43,11 @@ pub use parsers::{
     not::Not,
     opt::Opt,
     boxed::{Boxed, BoxedParser, BoxedStrParser},
+    ret::{Ret, ret},
 };
 
 pub use parse::Parse;
-pub use parse::{PredFn, pred_fn};
+pub use parse::PredFn;
 pub use template::{
     Template,
     template,
@@ -62,4 +64,5 @@ macro_rules! pattern {
     };
 }
 
+#[cfg(test)]
 mod tests;

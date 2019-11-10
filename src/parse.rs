@@ -89,13 +89,6 @@ impl<'i, F> Parse<&'i str> for PredFn<F>
     }
 }
 
-pub fn pred_fn<F>(f: F) -> PredFn<F>
-    where
-        F: Fn(char) -> bool,
-{
-    PredFn(f)
-}
-
 impl<'i> Parse<&'i str> for Range<char> {
     type Err = ();
     type Out = &'i str;
@@ -212,7 +205,7 @@ mod tests {
 
     #[test]
     fn parse_fn() {
-        let f = pred_fn(|c| match c {
+        let f = PredFn(|c| match c {
             '0' => true,
             _ => false,
         });
