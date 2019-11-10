@@ -314,7 +314,7 @@ mod tests {
 
     #[test]
     fn fn_test() {
-        fn dots<'i>() -> BoxedStrParser<'i, String> {
+        fn dots<'p, 'i>() -> BoxedStrParser<'p, 'i, String> {
             let p = stringed_par('.') & (stringed_par('!') | dots);
             p.boxed()
         }

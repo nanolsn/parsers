@@ -1,8 +1,8 @@
 use crate::{Parse, Parser};
 
-pub struct Boxed<I, O, E>(pub(crate) Box<dyn Parse<I, Out=O, Err=E>>);
+pub struct Boxed<'p, I, O, E>(pub(crate) Box<dyn Parse<I, Out=O, Err=E> + 'p>);
 
-impl<I, O, E> Parse<I> for Boxed<I, O, E> {
+impl<'p, I, O, E> Parse<I> for Boxed<'p, I, O, E> {
     type Err = E;
     type Out = O;
 
@@ -11,5 +11,5 @@ impl<I, O, E> Parse<I> for Boxed<I, O, E> {
     }
 }
 
-pub type BoxedStrParser<'i, R, E=()> = Parser<Boxed<&'i str, R, E>>;
-pub type BoxedParser<I, R, E=()> = Parser<Boxed<I, R, E>>;
+pub type BoxedStrParser<'p, 'i, R, E=()> = Parser<Boxed<'p, &'i str, R, E>>;
+pub type BoxedParser<'p, I, R, E=()> = Parser<Boxed<'p, I, R, E>>;

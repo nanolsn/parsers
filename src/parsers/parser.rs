@@ -81,9 +81,9 @@ impl<P> Parser<P> {
         Parser(Opt(self.0))
     }
 
-    pub fn boxed<I>(self) -> Parser<Boxed<I, P::Out, P::Err>>
+    pub fn boxed<'p, I>(self) -> Parser<Boxed<'p, I, P::Out, P::Err>>
         where
-            P: Parse<I> + 'static,
+            P: Parse<I> + 'p,
     {
         Parser(Boxed(Box::new(self.0)))
     }
