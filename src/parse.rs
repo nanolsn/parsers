@@ -314,11 +314,12 @@ mod tests {
 
     #[test]
     fn fn_test() {
-        fn dots() -> BoxedStrParser<String> {
+        fn dots<'i>() -> BoxedStrParser<'i, String> {
             let p = stringed_par('.') & (stringed_par('!') | dots);
             p.boxed()
         }
 
-        assert_eq!(dots.parse("...!"), Ok(("...!".to_string(), "")));
+        let s = "...!".to_string();
+        assert_eq!(dots.parse(&s), Ok(("...!".to_string(), "")));
     }
 }

@@ -223,11 +223,11 @@ mod tests {
 
     #[test]
     fn parser_and_then() {
-        let num = par('0'..='9') * ..;
+        let num = (par('a'..='z') | par('A'..='Z')) * ..;
         let p = num.and_then(|n| par(':') >> n);
 
-        assert_eq!(p.parse_result("12:12"), Ok("12"));
-        assert_eq!(p.parse_result("12:01"), Err(()));
+        assert_eq!(p.parse_result("Hello:Hello"), Ok("Hello"));
+        assert_eq!(p.parse_result("Hello:Hi!"), Err(()));
     }
 
     #[test]

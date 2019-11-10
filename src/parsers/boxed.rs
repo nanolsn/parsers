@@ -11,5 +11,5 @@ impl<I, O, E> Parse<I> for Boxed<I, O, E> {
     }
 }
 
-pub type BoxedStrParser<R, E=()> = Parser<Boxed<&'static str, R, E>>;
+pub type BoxedStrParser<'i, R, E=()> = Parser<Boxed<&'i str, R, E>>;
 pub type BoxedParser<I, R, E=()> = Parser<Boxed<I, R, E>>;
