@@ -47,18 +47,22 @@ fn tag_attrs<'i>() -> BoxedStrParser<'i, Vec<(String, String)>> {
     (space() >> attrs() << space() << '>').boxed()
 }
 
-fn parser<'i>() -> BoxedStrParser<'i, Vec<Xml>> {
+fn closed_name<'i>() -> impl Parse<'i, Res=String, Err=(), On=&'i str> {
+    space() >> "</" >> ident() << '>'
+}
 
-    let tag = par((name(), tag_attrs(), parser))
-        .map(|(name, attrs, inner)| Xml {
+fn parse_xml<'i>() -> impl Parse<'i, Res=Xml, Err=(), On=&'i str> {
+    par((name(), tag_attrs(), parser, closed_name()))
+        .pred(|(name, _, _, closed_name)| name == closed_name)
+        .map(|(name, attrs, inner, _)| Xml {
             name,
             attrs,
             inner,
         })
-        .and_then(|xml: &Xml| space() >> "</" >> xml.name.clone() << '>')
-        .map(|(x, _)| x);
+}
 
-    ((space() >> tag) ^ ..).boxed()
+fn parser<'i>() -> BoxedStrParser<'i, Vec<Xml>> {
+    ((space() >> parse_xml()) ^ ..).boxed()
 }
 
 #[test]
