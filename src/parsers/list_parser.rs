@@ -1,17 +1,18 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::Rem;
 
 #[derive(Copy, Clone, Debug)]
 pub struct HeadParser<P>(P);
 
-impl<P, I> Parse<I> for HeadParser<P>
+impl<'p, P> Parse<'p> for HeadParser<P>
     where
-        P: Parse<I>,
+        P: Parse<'p>,
 {
+    type Res = Vec<P::Res>;
     type Err = P::Err;
-    type Out = Vec<P::Out>;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let (out, rest) = self.0.parse(input)?;
         Ok((vec![out], rest))
     }
@@ -20,15 +21,17 @@ impl<P, I> Parse<I> for HeadParser<P>
 #[derive(Copy, Clone, Debug)]
 pub struct ListParser<H, T>(H, T);
 
-impl<H, T, I, J> Parse<I> for ListParser<H, T>
+impl<'p, H, T, R> Parse<'p> for ListParser<H, T>
     where
-        H: Parse<I, Out=Vec<J>>,
-        T: Parse<I, Out=J, Err=H::Err>,
+        H: Parse<'p, Res=Vec<R>>,
+        T: Parse<'p, Res=R, Err=H::Err, On=H::On>,
+        R: 'p,
 {
+    type Res = Vec<R>;
     type Err = H::Err;
-    type Out = Vec<J>;
+    type On = H::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let (mut h, rest) = self.0.parse(input)?;
         let (t, rest) = self.1.parse(rest)?;
         h.push(t);

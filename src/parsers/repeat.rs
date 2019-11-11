@@ -1,17 +1,18 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::Mul;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Repeat<P>(pub(crate) P, pub(crate) usize);
 
-impl<P, I> Parse<I> for Repeat<P>
+impl<'p, P> Parse<'p> for Repeat<P>
     where
-        P: Parse<I, Out=String>,
+        P: Parse<'p, Res=String>,
 {
+    type Res = String;
     type Err = P::Err;
-    type Out = String;
+    type On = P::On;
 
-    fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, mut rest: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         if self.1 == 0 {
             return Ok((String::new(), rest));
         }
@@ -38,17 +39,17 @@ impl<P> Mul<usize> for Parser<P> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{par, Parse};
+    use crate::{stringed_par, Parse};
 
     #[test]
     fn repeat() {
-        let p = par('.').into_stringed_par() * 3;
+        let p = stringed_par('.') * 3;
 
         assert_eq!(p.parse("...."), Ok(("...".to_string(), ".")));
         assert_eq!(p.parse("..."), Ok(("...".to_string(), "")));
         assert_eq!(p.parse(".."), Err(()));
 
-        let p = par('#').into_stringed_par() * 0;
+        let p = stringed_par('#') * 0;
 
         assert_eq!(p.parse("@"), Ok((String::new(), "@")));
     }

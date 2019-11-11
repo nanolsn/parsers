@@ -1,19 +1,20 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::BitOr;
 
 #[derive(Copy, Clone, Debug)]
 pub struct OrParser<L, R>(pub(crate) L, pub(crate) R);
 
-impl<L, R, I> Parse<I> for OrParser<L, R>
+impl<'p, L, R> Parse<'p> for OrParser<L, R>
     where
-        L: Parse<I>,
-        R: Parse<I, Out=L::Out, Err=L::Err>,
-        I: Copy,
+        L: Parse<'p>,
+        R: Parse<'p, Res=L::Res, Err=L::Err, On=L::On>,
+        L::On: Copy,
 {
+    type Res = L::Res;
     type Err = L::Err;
-    type Out = L::Out;
+    type On = L::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input).or_else(|_| self.1.parse(input))
     }
 }

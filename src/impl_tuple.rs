@@ -1,14 +1,15 @@
 macro_rules! impl_tuple {
     ( $t:ident, $($ts:ident),* ; $($vs:ident),+ ) => {
-        impl<I, $t, $($ts,)* > Parse<I> for ( $t, $($ts,)* )
+        impl<'p, $t, $($ts,)* > Parse<'p> for ( $t, $($ts,)* )
             where
-                $t: Parse<I>,
-                $($ts: Parse<I, Err=$t::Err>,)*
+                $t: Parse<'p>,
+                $($ts: Parse<'p, Err=$t::Err, On=$t::On>,)*
         {
+            type Res = ( $t::Res, $($ts::Res,)* );
             type Err = $t::Err;
-            type Out = ( $t::Out, $($ts::Out,)* );
+            type On = $t::On;
 
-            fn parse(&self, rest: I) -> Result<(Self::Out, I), Self::Err> {
+            fn parse(&self, rest: Self::On) -> Result<(Self::Res, Self::On), Self::Err> {
                 let ($($vs,)+) = self;
 
                 $(

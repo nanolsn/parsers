@@ -1,19 +1,20 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::BitAnd;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Concat<L, R>(L, R);
 
-impl<'i, L, R, S> Parse<&'i str> for Concat<L, R>
+impl<'p, L, R, S> Parse<'p> for Concat<L, R>
     where
-        L: Parse<&'i str, Out=String>,
-        R: Parse<&'i str, Out=S, Err=L::Err>,
-        S: AsRef<str>,
+        L: Parse<'p, Res=String, On=&'p str>,
+        R: Parse<'p, Res=S, Err=L::Err, On=&'p str>,
+        S: AsRef<str> + 'p,
 {
+    type Res = String;
     type Err = L::Err;
-    type Out = String;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let (mut l, rest) = self.0.parse(input)?;
         let (r, rest) = self.1.parse(rest)?;
         l.push_str(r.as_ref());

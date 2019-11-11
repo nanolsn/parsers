@@ -1,4 +1,4 @@
-use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed, PredFn};
+use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed, PredFn, Parsed};
 use crate::maps::{Map, MapErr};
 use crate::parsers::range::Range;
 use std::ops::Deref;
@@ -7,22 +7,11 @@ use std::ops::Deref;
 pub struct Parser<P>(pub(crate) P);
 
 impl<P> Parser<P> {
-    pub fn and_then<F, N, I>(self, f: F) -> Parser<AndThen<P, F>>
-        where
-            P: Parse<I>,
-            F: Fn(&P::Out) -> N,
-            N: Parse<I, Err=P::Err>,
-    {
+    pub fn and_then<F>(self, f: F) -> Parser<AndThen<P, F>> {
         Parser(AndThen(self.0, f))
     }
 
-    pub fn or_else<F, N, I>(self, f: F) -> Parser<OrElse<P, F>>
-        where
-            P: Parse<I>,
-            F: Fn(P::Err) -> N,
-            N: Parse<I, Out=P::Out>,
-            I: Copy,
-    {
+    pub fn or_else<F>(self, f: F) -> Parser<OrElse<P, F>> {
         Parser(OrElse(self.0, f))
     }
 
@@ -81,9 +70,9 @@ impl<P> Parser<P> {
         Parser(Opt(self.0))
     }
 
-    pub fn boxed<'p, I>(self) -> Parser<Boxed<'p, I, P::Out, P::Err>>
+    pub fn boxed<'p>(self) -> Parser<Boxed<'p, P::On, P::Res, P::Err>>
         where
-            P: Parse<I> + 'p,
+            P: Parse<'p> + 'p,
     {
         Parser(Boxed(Box::new(self.0)))
     }
@@ -103,30 +92,22 @@ impl<P> Parser<P> {
     }
 }
 
-impl<'i, P> Parser<P>
+impl<'p, P> Parse<'p> for Parser<P>
     where
-        P: Parse<&'i str>,
+        P: Parse<'p>,
 {
-    pub fn into_stringed_par(self) -> Parser<StringedParser<P>> {
-        stringed_par(self.0)
-    }
-}
-
-impl<P, I> Parse<I> for Parser<P>
-    where
-        P: Parse<I>,
-{
+    type Res = P::Res;
     type Err = P::Err;
-    type Out = P::Out;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input)
     }
 }
 
-pub fn par<P, I>(parse: P) -> Parser<P>
+pub fn par<'p, P>(parse: P) -> Parser<P>
     where
-        P: Parse<I>,
+        P: Parse<'p>,
 {
     Parser(parse)
 }
@@ -141,21 +122,22 @@ pub fn pred_fn<F>(f: F) -> Parser<PredFn<F>>
 #[derive(Copy, Clone, Debug)]
 pub struct StringedParser<P>(P);
 
-impl<'i, P> Parse<&'i str> for StringedParser<P>
+impl<'p, P> Parse<'p> for StringedParser<P>
     where
-        P: Parse<&'i str, Out=&'i str>,
+        P: Parse<'p, Res=&'p str, On=&'p str>,
 {
+    type Res = String;
     type Err = P::Err;
-    type Out = String;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input).map(|(out, rest)| (out.to_string(), rest))
     }
 }
 
-pub fn stringed_par<'i, P>(parse: P) -> Parser<StringedParser<P>>
+pub fn stringed_par<'p, P>(parse: P) -> Parser<StringedParser<P>>
     where
-        P: Parse<&'i str>,
+        P: Parse<'p>,
 {
     Parser(StringedParser(parse))
 }
@@ -171,16 +153,17 @@ impl<P> Deref for Parser<P> {
 #[derive(Copy, Clone, Debug)]
 pub struct AndThen<P, F>(pub(crate) P, pub(crate) F);
 
-impl<P, F, N, I> Parse<I> for AndThen<P, F>
+impl<'p, P, F, N> Parse<'p> for AndThen<P, F>
     where
-        P: Parse<I>,
-        F: Fn(&P::Out) -> N,
-        N: Parse<I, Err=P::Err>,
+        P: Parse<'p>,
+        F: Fn(&P::Res) -> N,
+        N: Parse<'p, Err=P::Err, On=P::On>,
 {
+    type Res = (P::Res, N::Res);
     type Err = P::Err;
-    type Out = (P::Out, N::Out);
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input)
             .and_then(|(p, rest)| (self.1)(&p).parse(rest)
                 .map(|(n, rest)| ((p, n), rest))
@@ -191,17 +174,18 @@ impl<P, F, N, I> Parse<I> for AndThen<P, F>
 #[derive(Copy, Clone, Debug)]
 pub struct OrElse<P, F>(pub(crate) P, pub(crate) F);
 
-impl<P, F, N, I> Parse<I> for OrElse<P, F>
+impl<'p, P, F, N> Parse<'p> for OrElse<P, F>
     where
-        P: Parse<I>,
+        P: Parse<'p>,
         F: Fn(P::Err) -> N,
-        N: Parse<I, Out=P::Out>,
-        I: Copy,
+        N: Parse<'p, Res=P::Res, On=P::On>,
+        P::On: Copy,
 {
+    type Res = P::Res;
     type Err = N::Err;
-    type Out = P::Out;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input).or_else(|e| (self.1)(e).parse(input))
     }
 }
@@ -220,7 +204,7 @@ mod tests {
 
     #[test]
     fn parser_map_to_string() {
-        let p = super::par("a").into_stringed_par();
+        let p = super::stringed_par("a");
 
         assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
         assert_eq!(p.parse("b"), Err(()));

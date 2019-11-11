@@ -1,17 +1,20 @@
-use crate::Parse;
+use crate::{Parse, Parsed};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Map<P, F>(pub(crate) P, pub(crate) F);
 
-impl<P, F, A, B, I> Parse<I> for Map<P, F>
+impl<'p, P, F, A, B> Parse<'p> for Map<P, F>
     where
-        P: Parse<I, Out=A>,
+        P: Parse<'p, Res=A>,
         F: Fn(A) -> B,
+        A: 'p,
+        B: 'p,
 {
+    type Res = B;
     type Err = P::Err;
-    type Out = B;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input).map(|(out, rest)| ((self.1)(out), rest))
     }
 }
@@ -19,16 +22,19 @@ impl<P, F, A, B, I> Parse<I> for Map<P, F>
 #[derive(Copy, Clone, Debug)]
 pub struct MapErr<P, F>(pub(crate) P, pub(crate) F);
 
-impl<P, F, E, G, I> Parse<I> for MapErr<P, F>
+impl<'p, P, F, E, G> Parse<'p> for MapErr<P, F>
     where
-        P: Parse<I, Err=E>,
-        F: Fn(E) -> G + Copy,
+        P: Parse<'p, Err=E>,
+        F: Fn(E) -> G,
+        E: 'p,
+        G: 'p,
 {
+    type Res = P::Res;
     type Err = G;
-    type Out = P::Out;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
-        self.0.parse(input).map_err(self.1)
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
+        self.0.parse(input).map_err(|e| (self.1)(e))
     }
 }
 

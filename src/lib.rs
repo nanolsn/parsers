@@ -2,7 +2,6 @@
 mod impl_tuple;
 mod parse;
 mod maps;
-mod template;
 
 mod parsers {
     pub mod parser;
@@ -47,13 +46,10 @@ pub use parsers::{
 };
 
 pub use parse::Parse;
+pub use parse::Parsed;
 pub use parse::PredFn;
-pub use template::{
-    Template,
-    template,
-    BoundTemplate,
-};
 
+// TODO: Delete this shit and make a char range parser
 #[macro_export]
 macro_rules! pattern {
     ($p:pat) => {
@@ -66,6 +62,6 @@ macro_rules! pattern {
 
 #[cfg(test)]
 mod tests {
-    mod var;
-    mod xml;
+    //mod var;
+    //mod xml;
 }

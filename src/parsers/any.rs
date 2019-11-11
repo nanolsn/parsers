@@ -1,15 +1,16 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 
 pub const ANY: Any = Any;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Any;
 
-impl<'i> Parse<&'i str> for Any {
+impl<'p> Parse<'p> for Any {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match input.chars().next() {
             None => Err(()),
             Some(c) => Ok(input.split_at(c.len_utf8())),

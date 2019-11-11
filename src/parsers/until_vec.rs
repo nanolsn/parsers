@@ -1,18 +1,19 @@
-use crate::Parse;
+use crate::{Parse, Parsed};
 
 #[derive(Copy, Clone, Debug)]
 pub struct UntilVec<P, U>(pub(crate) P, pub(crate) U);
 
-impl<'i, P, U, I> Parse<I> for UntilVec<P, U>
+impl<'p, P, U> Parse<'p> for UntilVec<P, U>
     where
-        P: Parse<I>,
-        U: Parse<I>,
-        I: Copy,
+        P: Parse<'p>,
+        U: Parse<'p, On=P::On>,
+        P::On: Copy,
 {
+    type Res = (Vec<P::Res>, U::Res);
     type Err = P::Err;
-    type Out = (Vec<P::Out>, U::Out);
+    type On = P::On;
 
-    fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, mut rest: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let mut v = Vec::new();
 
         loop {

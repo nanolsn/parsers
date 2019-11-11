@@ -1,17 +1,18 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::BitXor;
 
 #[derive(Copy, Clone, Debug)]
 pub struct RepeatVec<P>(pub(crate) P, pub(crate) usize);
 
-impl<P, I> Parse<I> for RepeatVec<P>
+impl<'p, P> Parse<'p> for RepeatVec<P>
     where
-        P: Parse<I>,
+        P: Parse<'p>,
 {
+    type Res = Vec<P::Res>;
     type Err = P::Err;
-    type Out = Vec<P::Out>;
+    type On = P::On;
 
-    fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, mut rest: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         if self.1 == 0 {
             return Ok((vec![], rest));
         }

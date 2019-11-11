@@ -1,18 +1,19 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::Shl;
 
 #[derive(Copy, Clone, Debug)]
 pub struct First<L, R>(pub(crate) L, pub(crate) R);
 
-impl<L, R, I> Parse<I> for First<L, R>
+impl<'p, L, R> Parse<'p> for First<L, R>
     where
-        L: Parse<I>,
-        R: Parse<I, Err=L::Err>,
+        L: Parse<'p>,
+        R: Parse<'p, Err=L::Err, On=L::On>,
 {
+    type Res = L::Res;
     type Err = L::Err;
-    type Out = L::Out;
+    type On = L::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let (out, rest) = self.0.parse(input)?;
         let (_, rest) = self.1.parse(rest)?;
         Ok((out, rest))

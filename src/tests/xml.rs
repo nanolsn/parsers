@@ -7,7 +7,7 @@ struct Xml {
     inner: Vec<Xml>,
 }
 
-fn parser<'p, 'i>() -> BoxedStrParser<'p, 'i, Vec<Xml>> {
+fn parser<'p>() -> BoxedStrParser<'p, Vec<Xml>> {
     let space = (par(' ') | '\n' | '\t') * ..;
     let digit = pred_fn(pattern!('0'..='9'));
     let letter = pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z'));

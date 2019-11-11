@@ -1,4 +1,4 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 use std::ops::{BitXor, RangeInclusive, RangeFrom, RangeToInclusive, RangeTo, RangeFull, Range};
 
 #[derive(Copy, Clone, Debug)]
@@ -14,15 +14,16 @@ impl<P> RangeVec<P> {
     }
 }
 
-impl<P, I> Parse<I> for RangeVec<P>
+impl<'p, P> Parse<'p> for RangeVec<P>
     where
-        P: Parse<I>,
-        I: Copy,
+        P: Parse<'p>,
+        P::On: Copy,
 {
+    type Res = Vec<P::Res>;
     type Err = P::Err;
-    type Out = Vec<P::Out>;
+    type On = P::On;
 
-    fn parse(&self, mut rest: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, mut rest: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let mut count = 0;
         let mut v = Vec::new();
 
@@ -124,15 +125,17 @@ impl<P> BitXor<RangeFull> for Parser<P> {
 #[derive(Copy, Clone, Debug)]
 pub struct Reduce<P, F>(pub(crate) P, pub(crate) F);
 
-impl<P, F, I, R> Parse<I> for Reduce<P, F>
+impl<'p, P, F, R> Parse<'p> for Reduce<P, F>
     where
-        P: Parse<I, Out=Vec<R>>,
+        P: Parse<'p, Res=Vec<R>>,
         F: Fn(R, R) -> R + Copy,
+        R: 'p,
 {
+    type Res = R;
     type Err = P::Err;
-    type Out = R;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         let (v, rest) = self.0.parse(input)?;
         assert!(v.len() > 0);
 

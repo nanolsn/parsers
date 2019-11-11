@@ -1,17 +1,18 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Not<P>(pub(crate) P);
 
-impl<P, I> Parse<I> for Not<P>
+impl<'p, P> Parse<'p> for Not<P>
     where
-        P: Parse<I>,
-        I: Copy,
+        P: Parse<'p>,
+        P::On: Copy,
 {
-    type Err = P::Out;
-    type Out = P::Err;
+    type Res = P::Err;
+    type Err = P::Res;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match self.0.parse(input) {
             Ok((out, _)) => Err(out),
             Err(e) => Ok((e, input)),

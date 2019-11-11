@@ -1,38 +1,43 @@
 use std::ops::{Range, RangeInclusive};
 
-pub trait Parse<I> {
-    type Err;
-    type Out;
+pub type Parsed<'p, R, E=(), O=&'p str> = Result<(R, O), E>;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err>;
+pub trait Parse<'p> {
+    type Res: 'p;
+    type Err: 'p;
+    type On;
 
-    fn parse_result(&self, input: I) -> Result<Self::Out, Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On>;
+
+    fn parse_result(&self, input: Self::On) -> Result<Self::Res, Self::Err> {
         self.parse(input).map(|(r, _)| r)
     }
 
-    fn parse_unwrap(&self, input: I) -> Self::Out {
+    fn parse_unwrap(&self, input: Self::On) -> Self::Res {
         self.parse(input).ok().unwrap().0
     }
 }
 
-impl<F, P, I> Parse<I> for F
+impl<'p, F, P> Parse<'p> for F
     where
         F: Fn() -> P,
-        P: Parse<I>,
+        P: Parse<'p>,
 {
+    type Res = P::Res;
     type Err = P::Err;
-    type Out = P::Out;
+    type On = P::On;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self().parse(input)
     }
 }
 
-impl<'i> Parse<&'i str> for str {
+impl<'p> Parse<'p> for str {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse<'s>(&'s self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         if input.starts_with(self) {
             Ok(input.split_at(self.len()))
         } else {
@@ -41,29 +46,32 @@ impl<'i> Parse<&'i str> for str {
     }
 }
 
-impl<'i> Parse<&'i str> for &str {
+impl<'p> Parse<'p> for &str {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         Parse::parse(*self, input)
     }
 }
 
-impl<'i> Parse<&'i str> for String {
+impl<'p> Parse<'p> for String {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         Parse::parse(self.as_str(), input)
     }
 }
 
-impl<'i> Parse<&'i str> for char {
+impl<'p> Parse<'p> for char {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match input.chars().next() {
             Some(c) if c == *self => Ok(input.split_at(c.len_utf8())),
             _ => Err(()),
@@ -74,14 +82,15 @@ impl<'i> Parse<&'i str> for char {
 #[derive(Copy, Clone, Debug)]
 pub struct PredFn<F>(pub(crate) F);
 
-impl<'i, F> Parse<&'i str> for PredFn<F>
+impl<'p, F> Parse<'p> for PredFn<F>
     where
         F: Fn(char) -> bool,
 {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) ->Parsed<Self::Res, Self::Err, Self::On> {
         match input.chars().next() {
             Some(c) if (self.0)(c) => Ok(input.split_at(c.len_utf8())),
             _ => Err(()),
@@ -89,11 +98,12 @@ impl<'i, F> Parse<&'i str> for PredFn<F>
     }
 }
 
-impl<'i> Parse<&'i str> for Range<char> {
+impl<'p> Parse<'p> for Range<char> {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match input.chars().next() {
             Some(c) if self.contains(&c) => Ok(input.split_at(c.len_utf8())),
             _ => Err(()),
@@ -101,11 +111,12 @@ impl<'i> Parse<&'i str> for Range<char> {
     }
 }
 
-impl<'i> Parse<&'i str> for RangeInclusive<char> {
+impl<'p> Parse<'p> for RangeInclusive<char> {
+    type Res = &'p str;
     type Err = ();
-    type Out = &'i str;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match input.chars().next() {
             Some(c) if self.contains(&c) => Ok(input.split_at(c.len_utf8())),
             _ => Err(()),
@@ -113,14 +124,15 @@ impl<'i> Parse<&'i str> for RangeInclusive<char> {
     }
 }
 
-impl<'i, T> Parse<&'i [T]> for [T]
+impl<'p, T> Parse<'p> for [T]
     where
-        T: PartialEq + Clone,
+        T: PartialEq + Clone + 'p,
 {
+    type Res = &'p [T];
     type Err = ();
-    type Out = &'i [T];
+    type On = &'p [T];
 
-    fn parse<'s>(&'s self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         if input.starts_with(self) {
             Ok(input.split_at(self.len()))
         } else {
@@ -129,36 +141,52 @@ impl<'i, T> Parse<&'i [T]> for [T]
     }
 }
 
-impl<'i, T> Parse<&'i [T]> for &[T]
+impl<'p, T> Parse<'p> for &[T]
     where
-        T: PartialEq + Clone,
+        T: PartialEq + Clone + 'p,
 {
+    type Res = &'p [T];
     type Err = ();
-    type Out = &'i [T];
+    type On = &'p [T];
 
-    fn parse(&self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.as_ref().parse(input)
     }
 }
 
-impl<'i, T> Parse<&'i [T]> for Vec<T>
+impl<'p, T> Parse<'p> for Vec<T>
     where
-        T: PartialEq + Clone,
+        T: PartialEq + Clone + 'p,
 {
+    type Res = &'p [T];
     type Err = ();
-    type Out = &'i [T];
+    type On = &'p [T];
 
-    fn parse(&self, input: &'i [T]) -> Result<(Self::Out, &'i [T]), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.as_slice().parse(input)
     }
 }
 
-impl<'i> Parse<&'i str> for () {
+impl<'p> Parse<'p> for () {
+    type Res = String;
     type Err = ();
-    type Out = String;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         Ok((String::new(), input))
+    }
+}
+
+impl<'p, P1> Parse<'p> for (P1,)
+    where
+        P1: Parse<'p>,
+{
+    type Res = P1::Res;
+    type Err = P1::Err;
+    type On = P1::On;
+
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
+        self.0.parse(input)
     }
 }
 
@@ -296,18 +324,18 @@ mod tests {
     #[test]
     fn dyn_test() {
         let p = par("hello");
-        let d: &dyn Parse<&str, Out=&str, Err=()> = &p;
+        let d: &dyn Parse<Res=&str, Err=(), On=&str> = &p;
 
         assert_eq!(d.parse("hello!"), Ok(("hello", "!")));
 
-        let b: Box<dyn Parse<&str, Out=&str, Err=()>> = Box::new(p);
+        let b: Box<dyn Parse<Res=&str, Err=(), On=&str>> = Box::new(p);
 
         assert_eq!(b.parse("hello!"), Ok(("hello", "!")));
     }
 
     #[test]
     fn fn_test() {
-        fn dots<'p, 'i>() -> BoxedStrParser<'p, 'i, String> {
+        fn dots<'p>() -> BoxedStrParser<'p, String> {
             let p = stringed_par('.') & (stringed_par('!') | dots);
             p.boxed()
         }

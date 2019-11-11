@@ -1,16 +1,17 @@
-use crate::Parse;
+use crate::{Parse, Parsed};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Opt<P>(pub(crate) P);
 
-impl<'i, P> Parse<&'i str> for Opt<P>
+impl<'p, P> Parse<'p> for Opt<P>
     where
-        P: Parse<&'i str, Out=&'i str>,
+        P: Parse<'p, Res=&'p str, On=&'p str>,
 {
+    type Res = P::Res;
     type Err = P::Err;
-    type Out = P::Out;
+    type On = &'p str;
 
-    fn parse(&self, input: &'i str) -> Result<(Self::Out, &'i str), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         match self.0.parse(input) {
             o @ Ok(_) => o,
             Err(_) => Ok(("", input)),

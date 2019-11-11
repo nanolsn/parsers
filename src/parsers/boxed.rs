@@ -1,15 +1,21 @@
-use crate::{Parse, Parser};
+use crate::{Parse, Parser, Parsed};
 
-pub struct Boxed<'p, I, O, E>(pub(crate) Box<dyn Parse<I, Out=O, Err=E> + 'p>);
+pub struct Boxed<'p, I, O, E>(pub(crate) Box<dyn Parse<'p, Res=O, Err=E, On=I> + 'p>);
 
-impl<'p, I, O, E> Parse<I> for Boxed<'p, I, O, E> {
+impl<'p, I, O, E> Parse<'p> for Boxed<'p, I, O, E>
+    where
+        I: 'p,
+        O: 'p,
+        E: 'p,
+{
+    type Res = O;
     type Err = E;
-    type Out = O;
+    type On = I;
 
-    fn parse(&self, input: I) -> Result<(Self::Out, I), Self::Err> {
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input)
     }
 }
 
-pub type BoxedStrParser<'p, 'i, R, E=()> = Parser<Boxed<'p, &'i str, R, E>>;
+pub type BoxedStrParser<'p, R, E=()> = Parser<Boxed<'p, &'p str, R, E>>;
 pub type BoxedParser<'p, I, R, E=()> = Parser<Boxed<'p, I, R, E>>;
