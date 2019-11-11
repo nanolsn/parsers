@@ -156,18 +156,16 @@ pub struct AndThen<P, F>(pub(crate) P, pub(crate) F);
 impl<'p, P, F, N> Parse<'p> for AndThen<P, F>
     where
         P: Parse<'p>,
-        F: Fn(&P::Res) -> N,
+        F: Fn(P::Res) -> N,
         N: Parse<'p, Err=P::Err, On=P::On>,
 {
-    type Res = (P::Res, N::Res);
+    type Res = N::Res;
     type Err = P::Err;
     type On = P::On;
 
     fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
         self.0.parse(input)
-            .and_then(|(p, rest)| (self.1)(&p).parse(rest)
-                .map(|(n, rest)| ((p, n), rest))
-            )
+            .and_then(|(p, rest)| (self.1)(p).parse(rest))
     }
 }
 
@@ -218,9 +216,9 @@ mod tests {
     #[test]
     fn parser_and_then() {
         let num = (par('a'..='z') | par('A'..='Z')) * ..;
-        let p = num.and_then(|n: &String| par(':') >> n.clone());
+        let p = num.and_then(|n: String| par(':') >> n);
 
-        assert_eq!(p.parse_result("Hello:Hello"), Ok(("Hello".to_string(), "Hello")));
+        assert_eq!(p.parse_result("Hello:Hello"), Ok("Hello"));
         assert_eq!(p.parse_result("Hello:Hi!"), Err(()));
     }
 
