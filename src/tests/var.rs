@@ -1,4 +1,4 @@
-mod xml;
+use crate::{par, Parse, stringed_par, pred_fn};
 
 #[derive(Debug, PartialOrd, PartialEq)]
 enum Var {
@@ -12,7 +12,6 @@ enum Var {
 }
 
 use Var::*;
-use crate::{par, Parse, stringed_par, pred_fn};
 
 #[test]
 fn test() {
