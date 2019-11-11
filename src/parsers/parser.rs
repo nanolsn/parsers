@@ -7,7 +7,7 @@ use std::ops::Deref;
 pub struct Parser<P>(pub(crate) P);
 
 impl<P> Parser<P> {
-    pub fn and_then<F>(self, f: F) -> Parser<AndThen<P, F>> {
+    pub fn and_then<'p, F>(self, f: F) -> Parser<AndThen<P, F>> {
         Parser(AndThen(self.0, f))
     }
 

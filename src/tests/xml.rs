@@ -7,31 +7,58 @@ struct Xml {
     inner: Vec<Xml>,
 }
 
-fn parser<'p>() -> BoxedStrParser<'p, Vec<Xml>> {
-    let space = (par(' ') | '\n' | '\t') * ..;
-    let digit = pred_fn(pattern!('0'..='9'));
-    let letter = pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z'));
-    let ident_begin = par(letter | '_');
-    let ident = stringed_par(ident_begin) & (ident_begin | digit | '-') * ..;
+fn space<'i>() -> BoxedStrParser<'i, String> {
+    ((par(' ') | '\n' | '\t') * ..).boxed()
+}
 
-    let quote = par('"') >> (par("\\\"") | any()).until('"').map(|(s, _)| s);
-    let attr = par((ident, par('=') >> quote));
-    let attrs = (space >> attr) ^ ..;
-    let inner = parser;
+fn digit<'i>() -> BoxedStrParser<'i, &'i str> {
+    pred_fn(pattern!('0'..='9')).boxed()
+}
 
-    let name = par('<') >> ident;
-    let tag_attrs = space >> attrs << space << '>';
+fn letter<'i>() -> BoxedStrParser<'i, &'i str> {
+    (pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z'))).boxed()
+}
 
-    let tag = par((name, tag_attrs, inner))
+fn ident_begin<'i>() -> BoxedStrParser<'i, &'i str> {
+    (par(letter() | '_')).boxed()
+}
+
+fn ident<'i>() -> BoxedStrParser<'i, String> {
+    (stringed_par(ident_begin()) & (ident_begin() | digit() | '-') * ..).boxed()
+}
+
+fn quote<'i>() -> BoxedStrParser<'i, String> {
+    (par('"') >> (par("\\\"") | any()).until('"').map(|(s, _)| s)).boxed()
+}
+
+fn attr<'i>() -> BoxedStrParser<'i, (String, String)> {
+    par((ident(), par('=') >> quote())).boxed()
+}
+
+fn attrs<'i>() -> BoxedStrParser<'i, Vec<(String, String)>> {
+    ((space() >> attr()) ^ ..).boxed()
+}
+
+fn name<'i>() -> BoxedStrParser<'i, String> {
+    (par('<') >> ident()).boxed()
+}
+
+fn tag_attrs<'i>() -> BoxedStrParser<'i, Vec<(String, String)>> {
+    (space() >> attrs() << space() << '>').boxed()
+}
+
+fn parser<'i>() -> BoxedStrParser<'i, Vec<Xml>> {
+
+    let tag = par((name(), tag_attrs(), parser))
         .map(|(name, attrs, inner)| Xml {
             name,
             attrs,
             inner,
         })
-        .and_then(move |xml: &Xml| space >> "</" >> xml.name.clone() << '>')
+        .and_then(|xml: &Xml| space() >> "</" >> xml.name.clone() << '>')
         .map(|(x, _)| x);
 
-    ((space >> tag) ^ ..).boxed()
+    ((space() >> tag) ^ ..).boxed()
 }
 
 #[test]

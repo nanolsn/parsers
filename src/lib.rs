@@ -63,5 +63,5 @@ macro_rules! pattern {
 #[cfg(test)]
 mod tests {
     //mod var;
-    //mod xml;
+    mod xml;
 }
