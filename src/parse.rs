@@ -200,7 +200,7 @@ impl_tuple!(P0, P1, P2, P3, P4, P5, P6; r0, r1, r2, r3, r4, r5, r6);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{par, stringed_par, BoxedStrParser};
+    use crate::{par, stringed_par, BoxedParser};
 
     #[test]
     fn parse_str() {
@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn fn_test() {
-        fn dots<'p>() -> BoxedStrParser<'p, String> {
+        fn dots<'p>() -> BoxedParser<'p, String> {
             let p = stringed_par('.') & (stringed_par('!') | dots);
             p.boxed()
         }

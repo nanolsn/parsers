@@ -1,7 +1,6 @@
 #[macro_use]
 mod impl_tuple;
 mod parse;
-mod maps;
 
 mod parsers {
     pub mod parser;
@@ -9,8 +8,6 @@ mod parsers {
     pub mod second;
     pub mod first;
     pub mod or_parser;
-    pub mod repeat;
-    pub mod repeat_vec;
     pub mod range;
     pub mod range_vec;
     pub mod concat;
@@ -20,18 +17,26 @@ mod parsers {
     pub mod pred;
     pub mod not;
     pub mod opt;
-    pub mod boxed;
     pub mod ret;
 }
 
 pub use parsers::{
-    parser::{par, stringed_par, pred_fn, Parser, OrElse, AndThen},
+    parser::{
+        par,
+        stringed_par,
+        pred_fn,
+        boxed,
+        Parser,
+        OrElse,
+        AndThen,
+        Map,
+        MapErr,
+        BoxedParser,
+    },
     list_parser::{ListParser, HeadParser},
     second::Second,
     first::First,
     or_parser::OrParser,
-    repeat::Repeat,
-    repeat_vec::RepeatVec,
     range::Range,
     range_vec::RangeVec,
     concat::Concat,
@@ -41,7 +46,6 @@ pub use parsers::{
     pred::Pred,
     not::Not,
     opt::Opt,
-    boxed::{Boxed, BoxedParser, BoxedStrParser},
     ret::{Ret, ret},
 };
 
@@ -62,6 +66,5 @@ macro_rules! pattern {
 
 #[cfg(test)]
 mod tests {
-    //mod var;
     mod xml;
 }

@@ -1,4 +1,4 @@
-use crate::{Parse, par, pred_fn, stringed_par, any, BoxedStrParser};
+use crate::{Parse, par, pred_fn, stringed_par, any, BoxedParser, boxed};
 
 #[derive(Debug, PartialEq)]
 struct Xml {
@@ -7,51 +7,51 @@ struct Xml {
     inner: Vec<Xml>,
 }
 
-fn space<'i>() -> BoxedStrParser<'i, String> {
-    ((par(' ') | '\n' | '\t') * ..).boxed()
+fn space<'i>() -> BoxedParser<'i, String> {
+    boxed((par(' ') | '\n' | '\t') * ..)
 }
 
-fn digit<'i>() -> BoxedStrParser<'i, &'i str> {
+fn digit<'i>() -> BoxedParser<'i, &'i str> {
     pred_fn(pattern!('0'..='9')).boxed()
 }
 
-fn letter<'i>() -> BoxedStrParser<'i, &'i str> {
-    (pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z'))).boxed()
+fn letter<'i>() -> BoxedParser<'i, &'i str> {
+    boxed(pred_fn(pattern!('a'..='z')) | pred_fn(pattern!('A'..='Z')))
 }
 
-fn ident_begin<'i>() -> BoxedStrParser<'i, &'i str> {
-    (par(letter() | '_')).boxed()
+fn ident_begin<'i>() -> BoxedParser<'i, &'i str> {
+    boxed(letter() | '_')
 }
 
-fn ident<'i>() -> BoxedStrParser<'i, String> {
+fn ident<'i>() -> BoxedParser<'i, String> {
     (stringed_par(ident_begin()) & (ident_begin() | digit() | '-') * ..).boxed()
 }
 
-fn quote<'i>() -> BoxedStrParser<'i, String> {
+fn quote<'i>() -> BoxedParser<'i, String> {
     (par('"') >> (par("\\\"") | any()).until('"').map(|(s, _)| s)).boxed()
 }
 
-fn attr<'i>() -> BoxedStrParser<'i, (String, String)> {
+fn attr<'i>() -> BoxedParser<'i, (String, String)> {
     par((ident(), par('=') >> quote())).boxed()
 }
 
-fn attrs<'i>() -> BoxedStrParser<'i, Vec<(String, String)>> {
-    ((space() >> attr()) ^ ..).boxed()
+fn attrs<'i>() -> BoxedParser<'i, Vec<(String, String)>> {
+    boxed((space() >> attr()) ^ ..)
 }
 
-fn name<'i>() -> BoxedStrParser<'i, String> {
-    (par('<') >> ident()).boxed()
+fn name<'i>() -> BoxedParser<'i, String> {
+    boxed(par('<') >> ident())
 }
 
-fn tag_attrs<'i>() -> BoxedStrParser<'i, Vec<(String, String)>> {
-    (space() >> attrs() << space() << '>').boxed()
+fn tag_attrs<'i>() -> BoxedParser<'i, Vec<(String, String)>> {
+    boxed(space() >> attrs() << space() << '>')
 }
 
-fn closed_name<'i>() -> BoxedStrParser<'i, String> {
-    (space() >> "</" >> ident() << '>').boxed()
+fn closed_name<'i>() -> BoxedParser<'i, String> {
+    boxed(space() >> "</" >> ident() << '>')
 }
 
-fn parse_xml<'i>() -> BoxedStrParser<'i, Xml> {
+fn parse_xml<'i>() -> BoxedParser<'i, Xml> {
     let xml = par((name(), tag_attrs(), parser, closed_name()))
         .pred(|(name, _, _, closed_name)| name == closed_name)
         .map(|(name, attrs, inner, _)| Xml {
@@ -62,7 +62,7 @@ fn parse_xml<'i>() -> BoxedStrParser<'i, Xml> {
     xml.boxed()
 }
 
-fn parser<'i>() -> BoxedStrParser<'i, Vec<Xml>> {
+fn parser<'i>() -> BoxedParser<'i, Vec<Xml>> {
     ((space() >> parse_xml()) ^ ..).boxed()
 }
 

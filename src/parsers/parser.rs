@@ -1,5 +1,4 @@
-use crate::{Parse, Repeat, Until, RangeVec, UntilVec, Pred, Opt, Boxed, PredFn, Parsed};
-use crate::maps::{Map, MapErr};
+use crate::{Parse, Until, RangeVec, UntilVec, Pred, Opt, PredFn, Parsed};
 use crate::parsers::range::Range;
 use std::ops::Deref;
 
@@ -15,8 +14,12 @@ impl<P> Parser<P> {
         Parser(OrElse(self.0, f))
     }
 
-    pub fn repeat(self, times: usize) -> Parser<Repeat<P>> {
-        Parser(Repeat(self.0, times))
+    pub fn repeat(self, times: usize) -> Parser<Range<P>> {
+        Parser(Range {
+            parser: self.0,
+            from: times,
+            to: Some(times),
+        })
     }
 
     pub fn range(self, from: usize, to: usize) -> Parser<Range<P>> {
@@ -70,11 +73,11 @@ impl<P> Parser<P> {
         Parser(Opt(self.0))
     }
 
-    pub fn boxed<'p>(self) -> Parser<Boxed<'p, P::On, P::Res, P::Err>>
+    pub fn boxed<'p>(self) -> BoxedParser<'p, P::Res, P::Err, P::On>
         where
             P: Parse<'p> + 'p,
     {
-        Parser(Boxed(Box::new(self.0)))
+        Parser(Box::new(self.0))
     }
 
     pub fn map<F, A, B>(self, f: F) -> Parser<Map<P, F>>
@@ -188,6 +191,67 @@ impl<'p, P, F, N> Parse<'p> for OrElse<P, F>
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct Map<P, F>(pub(crate) P, pub(crate) F);
+
+impl<'p, P, F, A, B> Parse<'p> for Map<P, F>
+    where
+        P: Parse<'p, Res=A>,
+        F: Fn(A) -> B,
+        A: 'p,
+        B: 'p,
+{
+    type Res = B;
+    type Err = P::Err;
+    type On = P::On;
+
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
+        self.0.parse(input).map(|(out, rest)| ((self.1)(out), rest))
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct MapErr<P, F>(pub(crate) P, pub(crate) F);
+
+impl<'p, P, F, E, G> Parse<'p> for MapErr<P, F>
+    where
+        P: Parse<'p, Err=E>,
+        F: Fn(E) -> G,
+        E: 'p,
+        G: 'p,
+{
+    type Res = P::Res;
+    type Err = G;
+    type On = P::On;
+
+    fn parse(&self, input: Self::On) -> Parsed<Self::Res, Self::Err, Self::On> {
+        self.0.parse(input).map_err(|e| (self.1)(e))
+    }
+}
+
+pub type BoxedParser<'p, R, E=(), O=&'p str> = Parser<Box<dyn Parse<'p, Res=R, Err=E, On=O> + 'p>>;
+
+impl<'p, R, E, O> Parse<'p> for Box<dyn Parse<'p, Res=R, Err=E, On=O> + 'p>
+    where
+        R: 'p,
+        E: 'p,
+{
+    type Res = R;
+    type Err = E;
+    type On = O;
+
+    fn parse(&self, input: Self::On) -> Result<(Self::Res, Self::On), Self::Err> {
+        self.as_ref().parse(input)
+    }
+}
+
+pub fn boxed<'p, P>(parser: P) -> BoxedParser<'p, P::Res, P::Err, P::On>
+    where
+        P: Parse<'p> + 'p,
+{
+    Parser(Box::new(parser))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -229,5 +293,21 @@ mod tests {
         assert_eq!(p.parse_result("w"), Ok("w"));
         assert_eq!(p.parse_result("q"), Ok("q"));
         assert_eq!(p.parse_result("e"), Err(()));
+    }
+
+    #[test]
+    fn parse_map() {
+        let l = par("a").map(|_| 1);
+
+        assert_eq!(l.parse("ab"), Ok((1, "b")));
+        assert_eq!(l.parse("c"), Err(()));
+    }
+
+    #[test]
+    fn parse_map_err() {
+        let l = par("a").map_err(|_| 1);
+
+        assert_eq!(l.parse("ab"), Ok(("a", "b")));
+        assert_eq!(l.parse("c"), Err(1));
     }
 }
