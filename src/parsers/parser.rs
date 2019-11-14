@@ -229,29 +229,6 @@ impl<'p, P, F, E, G> Parse<'p> for MapErr<P, F>
     }
 }
 
-pub type BoxedParser<'p, R, E=(), O=&'p str> = Parser<Box<dyn Parse<'p, Res=R, Err=E, On=O> + 'p>>;
-
-impl<'p, R, E, O> Parse<'p> for Box<dyn Parse<'p, Res=R, Err=E, On=O> + 'p>
-    where
-        R: 'p,
-        E: 'p,
-{
-    type Res = R;
-    type Err = E;
-    type On = O;
-
-    fn parse(&self, input: Self::On) -> Result<(Self::Res, Self::On), Self::Err> {
-        self.as_ref().parse(input)
-    }
-}
-
-pub fn boxed<'p, P>(parser: P) -> BoxedParser<'p, P::Res, P::Err, P::On>
-    where
-        P: Parse<'p> + 'p,
-{
-    Parser(Box::new(parser))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -19,6 +19,8 @@ mod rules {
     pub mod range;
     pub mod range_vec;
     pub mod opt;
+    pub mod boxed;
+    pub mod pred;
 
     pub use or::Or;
     pub use concat::Concat;
@@ -36,6 +38,8 @@ mod rules {
     pub use range::Range;
     pub use range_vec::RangeVec;
     pub use opt::Opt;
+    pub use boxed::{BoxedRule, boxed};
+    pub use pred::Pred;
 }
 
 pub use rules::*;
