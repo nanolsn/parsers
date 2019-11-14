@@ -1,70 +1,32 @@
-#[macro_use]
-mod impl_tuple;
-mod parse;
+mod comply;
+mod rule;
+mod parser;
 
-mod parsers {
-    pub mod parser;
-    pub mod list_parser;
-    pub mod second;
-    pub mod first;
-    pub mod or_parser;
-    pub mod range;
-    pub mod range_vec;
+mod rules {
+    pub mod or;
     pub mod concat;
-    pub mod any;
-    pub mod until;
-    pub mod until_vec;
-    pub mod pred;
     pub mod not;
-    pub mod opt;
     pub mod ret;
+    pub mod ret_err;
+    pub mod string_res;
+    pub mod first;
+    pub mod second;
+    pub mod and_then;
+    pub mod or_else;
+
+    pub use or::Or;
+    pub use concat::Concat;
+    pub use not::Not;
+    pub use ret::Ret;
+    pub use ret_err::RetErr;
+    pub use string_res::StringRes;
+    pub use first::First;
+    pub use second::Second;
+    pub use and_then::AndThen;
+    pub use or_else::OrElse;
 }
 
-pub use parsers::{
-    parser::{
-        par,
-        stringed_par,
-        pred_fn,
-        boxed,
-        Parser,
-        OrElse,
-        AndThen,
-        Map,
-        MapErr,
-        BoxedParser,
-    },
-    list_parser::{ListParser, HeadParser},
-    second::Second,
-    first::First,
-    or_parser::OrParser,
-    range::Range,
-    range_vec::RangeVec,
-    concat::Concat,
-    any::{Any, ANY, any},
-    until::Until,
-    until_vec::UntilVec,
-    pred::Pred,
-    not::Not,
-    opt::Opt,
-    ret::{Ret, ret},
-};
-
-pub use parse::Parse;
-pub use parse::Parsed;
-pub use parse::PredFn;
-
-// TODO: Delete this shit and make a char range parser
-#[macro_export]
-macro_rules! pattern {
-    ($p:pat) => {
-        |a| match a {
-            $p => true,
-            _ => false,
-        }
-    };
-}
-
-#[cfg(test)]
-mod tests {
-    mod xml;
-}
+pub use rules::*;
+pub use comply::Comply;
+pub use parser::*;
+pub use rule::{rule, Rule};

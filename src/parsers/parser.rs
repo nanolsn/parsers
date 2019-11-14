@@ -265,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    fn parser_map_to_string() {
+    fn parser_stringed_par() {
         let p = super::stringed_par("a");
 
         assert_eq!(p.parse("a b"), Ok(("a".to_string(), " b")));
