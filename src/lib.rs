@@ -13,6 +13,9 @@ mod rules {
     pub mod second;
     pub mod and_then;
     pub mod or_else;
+    pub mod any;
+    pub mod map;
+    pub mod map_err;
 
     pub use or::Or;
     pub use concat::Concat;
@@ -24,6 +27,9 @@ mod rules {
     pub use second::Second;
     pub use and_then::AndThen;
     pub use or_else::OrElse;
+    pub use any::{any, Any};
+    pub use map::Map;
+    pub use map_err::MapErr;
 }
 
 pub use rules::*;
