@@ -11,6 +11,9 @@ use crate::{
     Pred,
     Range,
     RangeVec,
+    Or,
+    Concat,
+    Not,
 };
 use crate::Parser;
 
@@ -25,6 +28,29 @@ pub fn rule<'p, R>(rule: R) -> Rule<R>
 }
 
 impl<R> Rule<R> {
+    pub fn and<'p, P>(self, rule: P) -> Rule<Concat<R, P>>
+        where
+            R: Comply<'p>,
+            P: Comply<'p, Err=R::Err, On=R::On>,
+    {
+        Rule(Concat(self.0, rule))
+    }
+
+    pub fn or<'p, P>(self, rule: P) -> Rule<Or<R, P>>
+        where
+            R: Comply<'p>,
+            P: Comply<'p, Res=R::Res, Err=R::Err, On=R::On>,
+    {
+        Rule(Or(self.0, rule))
+    }
+
+    pub fn not<'p>(self) -> Rule<Not<R>>
+        where
+            R: Comply<'p>,
+    {
+        Rule(Not(self.0))
+    }
+
     pub fn and_then<'p, F, N>(self, f: F) -> Rule<AndThen<R, F>>
         where
             R: Comply<'p>,

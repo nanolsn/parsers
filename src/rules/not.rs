@@ -1,4 +1,4 @@
-use crate::Comply;
+use crate::{Comply, Rule};
 use crate::Parser;
 
 #[derive(Copy, Clone, Debug)]
@@ -24,13 +24,25 @@ impl<'p, A> Comply<'p> for Not<A>
     }
 }
 
+impl<'p, A> std::ops::Not for Rule<A>
+    where
+        A: Comply<'p>,
+{
+    type Output = Rule<Not<A>>;
+
+    fn not(self) -> Self::Output {
+        Rule(Not(self.0))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rule;
 
     #[test]
     fn not() {
-        let r = Not('a');
+        let r = !rule('a');
 
         assert_eq!(
             Parser::new("a").parse(r),

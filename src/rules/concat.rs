@@ -54,7 +54,7 @@ mod tests {
 
     #[test]
     fn concat() {
-        let r = rule('@') & '#';
+        let r = rule('@').and('#');
 
         assert_eq!(
             Parser::new("@#".to_owned().as_str()).parse(r),

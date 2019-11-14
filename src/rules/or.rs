@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn or() {
-        let r = Or(rule('@'), '#');
+        let r = rule('@').or('#');
 
         assert_eq!(
             Parser::new("@".to_owned().as_str()).parse(r),
