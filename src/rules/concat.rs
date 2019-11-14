@@ -38,7 +38,7 @@ impl<'p, A, B, T, S> Comply<'p> for Concat<A, B>
 impl<'p, A, B> BitAnd<B> for Rule<A>
     where
         A: Comply<'p>,
-        B: Comply<'p>,
+        B: Comply<'p, Err=A::Err, On=A::On>,
 {
     type Output = Rule<Concat<A, B>>;
 

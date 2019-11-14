@@ -35,11 +35,12 @@ impl<'p, R, F> Comply<'p> for Pred<R, F>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{rule, Or, Parser};
+    use crate::rule;
 
     #[test]
     fn pred() {
-        let r = Pred(Or(rule("@"), "#"), |s: &&str| *s == "@");
+        let r = (rule("@") | "#")
+            .pred(|s: &&str| *s == "@");
 
         assert_eq!(
             Parser::new("@").parse(r),

@@ -37,6 +37,16 @@ impl<'p> Comply<'p> for str {
     }
 }
 
+impl<'p> Comply<'p> for &str {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        (*self).comply(parser)
+    }
+}
+
 impl<'p> Comply<'p> for String {
     type Res = &'p str;
     type Err = ();
@@ -47,16 +57,17 @@ impl<'p> Comply<'p> for String {
     }
 }
 
-impl<'p, T> Comply<'p> for &T
+impl<'p, F, R> Comply<'p> for F
     where
-        T: Comply<'p> + ?Sized,
+        F: Fn() -> R,
+        R: Comply<'p>,
 {
-    type Res = T::Res;
-    type Err = T::Err;
-    type On = T::On;
+    type Res = R::Res;
+    type Err = R::Err;
+    type On = R::On;
 
     fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
-        (*self).comply(parser)
+        self().comply(parser)
     }
 }
 
@@ -299,6 +310,20 @@ mod tests {
         assert_eq!(
             Parser::new("$").parse(r),
             (Err(()), "$"),
+        );
+    }
+
+    #[test]
+    fn comply_fn() {
+        let r = || rule('a');
+
+        assert_eq!(
+            Parser::new("ab").parse(r),
+            (Ok("a"), "b"),
+        );
+        assert_eq!(
+            Parser::new("c").parse(r),
+            (Err(()), "c"),
         );
     }
 

@@ -30,7 +30,7 @@ mod tests {
 
     #[test]
     fn opt() {
-        let r = Opt(rule("hello"));
+        let r = rule("hello").opt();
 
         assert_eq!(
             Parser::new("hello").parse(r),

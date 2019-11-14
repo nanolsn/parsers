@@ -33,7 +33,6 @@ impl<'p, R, F, N> Comply<'p> for AndThen<R, F>
 mod tests {
     use super::*;
     use crate::rule;
-    use crate::Or;
 
     #[test]
     fn and_then() {
@@ -41,7 +40,7 @@ mod tests {
             rule('.') >> s
         }
 
-        let r = AndThen(Or(rule('0'), '1'), then);
+        let r = (rule('0') | '1').and_then(then);
 
         assert_eq!(
             Parser::new("0.0.").parse(r),

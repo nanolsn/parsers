@@ -34,8 +34,8 @@ mod tests {
     use crate::rule;
 
     #[test]
-    fn and_then() {
-        let r = OrElse(rule('0'), |_| rule('1'));
+    fn or_else() {
+        let r = rule('0').or_else(|_| rule('1'));
 
         assert_eq!(
             Parser::new("0.").parse(r),

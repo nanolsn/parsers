@@ -21,12 +21,13 @@ impl<'p, R, F, K> Comply<'p> for Map<R, F>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{rule, Or};
+    use crate::rule;
     use std::str::FromStr;
 
     #[test]
-    fn and_then() {
-        let r = Map(Or(rule('1'), '2'), |s: &str| i32::from_str(s).unwrap());
+    fn map() {
+        let r = (rule('1') | '2')
+            .map(|s: &str| i32::from_str(s).unwrap());
 
         assert_eq!(
             Parser::new("1").parse(r),

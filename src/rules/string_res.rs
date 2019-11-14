@@ -28,11 +28,10 @@ pub fn string_res<'p, R>(rule: R) -> Rule<StringRes<R>>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rule;
 
     #[test]
-    fn ret() {
-        let r = StringRes(rule('@'));
+    fn string_res() {
+        let r = super::string_res('@');
 
         assert_eq!(
             Parser::new("@").parse(r),

@@ -1,5 +1,6 @@
-use crate::Comply;
+use crate::{Comply, Rule};
 use crate::Parser;
+use std::ops::BitOr;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Or<A, B>(pub A, pub B);
@@ -19,6 +20,18 @@ impl<'p, A, B> Comply<'p> for Or<A, B>
             assert_eq!(parser.get_pos(), pos);
             self.1.comply(parser)
         })
+    }
+}
+
+impl<'p, A, B> BitOr<B> for Rule<A>
+    where
+        A: Comply<'p>,
+        B: Comply<'p, Res=A::Res, Err=A::Err, On=A::On>,
+{
+    type Output = Rule<Or<A, B>>;
+
+    fn bitor(self, rhs: B) -> Self::Output {
+        Rule(Or(self.0, rhs))
     }
 }
 

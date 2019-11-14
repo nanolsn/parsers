@@ -14,6 +14,7 @@ mod rules {
     pub mod and_then;
     pub mod or_else;
     pub mod any;
+    pub mod any_pred;
     pub mod map;
     pub mod map_err;
     pub mod range;
@@ -21,6 +22,8 @@ mod rules {
     pub mod opt;
     pub mod boxed;
     pub mod pred;
+    pub mod until;
+    pub mod until_vec;
 
     pub use or::Or;
     pub use concat::Concat;
@@ -33,6 +36,7 @@ mod rules {
     pub use and_then::AndThen;
     pub use or_else::OrElse;
     pub use any::{any, Any};
+    pub use any_pred::{any_pred, AnyPred};
     pub use map::Map;
     pub use map_err::MapErr;
     pub use range::Range;
@@ -40,6 +44,8 @@ mod rules {
     pub use opt::Opt;
     pub use boxed::{BoxedRule, boxed};
     pub use pred::Pred;
+    pub use until::Until;
+    pub use until_vec::UntilVec;
 }
 
 pub use rules::*;

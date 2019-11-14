@@ -24,8 +24,9 @@ mod tests {
     use crate::rule;
 
     #[test]
-    fn and_then() {
-        let r = MapErr(rule('1'), |_| 1);
+    fn map_err() {
+        let r = rule('1')
+            .map_err(|_| 1);
 
         assert_eq!(
             Parser::new("1").parse(r),
