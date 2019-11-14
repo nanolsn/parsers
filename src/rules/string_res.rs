@@ -1,9 +1,8 @@
-use crate::Comply;
+use crate::{Comply, Rule};
 use crate::Parser;
 
 #[derive(Copy, Clone, Debug)]
 pub struct StringRes<P>(pub P);
-// TODO: Make string_res method
 
 impl<'p, P, S> Comply<'p> for StringRes<P>
     where
@@ -17,6 +16,13 @@ impl<'p, P, S> Comply<'p> for StringRes<P>
     fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
         self.0.comply(parser).map(|s| s.into())
     }
+}
+
+pub fn string_res<'p, R>(rule: R) -> Rule<StringRes<R>>
+    where
+        R: Comply<'p>,
+{
+    Rule(StringRes(rule))
 }
 
 #[cfg(test)]
