@@ -1,6 +1,7 @@
 mod comply;
-mod rule;
 mod parser;
+mod rule;
+mod rule_type;
 
 mod rules {
     pub mod or;
