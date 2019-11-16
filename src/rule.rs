@@ -1,20 +1,4 @@
-use crate::{
-    Comply,
-    Until,
-    UntilVec,
-    AndThen,
-    OrElse,
-    Map,
-    MapErr,
-    BoxedRule,
-    Opt,
-    Pred,
-    Range,
-    RangeVec,
-    Or,
-    Concat,
-    Not,
-};
+use crate::{Comply, Until, UntilVec, AndThen, OrElse, Map, MapErr, BoxedRule, Opt, Pred, Range, RangeVec, Or, Concat, Not, OrEmpty};
 use crate::Parser;
 
 #[derive(Copy, Clone, Debug)]
@@ -119,6 +103,13 @@ impl<R> Rule<R> {
             R: Comply<'p, On=&'p str>,
     {
         Rule(Opt(self.0))
+    }
+
+    pub fn or_empty<'p>(self) -> Rule<OrEmpty<R>>
+        where
+            R: Comply<'p, Res=&'p str, On=&'p str>,
+    {
+        Rule(OrEmpty(self.0))
     }
 
     pub fn boxed<'p>(self) -> BoxedRule<'p, R::Res, R::Err, R::On>

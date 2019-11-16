@@ -22,6 +22,7 @@ mod rules {
     pub mod range;
     pub mod range_vec;
     pub mod opt;
+    pub mod or_empty;
     pub mod boxed;
     pub mod pred;
     pub mod until;
@@ -44,6 +45,7 @@ mod rules {
     pub use range::Range;
     pub use range_vec::RangeVec;
     pub use opt::Opt;
+    pub use or_empty::OrEmpty;
     pub use boxed::{BoxedRule, boxed};
     pub use pred::Pred;
     pub use until::Until;

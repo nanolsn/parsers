@@ -90,6 +90,52 @@ impl<'p> Comply<'p> for White {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub struct NewLine;
+
+pub fn new_line() -> NewLine {
+    NewLine
+}
+
+impl<'p> Comply<'p> for NewLine {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        let nl = "\r\n";
+        if parser.rest().starts_with(nl) {
+            return Ok(parser.step(nl.len()))
+        }
+
+        match parser.rest().chars().next() {
+            Some(c @ '\n') => Ok(parser.step(c.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Alpha;
+
+pub fn alpha() -> Alpha {
+    Alpha
+}
+
+impl<'p> Comply<'p> for Alpha {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        match parser.rest().chars().next() {
+            Some(c @ 'a'..='z') => Ok(parser.step(c.len_utf8())),
+            Some(c @ 'A'..='Z') => Ok(parser.step(c.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,6 +209,42 @@ mod tests {
         assert_eq!(
             Parser::new("a ").parse(super::white()),
             (Err(()), "a "),
+        );
+    }
+
+    #[test]
+    fn new_line() {
+        assert_eq!(
+            Parser::new("\r\n").parse(super::new_line()),
+            (Ok("\r\n"), ""),
+        );
+        assert_eq!(
+            Parser::new("\n").parse(super::new_line()),
+            (Ok("\n"), ""),
+        );
+        assert_eq!(
+            Parser::new("a").parse(super::new_line()),
+            (Err(()), "a"),
+        );
+    }
+
+    #[test]
+    fn alpha() {
+        assert_eq!(
+            Parser::new("a").parse(super::alpha()),
+            (Ok("a"), ""),
+        );
+        assert_eq!(
+            Parser::new("Z").parse(super::alpha()),
+            (Ok("Z"), ""),
+        );
+        assert_eq!(
+            Parser::new("1").parse(super::alpha()),
+            (Err(()), "1"),
+        );
+        assert_eq!(
+            Parser::new("").parse(super::alpha()),
+            (Err(()), ""),
         );
     }
 }

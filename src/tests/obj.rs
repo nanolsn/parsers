@@ -17,7 +17,7 @@ fn whites<'o>() -> BoxedRule<'o, String> {
 }
 
 fn float<'o>() -> BoxedRule<'o, f32> {
-    ((rule('-') | "") & rule(digit) * (1..) & '.' & rule(digit) * ..)
+    (rule('-').or_empty() & rule(digit) * (1..) & '.' & rule(digit) * ..)
         .map(|s: String| s.parse::<f32>().unwrap())
         .boxed()
 }
