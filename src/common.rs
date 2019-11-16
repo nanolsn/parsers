@@ -1,0 +1,168 @@
+use crate::{Comply, Parser};
+
+#[derive(Copy, Clone, Debug)]
+pub struct Digit;
+
+pub fn digit() -> Digit {
+    Digit
+}
+
+impl<'p> Comply<'p> for Digit {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        match parser.rest().chars().next() {
+            Some(c @ '0'..='9') => Ok(parser.step(c.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct HexDigit;
+
+pub fn hex_digit() -> HexDigit {
+    HexDigit
+}
+
+impl<'p> Comply<'p> for HexDigit {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        match parser.rest().chars().next() {
+            Some(c @ '0'..='9') => Ok(parser.step(c.len_utf8())),
+            Some(c @ 'a'..='f') => Ok(parser.step(c.len_utf8())),
+            Some(c @ 'A'..='F') => Ok(parser.step(c.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Space;
+
+pub fn space() -> Space {
+    Space
+}
+
+impl<'p> Comply<'p> for Space {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        match parser.rest().chars().next() {
+            Some(' ') => Ok(parser.step(' '.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct White;
+
+pub fn white() -> White {
+    White
+}
+
+impl<'p> Comply<'p> for White {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        let nl = "\r\n";
+        if parser.rest().starts_with(nl) {
+            return Ok(parser.step(nl.len()))
+        }
+
+        match parser.rest().chars().next() {
+            Some(c @ ' ') => Ok(parser.step(c.len_utf8())),
+            Some(c @ '\n') => Ok(parser.step(c.len_utf8())),
+            Some(c @ '\r') => Ok(parser.step(c.len_utf8())),
+            Some(c @ '\t') => Ok(parser.step(c.len_utf8())),
+            _ => Err(()),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn digit() {
+        assert_eq!(
+            Parser::new("0").parse(super::digit()),
+            (Ok("0"), ""),
+        );
+        assert_eq!(
+            Parser::new("9").parse(super::digit()),
+            (Ok("9"), ""),
+        );
+        assert_eq!(
+            Parser::new("a").parse(super::digit()),
+            (Err(()), "a"),
+        );
+    }
+
+    #[test]
+    fn hex_digit() {
+        assert_eq!(
+            Parser::new("0").parse(super::hex_digit()),
+            (Ok("0"), ""),
+        );
+        assert_eq!(
+            Parser::new("a").parse(super::hex_digit()),
+            (Ok("a"), ""),
+        );
+        assert_eq!(
+            Parser::new("g").parse(super::hex_digit()),
+            (Err(()), "g"),
+        );
+    }
+
+    #[test]
+    fn space() {
+        assert_eq!(
+            Parser::new(" ").parse(super::space()),
+            (Ok(" "), ""),
+        );
+        assert_eq!(
+            Parser::new("a").parse(super::space()),
+            (Err(()), "a"),
+        );
+    }
+
+    #[test]
+    fn white() {
+        assert_eq!(
+            Parser::new("\r\n ").parse(super::white()),
+            (Ok("\r\n"), " "),
+        );
+        assert_eq!(
+            Parser::new("\n ").parse(super::white()),
+            (Ok("\n"), " "),
+        );
+        assert_eq!(
+            Parser::new("\r ").parse(super::white()),
+            (Ok("\r"), " "),
+        );
+        assert_eq!(
+            Parser::new("\t ").parse(super::white()),
+            (Ok("\t"), " "),
+        );
+        assert_eq!(
+            Parser::new("  ").parse(super::white()),
+            (Ok(" "), " "),
+        );
+        assert_eq!(
+            Parser::new("a ").parse(super::white()),
+            (Err(()), "a "),
+        );
+    }
+}

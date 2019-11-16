@@ -2,6 +2,7 @@ mod comply;
 mod parser;
 mod rule;
 mod rule_type;
+mod common;
 
 mod rules {
     pub mod or;
@@ -53,3 +54,9 @@ pub use rules::*;
 pub use comply::Comply;
 pub use parser::*;
 pub use rule::{rule, Rule};
+pub use common::*;
+
+#[cfg(test)]
+mod tests {
+    mod obj;
+}

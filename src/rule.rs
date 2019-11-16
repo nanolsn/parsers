@@ -116,7 +116,7 @@ impl<R> Rule<R> {
 
     pub fn opt<'p>(self) -> Rule<Opt<R>>
         where
-            R: Comply<'p, Res=&'p str, On=&'p str>,
+            R: Comply<'p, On=&'p str>,
     {
         Rule(Opt(self.0))
     }
