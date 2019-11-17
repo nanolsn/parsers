@@ -17,13 +17,20 @@ impl<'p, V> Comply<'p> for Ret<V>
     }
 }
 
+pub fn ret<V>(value: V) -> Ret<V>
+    where
+        V: Copy,
+{
+    Ret(value)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn ret() {
-        let r = Ret(12);
+        let r = super::ret(12);
 
         assert_eq!(
             Parser::new("hello").parse(r),

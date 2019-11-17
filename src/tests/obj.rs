@@ -1,19 +1,19 @@
-use crate::{Parser, space, white, digit, BoxedRule};
+use crate::{Parser, space, white, digit, BoxedRule, boxed};
 use crate::rule;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-struct Vector {
+struct Vertex {
     x: f32,
     y: f32,
     z: f32,
 }
 
 fn spaces<'o>() -> BoxedRule<'o, String> {
-    (rule(space) * (1..)).boxed()
+    boxed(rule(space) * (1..))
 }
 
 fn whites<'o>() -> BoxedRule<'o, String> {
-    (rule(white) * ..).boxed()
+    boxed(rule(white) * ..)
 }
 
 fn float<'o>() -> BoxedRule<'o, f32> {
@@ -22,18 +22,18 @@ fn float<'o>() -> BoxedRule<'o, f32> {
         .boxed()
 }
 
-fn vector<'o>() -> BoxedRule<'o, Vector> {
+fn vector<'o>() -> BoxedRule<'o, Vertex> {
     (rule(whites) >> 'v' >> spaces() >>
         (float(), rule(spaces) >> float(), (rule(spaces) >> float()).opt())
     )
         .map(|(x, y, z): (f32, f32, Option<f32>)| {
-            Vector { x, y, z: z.unwrap_or(0.0) }
+            Vertex { x, y, z: z.unwrap_or(0.0) }
         })
         .boxed()
 }
 
-fn vectors<'o>() -> BoxedRule<'o, Vec<Vector>> {
-    (rule(vector) << whites() ^ ..).boxed()
+fn vectors<'o>() -> BoxedRule<'o, Vec<Vertex>> {
+    boxed(rule(vector) << whites() ^ ..)
 }
 
 #[test]
@@ -46,8 +46,8 @@ fn obj_parser() {
     assert_eq!(
         Parser::new(code.as_str()).parse_result(vectors),
         Ok(vec![
-            Vector { x: 1.0, y: 1.0, z: 1.0 },
-            Vector { x: -1.0, y: 1.0, z: 1.0 },
+            Vertex { x: 1.0, y: 1.0, z: 1.0 },
+            Vertex { x: -1.0, y: 1.0, z: 1.0 },
         ]),
     );
 }

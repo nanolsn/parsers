@@ -27,19 +27,20 @@ mod rules {
     pub mod pred;
     pub mod until;
     pub mod until_vec;
+    pub mod char_range;
 
     pub use or::Or;
     pub use concat::Concat;
     pub use not::Not;
-    pub use ret::Ret;
-    pub use ret_err::RetErr;
+    pub use ret::{Ret, ret};
+    pub use ret_err::{RetErr, ret_err};
     pub use string_res::{StringRes, string_res};
     pub use first::First;
     pub use second::Second;
     pub use and_then::AndThen;
     pub use or_else::OrElse;
-    pub use any::{any, Any};
-    pub use any_pred::{any_pred, AnyPred};
+    pub use any::{Any, any};
+    pub use any_pred::{AnyPred, any_pred};
     pub use map::Map;
     pub use map_err::MapErr;
     pub use range::Range;
@@ -50,12 +51,13 @@ mod rules {
     pub use pred::Pred;
     pub use until::Until;
     pub use until_vec::UntilVec;
+    pub use char_range::{CharRange, char_range};
 }
 
 pub use rules::*;
 pub use comply::Comply;
 pub use parser::*;
-pub use rule::{rule, Rule};
+pub use rule::{Rule, rule};
 pub use common::*;
 
 #[cfg(test)]

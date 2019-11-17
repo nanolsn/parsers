@@ -17,13 +17,20 @@ impl<'p, E> Comply<'p> for RetErr<E>
     }
 }
 
+pub fn ret_err<E>(err: E) -> RetErr<E>
+    where
+        E: Copy,
+{
+    RetErr(err)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn ret_err() {
-        let r = RetErr(12);
+        let r = super::ret_err(12);
 
         assert_eq!(
             Parser::new("hello").parse(r),
