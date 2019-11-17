@@ -1,4 +1,4 @@
-use crate::{Parser, space, white, digit, BoxedRule, boxed};
+use crate::{Parser, space, white, digit, end, BoxedRule, boxed};
 use crate::rule;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -33,7 +33,7 @@ fn vector<'o>() -> BoxedRule<'o, Vertex> {
 }
 
 fn vectors<'o>() -> BoxedRule<'o, Vec<Vertex>> {
-    boxed(rule(vector) << whites() ^ ..)
+    boxed((rule(vector) << whites() ^ ..) << end())
 }
 
 #[test]

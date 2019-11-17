@@ -28,6 +28,7 @@ mod rules {
     pub mod until;
     pub mod until_vec;
     pub mod char_range;
+    pub mod end;
 
     pub use or::Or;
     pub use concat::Concat;
@@ -52,6 +53,7 @@ mod rules {
     pub use until::Until;
     pub use until_vec::UntilVec;
     pub use char_range::{CharRange, char_range};
+    pub use end::{End, end};
 }
 
 pub use rules::*;
