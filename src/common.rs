@@ -3,7 +3,7 @@ use crate::{Comply, Parser};
 #[derive(Copy, Clone, Debug)]
 pub struct Digit;
 
-pub fn digit() -> Digit {
+pub const fn digit() -> Digit {
     Digit
 }
 
@@ -23,7 +23,7 @@ impl<'p> Comply<'p> for Digit {
 #[derive(Copy, Clone, Debug)]
 pub struct HexDigit;
 
-pub fn hex_digit() -> HexDigit {
+pub const fn hex_digit() -> HexDigit {
     HexDigit
 }
 
@@ -45,7 +45,7 @@ impl<'p> Comply<'p> for HexDigit {
 #[derive(Copy, Clone, Debug)]
 pub struct Space;
 
-pub fn space() -> Space {
+pub const fn space() -> Space {
     Space
 }
 
@@ -65,7 +65,7 @@ impl<'p> Comply<'p> for Space {
 #[derive(Copy, Clone, Debug)]
 pub struct White;
 
-pub fn white() -> White {
+pub const fn white() -> White {
     White
 }
 
@@ -93,7 +93,7 @@ impl<'p> Comply<'p> for White {
 #[derive(Copy, Clone, Debug)]
 pub struct NewLine;
 
-pub fn new_line() -> NewLine {
+pub const fn new_line() -> NewLine {
     NewLine
 }
 
@@ -118,7 +118,7 @@ impl<'p> Comply<'p> for NewLine {
 #[derive(Copy, Clone, Debug)]
 pub struct Alpha;
 
-pub fn alpha() -> Alpha {
+pub const fn alpha() -> Alpha {
     Alpha
 }
 

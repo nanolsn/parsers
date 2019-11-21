@@ -20,7 +20,7 @@ impl<'p> Comply<'p> for CharRange {
     }
 }
 
-pub fn char_range(r: RangeInclusive<char>) -> CharRange {
+pub const fn char_range(r: RangeInclusive<char>) -> CharRange {
     CharRange {
         from: *r.start(),
         to: *r.end(),

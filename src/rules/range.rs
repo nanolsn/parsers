@@ -9,7 +9,7 @@ pub struct Range<R> {
 }
 
 impl<R> Range<R> {
-    pub fn new(rule: R, from: usize, to: Option<usize>) -> Self {
+    pub const fn new(rule: R, from: usize, to: Option<usize>) -> Self {
         Range { rule, from, to }
     }
 }

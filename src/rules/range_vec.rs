@@ -9,7 +9,7 @@ pub struct RangeVec<R> {
 }
 
 impl<R> RangeVec<R> {
-    pub fn new(rule: R, from: usize, to: Option<usize>) -> Self {
+    pub const fn new(rule: R, from: usize, to: Option<usize>) -> Self {
         RangeVec { rule, from, to }
     }
 }

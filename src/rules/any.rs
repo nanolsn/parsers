@@ -16,7 +16,7 @@ impl<'p> Comply<'p> for Any {
     }
 }
 
-pub fn any() -> Rule<Any> {
+pub const fn any() -> Rule<Any> {
     Rule(Any)
 }
 
