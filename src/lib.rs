@@ -15,7 +15,6 @@ mod rules {
     pub mod second;
     pub mod and_then;
     pub mod or_else;
-    pub mod any;
     pub mod any_pred;
     pub mod map;
     pub mod map_err;
@@ -40,7 +39,6 @@ mod rules {
     pub use second::Second;
     pub use and_then::AndThen;
     pub use or_else::OrElse;
-    pub use any::{Any, any};
     pub use any_pred::{AnyPred, any_pred};
     pub use map::Map;
     pub use map_err::MapErr;

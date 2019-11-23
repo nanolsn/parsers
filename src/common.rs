@@ -1,10 +1,10 @@
-use crate::{Comply, Parser};
+use crate::{Comply, Parser, Rule};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Digit;
 
-pub const fn digit() -> Digit {
-    Digit
+pub const fn digit() -> Rule<Digit> {
+    Rule(Digit)
 }
 
 impl<'p> Comply<'p> for Digit {
@@ -23,8 +23,8 @@ impl<'p> Comply<'p> for Digit {
 #[derive(Copy, Clone, Debug)]
 pub struct HexDigit;
 
-pub const fn hex_digit() -> HexDigit {
-    HexDigit
+pub const fn hex_digit() -> Rule<HexDigit> {
+    Rule(HexDigit)
 }
 
 impl<'p> Comply<'p> for HexDigit {
@@ -45,8 +45,8 @@ impl<'p> Comply<'p> for HexDigit {
 #[derive(Copy, Clone, Debug)]
 pub struct Space;
 
-pub const fn space() -> Space {
-    Space
+pub const fn space() -> Rule<Space> {
+    Rule(Space)
 }
 
 impl<'p> Comply<'p> for Space {
@@ -65,8 +65,8 @@ impl<'p> Comply<'p> for Space {
 #[derive(Copy, Clone, Debug)]
 pub struct White;
 
-pub const fn white() -> White {
-    White
+pub const fn white() -> Rule<White> {
+    Rule(White)
 }
 
 impl<'p> Comply<'p> for White {
@@ -93,8 +93,8 @@ impl<'p> Comply<'p> for White {
 #[derive(Copy, Clone, Debug)]
 pub struct NewLine;
 
-pub const fn new_line() -> NewLine {
-    NewLine
+pub const fn new_line() -> Rule<NewLine> {
+    Rule(NewLine)
 }
 
 impl<'p> Comply<'p> for NewLine {
@@ -118,8 +118,8 @@ impl<'p> Comply<'p> for NewLine {
 #[derive(Copy, Clone, Debug)]
 pub struct Alpha;
 
-pub const fn alpha() -> Alpha {
-    Alpha
+pub const fn alpha() -> Rule<Alpha> {
+    Rule(Alpha)
 }
 
 impl<'p> Comply<'p> for Alpha {
@@ -134,6 +134,26 @@ impl<'p> Comply<'p> for Alpha {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct Any;
+
+impl<'p> Comply<'p> for Any {
+    type Res = &'p str;
+    type Err = ();
+    type On = &'p str;
+
+    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
+        match parser.rest().chars().next() {
+            None => Err(()),
+            Some(c) => Ok(parser.step(c.len_utf8())),
+        }
+    }
+}
+
+pub const fn any() -> Rule<Any> {
+    Rule(Any)
 }
 
 #[cfg(test)]
@@ -245,6 +265,18 @@ mod tests {
         assert_eq!(
             Parser::new("").parse(super::alpha()),
             (Err(()), ""),
+        );
+    }
+
+    #[test]
+    fn any() {
+        assert_eq!(
+            Parser::new("%^&").parse(super::any()),
+            (Ok("%"), "^&"),
+        );
+        assert_eq!(
+            Parser::new("").parse(super::any()),
+            (Err(()), "")
         );
     }
 }
