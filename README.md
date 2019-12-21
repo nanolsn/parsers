@@ -5,15 +5,15 @@ Using rules, you can express a grammar of any language. Also using a parser to p
 Here is common rules such as "alpha" or "any". Also rule combinators: "or", "concat", "range" and etc.
 
 ## Common rules
-| Type     | Match                                   |
-|:---------|:----------------------------------------|
-| Digit    | `0...9`                                 |
-| HexDigit | `0...9` or `A...F`                      |
-| Space    | ` `                                     |
-| White    | `\r\n` or ` ` or `\n` or `\r` or `\t`   |
-| NewLine  | `\r\n` or `\n`                          |
-| Alpha    | `a...z` or `A...Z`                      |
-| Any      | Any char                                |
+| Type     | Match                                   | Constructor   |
+|:---------|:----------------------------------------|:--------------|
+| Digit    | `0...9`                                 | `digit()`     |
+| HexDigit | `0...9` or `A...F`                      | `hex_digit()` |
+| Space    | ` `                                     | `space()`     |
+| White    | `\r\n` or ` ` or `\n` or `\r` or `\t`   | `white()`     |
+| NewLine  | `\r\n` or `\n`                          | `new_line()`  |
+| Alpha    | `a...z` or `A...Z`                      | `alpha()`     |
+| Any      | Any char                                | `any()`       |
 
 ## Combinators
 | Type      | Description                                       | Operator / Constructor  |
