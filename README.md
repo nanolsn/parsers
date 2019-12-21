@@ -37,7 +37,7 @@ Here is common rules such as "alpha" or "any". Also rule combinators: "or", "con
 | BoxedRule | Wraps rule *a* into `Box`                         | `boxed(a)`              |
 
 ## Transformations
-| Type      | Description                                             | Operator / Constructor |
+| Type      | Description                                             | Constructor            |
 |:----------|:--------------------------------------------------------|:-----------------------|
 | Map       | Parses *a* then apply function *f* to successful result | `a.map(f)`             |
 | MapErr    | Parses *a* then apply function *f* to error result      | `a.map_err(f)`         |
