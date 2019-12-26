@@ -27,7 +27,7 @@ fn vector<'o>() -> BoxedRule<'o, Vertex> {
         (float(), rule(spaces) >> float(), (rule(spaces) >> float()).opt())
     )
         .map(|(x, y, z): (f32, f32, Option<f32>)| {
-            Vertex { x, y, z: z.unwrap_or(0.0) }
+            Vertex { x, y, z: z.unwrap_or_default() }
         })
         .boxed()
 }
@@ -39,15 +39,15 @@ fn vectors<'o>() -> BoxedRule<'o, Vec<Vertex>> {
 #[test]
 fn obj_parser() {
     let code = String::from(r"
-        v 1.0 1.0 1.0
-        v -1.0 1.0 1.0
+        v 1.0 2.0 1.0
+        v -1.0 1.0
     ");
 
     assert_eq!(
         Parser::new(code.as_str()).parse_result(vectors),
         Ok(vec![
-            Vertex { x: 1.0, y: 1.0, z: 1.0 },
-            Vertex { x: -1.0, y: 1.0, z: 1.0 },
+            Vertex { x: 1.0, y: 2.0, z: 1.0 },
+            Vertex { x: -1.0, y: 1.0, z: 0.0 },
         ]),
     );
 }
