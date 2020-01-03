@@ -93,9 +93,9 @@ fn hex_num<'o>() -> BoxedRule<'o, i64> {
 /// Parses any number
 fn any_num<'o>() -> BoxedRule<'o, Number> {
     let r =
-        rule(bin_num).map(|n| Bin(n))
-            | rule(hex_num).map(|n| Hex(n))
-            | rule(dec_num).map(|n| Dec(n));
+          rule(bin_num).map(|n| Bin(n))
+        | rule(hex_num).map(|n| Hex(n))
+        | rule(dec_num).map(|n| Dec(n));
 
     r.boxed()
 }
