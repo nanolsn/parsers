@@ -63,4 +63,5 @@ pub use common::*;
 #[cfg(test)]
 mod tests {
     mod obj;
+    mod num;
 }
