@@ -1,7 +1,7 @@
 use crate::*;
 use std::str::FromStr;
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(PartialEq, Debug)]
 enum Number {
     Bin(i64),
     Dec(i64),
