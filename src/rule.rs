@@ -4,6 +4,8 @@ use super::{
     rules::{
         cat::Cat,
         or::Or,
+        fst::Fst,
+        snd::Snd,
     },
 };
 
@@ -45,4 +47,16 @@ impl<L, R> std::ops::BitOr<R> for Rule<L> {
     type Output = Rule<Or<L, R>>;
 
     fn bitor(self, rhs: R) -> Self::Output { Rule(Or(self.0, rhs)) }
+}
+
+impl<L, R> std::ops::Shl<R> for Rule<L> {
+    type Output = Rule<Fst<L, R>>;
+
+    fn shl(self, rhs: R) -> Self::Output { Rule(Fst(self.0, rhs)) }
+}
+
+impl<L, R> std::ops::Shr<R> for Rule<L> {
+    type Output = Rule<Snd<L, R>>;
+
+    fn shr(self, rhs: R) -> Self::Output { Rule(Snd(self.0, rhs)) }
 }

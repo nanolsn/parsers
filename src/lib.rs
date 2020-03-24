@@ -7,5 +7,7 @@ pub mod ruled;
 
 mod rules {
     pub mod cat;
+    pub mod fst;
     pub mod or;
+    pub mod snd;
 }
