@@ -22,3 +22,26 @@ impl<I, A, B> Apply<I> for Or<A, B>
             .or_else(|_| self.1.apply(input))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        apply::apply,
+        rule::rule,
+    };
+
+    #[test]
+    fn or() {
+        let r = rule('@') | '#';
+        assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
+        assert_eq!(apply(r, "#"), Ruled::Ok("#", ""));
+        assert_eq!(apply(r, "$"), Ruled::Err(()));
+
+        let r = rule("qwe") | "123" | "null";
+        assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe", ""));
+        assert_eq!(apply(r, "1234"), Ruled::Ok("123", "4"));
+        assert_eq!(apply(r, "nullable"), Ruled::Ok("null", "able"));
+        assert_eq!(apply(r, "qw"), Ruled::Err(()));
+    }
+}

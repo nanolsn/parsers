@@ -67,15 +67,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn apply_func() {
+    fn func() {
         let f = |s| match s {
             "foo" => Ruled::Ok("ok", s),
             "test" => Ruled::Ok(s, s),
             _ => Ruled::Err(()),
         };
 
-        assert_eq!(apply_result(f, "foo"), Ok("ok"));
-        assert_eq!(apply_result(f, "test"), Ok("test"));
-        assert_eq!(apply_result(f, "bar"), Err(()));
+        assert_eq!(apply(f, "foo"), Ruled::Ok("ok", "foo"));
+        assert_eq!(apply(f, "test"), Ruled::Ok("test", "test"));
+        assert_eq!(apply(f, "bar"), Ruled::Err(()));
     }
 }
