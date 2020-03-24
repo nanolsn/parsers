@@ -17,16 +17,6 @@ pub trait Apply<I> {
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err>;
 }
 
-impl<I, T> Apply<I> for &T
-    where
-        T: Apply<I> + ?Sized,
-{
-    type Err = T::Err;
-    type Res = T::Res;
-
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { (*self).apply(input) }
-}
-
 impl<'i> Apply<&'i str> for char {
     type Err = ();
     type Res = &'i str;
@@ -40,7 +30,7 @@ impl<'i> Apply<&'i str> for char {
     }
 }
 
-impl<'i> Apply<&'i str> for str {
+impl<'i> Apply<&'i str> for &str {
     type Err = ();
     type Res = &'i str;
 
@@ -59,5 +49,33 @@ impl<'i> Apply<&'i str> for String {
 
     fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         self.as_str().apply(input)
+    }
+}
+
+impl<F, I, R, E> Apply<I> for F
+    where
+        F: Fn(I) -> Ruled<I, R, E>,
+{
+    type Err = E;
+    type Res = R;
+
+    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { self(input) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn apply_func() {
+        let f = |s| match s {
+            "foo" => Ruled::Ok("ok", s),
+            "test" => Ruled::Ok(s, s),
+            _ => Ruled::Err(()),
+        };
+
+        assert_eq!(apply_result(f, "foo"), Ok("ok"));
+        assert_eq!(apply_result(f, "test"), Ok("test"));
+        assert_eq!(apply_result(f, "bar"), Err(()));
     }
 }
