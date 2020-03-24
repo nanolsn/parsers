@@ -6,6 +6,7 @@ use super::{
         or::Or,
         fst::Fst,
         snd::Snd,
+        range::Range,
     },
 };
 
@@ -59,4 +60,76 @@ impl<L, R> std::ops::Shr<R> for Rule<L> {
     type Output = Rule<Snd<L, R>>;
 
     fn shr(self, rhs: R) -> Self::Output { Rule(Snd(self.0, rhs)) }
+}
+
+impl<R> std::ops::Mul<std::ops::Range<usize>> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, rhs: std::ops::Range<usize>) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: rhs.start,
+            to: Some(rhs.end.saturating_sub(1)),
+        })
+    }
+}
+
+impl<R> std::ops::Mul<std::ops::RangeInclusive<usize>> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, rhs: std::ops::RangeInclusive<usize>) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: *rhs.start(),
+            to: Some(*rhs.end()),
+        })
+    }
+}
+
+impl<R> std::ops::Mul<std::ops::RangeTo<usize>> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, rhs: std::ops::RangeTo<usize>) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: 0,
+            to: Some(rhs.end.saturating_sub(1)),
+        })
+    }
+}
+
+impl<R> std::ops::Mul<std::ops::RangeToInclusive<usize>> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, rhs: std::ops::RangeToInclusive<usize>) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: 0,
+            to: Some(rhs.end),
+        })
+    }
+}
+
+impl<R> std::ops::Mul<std::ops::RangeFrom<usize>> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, rhs: std::ops::RangeFrom<usize>) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: rhs.start,
+            to: None,
+        })
+    }
+}
+
+impl<R> std::ops::Mul<std::ops::RangeFull> for Rule<R> {
+    type Output = Rule<Range<R>>;
+
+    fn mul(self, _: std::ops::RangeFull) -> Self::Output {
+        Rule(Range {
+            rule: self.0,
+            from: 0,
+            to: None,
+        })
+    }
 }

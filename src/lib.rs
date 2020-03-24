@@ -9,5 +9,6 @@ mod rules {
     pub mod cat;
     pub mod fst;
     pub mod or;
+    pub mod range;
     pub mod snd;
 }
