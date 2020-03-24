@@ -1,60 +1,24 @@
-use crate::{Comply, Rule};
-use crate::Parser;
-use std::ops::BitOr;
+use crate::{
+    apply::Apply,
+    ruled::Ruled,
+};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Or<A, B>(pub A, pub B);
 
-impl<'p, A, B> Comply<'p> for Or<A, B>
+impl<I, A, B> Apply<I> for Or<A, B>
     where
-        A: Comply<'p>,
-        B: Comply<'p, Res=A::Res, Err=A::Err, On=A::On>,
+        A: Apply<I>,
+        B: Apply<I, Err=A::Err>,
+        I: Copy,
+        A::Res: Into<B::Res>,
 {
-    type Res = A::Res;
     type Err = A::Err;
-    type On = A::On;
+    type Res = B::Res;
 
-    fn comply(&self, parser: &mut Parser<Self::On>) -> Result<Self::Res, Self::Err> {
-        let pos = parser.get_pos();
-        self.0.comply(parser).or_else(|_| {
-            assert_eq!(parser.get_pos(), pos);
-            self.1.comply(parser)
-        })
-    }
-}
-
-impl<'p, A, B> BitOr<B> for Rule<A>
-    where
-        A: Comply<'p>,
-        B: Comply<'p, Res=A::Res, Err=A::Err, On=A::On>,
-{
-    type Output = Rule<Or<A, B>>;
-
-    fn bitor(self, rhs: B) -> Self::Output {
-        Rule(Or(self.0, rhs))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::rule;
-
-    #[test]
-    fn or() {
-        let r = rule('@').or('#');
-
-        assert_eq!(
-            Parser::new("@".to_owned().as_str()).parse(r),
-            (Ok("@"), ""),
-        );
-        assert_eq!(
-            Parser::new("#").parse(r),
-            (Ok("#"), ""),
-        );
-        assert_eq!(
-            Parser::new("$").parse(r),
-            (Err(()), "$"),
-        );
+    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+        self.0.apply(input)
+            .map(|l| l.into())
+            .or_else(|_| self.1.apply(input))
     }
 }
