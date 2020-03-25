@@ -10,6 +10,7 @@ use super::{
         and_then::AndThen,
         or_else::OrElse,
         pred::Pred,
+        boxed::{BoxedRule, boxed},
     },
 };
 
@@ -42,6 +43,11 @@ impl<R> Rule<R> {
             R: Apply<I>,
             F: Fn(&R::Res) -> bool,
     { Rule(Pred(self.0, f)) }
+
+    pub fn boxed<I>(self) -> BoxedRule<I, R::Res, R::Err>
+        where
+            R: Apply<I> + 'static,
+    { boxed(self.0) }
 }
 
 impl<R, I> Apply<I> for Rule<R>

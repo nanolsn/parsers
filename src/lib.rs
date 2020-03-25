@@ -7,6 +7,7 @@ pub mod ruled;
 
 mod rules {
     pub mod and_then;
+    pub mod boxed;
     pub mod cat;
     pub mod fst;
     pub mod or;
