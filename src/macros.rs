@@ -1,18 +1,18 @@
 #[macro_export]
 macro_rules! rule {
     ($l:tt * $m:tt $op:tt $($r:tt)*) => {
-        (rule!($l) * $m) $op rule!($($r)*)
+        rule!((rule!($l) * $m) $op $($r)*)
     };
 
     ($l:tt & $($r:tt)*) => {
-        rule!($l) & rule!($($r)*)
+        (rule!($l)).cat(rule!($($r)*))
     };
 
     ($l:tt | $($r:tt)*) => {
-        rule!($l) | rule!($($r)*)
+        (rule!($l)).or(rule!($($r)*))
     };
 
     ($e:expr) => {
-        Rule($e)
+        rule($e)
     };
 }

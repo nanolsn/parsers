@@ -1,27 +1,73 @@
 use crate::{
     apply::Apply,
     ruled::Ruled,
+    concat::Concat,
 };
 
-#[derive(Copy, Clone, Debug)]
-pub struct Range<R> {
+#[derive(Debug)]
+pub struct Range<R, C> {
     pub(crate) rule: R,
     pub(crate) from: usize,
     pub(crate) to: Option<usize>,
+    pub(crate) phantom: std::marker::PhantomData<*const C>,
 }
 
-impl<R, I> Apply<I> for Range<R>
+impl<R, C> Range<R, C> {
+    pub fn new(rule: R, from: usize, to: Option<usize>) -> Self {
+        Range {
+            rule,
+            from,
+            to,
+            phantom: std::marker::PhantomData,
+        }
+    }
+
+    pub fn from_range<B>(rule: R, rng: B) -> Self
+        where
+            B: std::ops::RangeBounds<usize>,
+    {
+        use std::ops::Bound::*;
+
+        let from = match rng.start_bound() {
+            Included(&b) => b,
+            _ => 0,
+        };
+
+        let to = match rng.end_bound() {
+            Included(&b) => Some(b),
+            Excluded(&b) => Some(b.saturating_sub(1)),
+            Unbounded => None,
+        };
+
+        Range::new(rule, from, to)
+    }
+}
+
+impl<R, C> Clone for Range<R, C>
+    where
+        R: Clone,
+{
+    fn clone(&self) -> Self { Range::new(self.rule.clone(), self.from, self.to) }
+}
+
+impl<R, C> Copy for Range<R, C>
+    where
+        R: Copy,
+{}
+
+impl<R, I, C> Apply<I> for Range<R, C>
     where
         R: Apply<I>,
         I: Copy,
         R::Res: AsRef<str>,
+        C: Concat<C, R::Res>,
 {
     type Err = R::Err;
-    type Res = String;
+    type Res = C;
 
     fn apply(&self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
         let mut count = 0;
-        let mut res = String::new();
+        let mut res = Concat::empty();
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
@@ -32,7 +78,7 @@ impl<R, I> Apply<I> for Range<R>
                 Ruled::Ok(r, i) => {
                     count += 1;
                     input = i;
-                    res.push_str(r.as_ref());
+                    res = C::concat(res, r);
                 }
                 Ruled::Err(e) => {
                     break if count >= self.from {

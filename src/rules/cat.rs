@@ -4,22 +4,38 @@ use crate::{
     concat::Concat,
 };
 
-#[derive(Copy, Clone, Debug)]
-pub struct Cat<A, B>(pub A, pub B);
+#[derive(Debug)]
+pub struct Cat<A, B, C>(pub A, pub B, pub std::marker::PhantomData<*const C>);
 
-impl<I, A, B> Apply<I> for Cat<A, B>
+impl<A, B, C> Clone for Cat<A, B, C>
+    where
+        A: Clone,
+        B: Clone,
+{
+    fn clone(&self) -> Self {
+        Cat(self.0.clone(), self.1.clone(), std::marker::PhantomData)
+    }
+}
+
+impl<A, B, C> Copy for Cat<A, B, C>
+    where
+        A: Copy,
+        B: Copy,
+{}
+
+impl<I, A, B, C> Apply<I> for Cat<A, B, C>
     where
         A: Apply<I>,
         B: Apply<I, Err=A::Err>,
-        A::Res: Concat<B::Res>,
+        C: Concat<A::Res, B::Res>,
 {
     type Err = A::Err;
-    type Res = <A::Res as Concat<B::Res>>::Res;
+    type Res = C;
 
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         self.0.apply(input)
             .and_then(|l, i| self.1.apply(i)
-                .map(|r| l.concat(r))
+                .map(|r| C::concat(l, r))
             )
     }
 }
@@ -43,5 +59,8 @@ mod tests {
         assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
         assert_eq!(apply(r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
         assert_eq!(apply(r, "123"), Ruled::Err(()));
+
+        let r = rule('@').map(|s| vec![s]).cat('#');
+        assert_eq!(apply(r, "@#"), Ruled::Ok(vec!["@", "#"], ""));
     }
 }

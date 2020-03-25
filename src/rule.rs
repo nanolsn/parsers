@@ -29,12 +29,12 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
-    pub fn cat<I, P>(self, rhs: P) -> Rule<Cat<R, P>>
+    pub fn cat<I, P, C>(self, rhs: P) -> Rule<Cat<R, P, C>>
         where
             R: Apply<I>,
             P: Apply<I, Err=R::Err>,
-            R::Res: Concat<P::Res>,
-    { Rule(Cat(self.0, rhs)) }
+            C: Concat<R::Res, P::Res>,
+    { Rule(Cat(self.0, rhs, std::marker::PhantomData)) }
 
     pub fn or<I, P>(self, rhs: P) -> Rule<Or<R, P>>
         where
@@ -123,9 +123,9 @@ impl<R> std::ops::DerefMut for Rule<R> {
 }
 
 impl<L, R> std::ops::BitAnd<R> for Rule<L> {
-    type Output = Rule<Cat<L, R>>;
+    type Output = Rule<Cat<L, R, String>>;
 
-    fn bitand(self, rhs: R) -> Self::Output { Rule(Cat(self.0, rhs)) }
+    fn bitand(self, rhs: R) -> Self::Output { Rule(Cat(self.0, rhs, std::marker::PhantomData)) }
 }
 
 impl<L, R> std::ops::BitOr<R> for Rule<L> {
@@ -146,76 +146,13 @@ impl<L, R> std::ops::Shr<R> for Rule<L> {
     fn shr(self, rhs: R) -> Self::Output { Rule(Snd(self.0, rhs)) }
 }
 
-impl<R> std::ops::Mul<std::ops::Range<usize>> for Rule<R> {
-    type Output = Rule<Range<R>>;
+impl<R, B> std::ops::Mul<B> for Rule<R>
+    where
+        B: std::ops::RangeBounds<usize>,
+{
+    type Output = Rule<Range<R, String>>;
 
-    fn mul(self, rhs: std::ops::Range<usize>) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: rhs.start,
-            to: Some(rhs.end.saturating_sub(1)),
-        })
-    }
-}
-
-impl<R> std::ops::Mul<std::ops::RangeInclusive<usize>> for Rule<R> {
-    type Output = Rule<Range<R>>;
-
-    fn mul(self, rhs: std::ops::RangeInclusive<usize>) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: *rhs.start(),
-            to: Some(*rhs.end()),
-        })
-    }
-}
-
-impl<R> std::ops::Mul<std::ops::RangeTo<usize>> for Rule<R> {
-    type Output = Rule<Range<R>>;
-
-    fn mul(self, rhs: std::ops::RangeTo<usize>) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: 0,
-            to: Some(rhs.end.saturating_sub(1)),
-        })
-    }
-}
-
-impl<R> std::ops::Mul<std::ops::RangeToInclusive<usize>> for Rule<R> {
-    type Output = Rule<Range<R>>;
-
-    fn mul(self, rhs: std::ops::RangeToInclusive<usize>) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: 0,
-            to: Some(rhs.end),
-        })
-    }
-}
-
-impl<R> std::ops::Mul<std::ops::RangeFrom<usize>> for Rule<R> {
-    type Output = Rule<Range<R>>;
-
-    fn mul(self, rhs: std::ops::RangeFrom<usize>) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: rhs.start,
-            to: None,
-        })
-    }
-}
-
-impl<R> std::ops::Mul<std::ops::RangeFull> for Rule<R> {
-    type Output = Rule<Range<R>>;
-
-    fn mul(self, _: std::ops::RangeFull) -> Self::Output {
-        Rule(Range {
-            rule: self.0,
-            from: 0,
-            to: None,
-        })
-    }
+    fn mul(self, rhs: B) -> Self::Output { Rule(Range::from_range(self.0, rhs)) }
 }
 
 impl<R> std::ops::Not for Rule<R> {
