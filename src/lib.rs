@@ -11,6 +11,7 @@ mod rules {
     pub mod fst;
     pub mod or;
     pub mod or_else;
+    pub mod pred;
     pub mod range;
     pub mod snd;
 }

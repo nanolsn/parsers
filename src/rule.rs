@@ -9,6 +9,7 @@ use super::{
         range::Range,
         and_then::AndThen,
         or_else::OrElse,
+        pred::Pred,
     },
 };
 
@@ -35,6 +36,12 @@ impl<R> Rule<R> {
             K: Apply<I, Res=R::Res>,
             I: Copy,
     { Rule(OrElse(self.0, f)) }
+
+    pub fn pred<I, F>(self, f: F) -> Rule<Pred<R, F>>
+        where
+            R: Apply<I>,
+            F: Fn(&R::Res) -> bool,
+    { Rule(Pred(self.0, f)) }
 }
 
 impl<R, I> Apply<I> for Rule<R>
