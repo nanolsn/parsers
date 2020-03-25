@@ -65,6 +65,7 @@ impl<F, I, R, E> Apply<I> for F
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rule::rule;
 
     #[test]
     fn func() {
@@ -77,5 +78,24 @@ mod tests {
         assert_eq!(apply(f, "foo"), Ruled::Ok("ok", "foo"));
         assert_eq!(apply(f, "test"), Ruled::Ok("test", "test"));
         assert_eq!(apply(f, "bar"), Ruled::Err(()));
+    }
+
+    #[test]
+    fn dyn_rules() {
+        type StrApply<'c> = dyn Apply<&'c str, Res=&'c str, Err=()>;
+
+        fn apply_dyn<'c>(code: &'c str, rule: &StrApply<'c>) -> Result<&'c str, ()> {
+            rule.apply(code).result()
+        }
+
+        let a = rule('q');
+        let b = rule("w");
+        let rules: Vec<&StrApply> = vec![&a, &b];
+        let results: Vec<Result<&str, ()>> = rules
+            .into_iter()
+            .map(|rule| apply_dyn("q", rule))
+            .collect();
+
+        assert_eq!(results, vec![Ok("q"), Err(())])
     }
 }

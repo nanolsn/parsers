@@ -7,6 +7,8 @@ use super::{
         fst::Fst,
         snd::Snd,
         range::Range,
+        and_then::AndThen,
+        or_else::OrElse,
     },
 };
 
@@ -17,6 +19,23 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 
 #[derive(Copy, Clone, Debug)]
 pub struct Rule<R>(pub R);
+
+impl<R> Rule<R> {
+    pub fn and_then<I, F, K>(self, f: F) -> Rule<AndThen<R, F>>
+        where
+            R: Apply<I>,
+            F: Fn(R::Res) -> K,
+            K: Apply<I, Err=R::Err>,
+    { Rule(AndThen(self.0, f)) }
+
+    pub fn or_else<I, F, K>(self, f: F) -> Rule<OrElse<R, F>>
+        where
+            R: Apply<I>,
+            F: Fn(R::Err) -> K,
+            K: Apply<I, Res=R::Res>,
+            I: Copy,
+    { Rule(OrElse(self.0, f)) }
+}
 
 impl<R, I> Apply<I> for Rule<R>
     where

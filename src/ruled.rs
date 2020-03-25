@@ -58,9 +58,9 @@ impl<I, R, E> Ruled<I, R, E> {
         }
     }
 
-    pub fn or_else<F>(self, f: F) -> Ruled<I, R, E>
+    pub fn or_else<F, Q>(self, f: F) -> Ruled<I, R, Q>
         where
-            F: FnOnce(E) -> Ruled<I, R, E>
+            F: FnOnce(E) -> Ruled<I, R, Q>
     {
         match self {
             Ruled::Ok(r, i) => Ruled::Ok(r, i),
