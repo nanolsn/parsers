@@ -1,17 +1,21 @@
 use super::{
     apply::Apply,
     ruled::Ruled,
+    concat::Concat,
     rules::{
-        map::Map,
-        map_err::MapErr,
         cat::Cat,
         or::Or,
+        not::Not,
+        map::Map,
+        map_err::MapErr,
         fst::Fst,
         snd::Snd,
         range::Range,
         and_then::AndThen,
         or_else::OrElse,
         pred::Pred,
+        opt::Opt,
+        or_default::OrDefault,
         boxed::{BoxedRule, boxed},
     },
 };
@@ -25,6 +29,27 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
+    pub fn cat<I, P>(self, rhs: P) -> Rule<Cat<R, P>>
+        where
+            R: Apply<I>,
+            P: Apply<I, Err=R::Err>,
+            R::Res: Concat<P::Res>,
+    { Rule(Cat(self.0, rhs)) }
+
+    pub fn or<I, P>(self, rhs: P) -> Rule<Or<R, P>>
+        where
+            R: Apply<I>,
+            P: Apply<I, Err=R::Err>,
+            I: Copy,
+            R::Res: Into<P::Res>,
+    { Rule(Or(self.0, rhs)) }
+
+    pub fn not<I>(self) -> Rule<Not<R>>
+        where
+            R: Apply<I>,
+            I: Copy,
+    { Rule(Not(self.0)) }
+
     pub fn map<I, F, K>(self, f: F) -> Rule<Map<R, F>>
         where
             R: Apply<I>,
@@ -57,6 +82,19 @@ impl<R> Rule<R> {
             R: Apply<I>,
             F: Fn(&R::Res) -> bool,
     { Rule(Pred(self.0, f)) }
+
+    pub fn opt<I>(self) -> Rule<Opt<R>>
+        where
+            R: Apply<I>,
+            I: Copy,
+    { Rule(Opt(self.0)) }
+
+    pub fn or_default<I>(self) -> Rule<OrDefault<R>>
+        where
+            R: Apply<I>,
+            I: Copy,
+            R::Res: Default,
+    { Rule(OrDefault(self.0)) }
 
     pub fn boxed<I>(self) -> BoxedRule<I, R::Res, R::Err>
         where
@@ -178,4 +216,10 @@ impl<R> std::ops::Mul<std::ops::RangeFull> for Rule<R> {
             to: None,
         })
     }
+}
+
+impl<R> std::ops::Not for Rule<R> {
+    type Output = Rule<Not<R>>;
+
+    fn not(self) -> Self::Output { Rule(Not(self.0)) }
 }

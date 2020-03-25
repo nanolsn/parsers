@@ -14,7 +14,10 @@ mod rules {
     pub mod fst;
     pub mod map;
     pub mod map_err;
+    pub mod not;
+    pub mod opt;
     pub mod or;
+    pub mod or_default;
     pub mod or_else;
     pub mod pred;
     pub mod range;

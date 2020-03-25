@@ -7,18 +7,20 @@ use crate::{
 #[derive(Copy, Clone, Debug)]
 pub struct Cat<A, B>(pub A, pub B);
 
-impl<I, A, B, L, R> Apply<I> for Cat<A, B>
+impl<I, A, B> Apply<I> for Cat<A, B>
     where
-        A: Apply<I, Res=L>,
-        B: Apply<I, Res=R, Err=A::Err>,
-        L: Concat<R>,
+        A: Apply<I>,
+        B: Apply<I, Err=A::Err>,
+        A::Res: Concat<B::Res>,
 {
     type Err = A::Err;
-    type Res = L::Res;
+    type Res = <A::Res as Concat<B::Res>>::Res;
 
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         self.0.apply(input)
-            .and_then(|l, i| self.1.apply(i).map(|r| l.concat(r)))
+            .and_then(|l, i| self.1.apply(i)
+                .map(|r| l.concat(r))
+            )
     }
 }
 
