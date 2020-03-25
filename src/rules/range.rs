@@ -10,11 +10,6 @@ pub struct Range<R> {
     pub(crate) to: Option<usize>,
 }
 
-#[allow(dead_code)]
-impl<R> Range<R> {
-    pub fn new(rule: R, from: usize, to: Option<usize>) -> Self { Range { rule, from, to } }
-}
-
 impl<R, I> Apply<I> for Range<R>
     where
         R: Apply<I>,

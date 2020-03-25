@@ -2,6 +2,8 @@ use super::{
     apply::Apply,
     ruled::Ruled,
     rules::{
+        map::Map,
+        map_err::MapErr,
         cat::Cat,
         or::Or,
         fst::Fst,
@@ -23,6 +25,18 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
+    pub fn map<I, F, K>(self, f: F) -> Rule<Map<R, F>>
+        where
+            R: Apply<I>,
+            F: Fn(R::Res) -> K,
+    { Rule(Map(self.0, f)) }
+
+    pub fn map_err<I, F, Q>(self, f: F) -> Rule<MapErr<R, F>>
+        where
+            R: Apply<I>,
+            F: Fn(R::Err) -> Q,
+    { Rule(MapErr(self.0, f)) }
+
     pub fn and_then<I, F, K>(self, f: F) -> Rule<AndThen<R, F>>
         where
             R: Apply<I>,

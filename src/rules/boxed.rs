@@ -27,9 +27,9 @@ mod tests {
     };
 
     #[test]
-    fn or() {
+    fn boxed() {
         fn get_rule() -> BoxedRule<&'static str, String> {
-            boxed(rule("@") & '#')
+            super::boxed(rule("@") & '#')
         }
 
         let r = get_rule();
