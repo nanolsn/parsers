@@ -89,6 +89,7 @@ mod tests {
         assert_eq!(apply(r, "$"), Ruled::Err(()));
     }
 
+    //noinspection RsBorrowChecker
     #[test]
     fn tuple() {
         let r = (rule('@'), '#', "__");
@@ -96,8 +97,8 @@ mod tests {
         assert_eq!(apply(r, "@#!"), Ruled::Err(()));
         assert_eq!(apply(r, "#$"), Ruled::Err(()));
 
-        let r = (rule('0'), '1', "23", "4");
-        assert_eq!(apply(r, "012345"), Ruled::Ok(("0", "1", "23", "4"), "5"));
+        let r = (rule('0').map(|_| 0), '1', "23", "4");
+        assert_eq!(apply(r, "012345"), Ruled::Ok((0, "1", "23", "4"), "5"));
         assert_eq!(apply(r, "0123"), Ruled::Err(()));
     }
 

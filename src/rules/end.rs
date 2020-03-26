@@ -7,6 +7,8 @@ use crate::{
 #[derive(Copy, Clone, Debug)]
 pub struct End;
 
+pub fn end() -> Rule<End> { Rule(End) }
+
 impl<'i> Apply<&'i str> for End {
     type Err = ();
     type Res = &'i str;
@@ -19,8 +21,6 @@ impl<'i> Apply<&'i str> for End {
         }
     }
 }
-
-pub fn end() -> Rule<End> { Rule(End) }
 
 #[cfg(test)]
 mod tests {

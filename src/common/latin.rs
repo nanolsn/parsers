@@ -34,7 +34,9 @@ mod tests {
         assert!(apply(super::latin(), "b").is_ok());
         assert!(apply(super::latin(), "A").is_ok());
         assert!(apply(super::latin(), "B").is_ok());
+        assert!(apply(super::latin(), "q").is_ok());
         assert!(apply(super::latin(), "Z").is_ok());
+
         assert!(apply(super::latin(), "").is_err());
         assert!(apply(super::latin(), "+").is_err());
         assert!(apply(super::latin(), "0").is_err());

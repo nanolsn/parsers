@@ -22,11 +22,6 @@ use super::{
     },
 };
 
-pub fn rule<R, I>(r: R) -> Rule<R>
-    where
-        R: Apply<I>,
-{ Rule(r) }
-
 #[derive(Copy, Clone, Debug)]
 pub struct Rule<R>(pub R);
 
@@ -75,6 +70,13 @@ impl<R> Rule<R> {
             B: std::ops::RangeBounds<usize>,
     { Rule(Range::from_range(self.0, rng)) }
 
+    pub fn repeat<T, I>(self, times: usize) -> Rule<Range<T, R>>
+        where
+            R: Apply<I>,
+            I: Copy,
+            T: Concat<T, R::Res>,
+    { Rule(Range::from_range(self.0, times..=times)) }
+
     pub fn until<T, I, U>(self, until: U) -> Rule<Until<T, R, U>>
         where
             R: Apply<I>,
@@ -122,6 +124,11 @@ impl<R> Rule<R> {
             R: Apply<I> + 'static,
     { boxed(self.0) }
 }
+
+pub fn rule<R, I>(r: R) -> Rule<R>
+    where
+        R: Apply<I>,
+{ Rule(r) }
 
 impl<R, I> Apply<I> for Rule<R>
     where

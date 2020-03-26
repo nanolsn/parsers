@@ -7,6 +7,11 @@ use crate::{
 #[derive(Copy, Clone, Debug)]
 pub struct RetErr<E>(pub E);
 
+pub fn ret_err<E>(value: E) -> Rule<RetErr<E>>
+    where
+        E: Copy,
+{ Rule(RetErr(value)) }
+
 impl<I, E> Apply<I> for RetErr<E>
     where
         E: Copy,
@@ -16,11 +21,6 @@ impl<I, E> Apply<I> for RetErr<E>
 
     fn apply(&self, _: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Err(self.0) }
 }
-
-pub fn ret_err<E>(value: E) -> Rule<RetErr<E>>
-    where
-        E: Copy,
-{ Rule(RetErr(value)) }
 
 #[cfg(test)]
 mod tests {

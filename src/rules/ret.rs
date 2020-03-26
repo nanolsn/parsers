@@ -7,6 +7,11 @@ use crate::{
 #[derive(Copy, Clone, Debug)]
 pub struct Ret<V>(pub V);
 
+pub fn ret<V>(value: V) -> Rule<Ret<V>>
+    where
+        V: Copy,
+{ Rule(Ret(value)) }
+
 impl<I, V> Apply<I> for Ret<V>
     where
         V: Copy,
@@ -16,11 +21,6 @@ impl<I, V> Apply<I> for Ret<V>
 
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok(self.0, input) }
 }
-
-pub fn ret<V>(value: V) -> Rule<Ret<V>>
-    where
-        V: Copy,
-{ Rule(Ret(value)) }
 
 #[cfg(test)]
 mod tests {

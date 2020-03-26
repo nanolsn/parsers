@@ -10,6 +10,16 @@ pub struct CharRange {
     pub(crate) to: std::ops::Bound<char>,
 }
 
+pub fn char_range<R>(rng: R) -> Rule<CharRange>
+    where
+        R: std::ops::RangeBounds<char>,
+{
+    Rule(CharRange {
+        from: cloned(rng.start_bound()),
+        to: cloned(rng.end_bound()),
+    })
+}
+
 impl<'i> Apply<&'i str> for CharRange {
     type Err = ();
     type Res = &'i str;
@@ -37,16 +47,6 @@ fn cloned<T>(bound: std::ops::Bound<&T>) -> std::ops::Bound<T>
         Bound::Excluded(&c) => Bound::Excluded(c),
         Bound::Unbounded => Bound::Unbounded,
     }
-}
-
-pub fn char_range<R>(rng: R) -> Rule<CharRange>
-    where
-        R: std::ops::RangeBounds<char>,
-{
-    Rule(CharRange {
-        from: cloned(rng.start_bound()),
-        to: cloned(rng.end_bound()),
-    })
 }
 
 #[cfg(test)]

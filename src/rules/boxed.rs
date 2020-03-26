@@ -6,17 +6,17 @@ use crate::{
 
 pub type BoxedRule<I, R, E = ()> = Rule<Box<dyn Apply<I, Res=R, Err=E>>>;
 
+pub fn boxed<I, R>(rule: R) -> BoxedRule<I, R::Res, R::Err>
+    where
+        R: Apply<I> + 'static,
+{ Rule(Box::new(rule)) }
+
 impl<I, R, E> Apply<I> for Box<dyn Apply<I, Res=R, Err=E>> {
     type Err = E;
     type Res = R;
 
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { self.as_ref().apply(input) }
 }
-
-pub fn boxed<I, R>(rule: R) -> BoxedRule<I, R::Res, R::Err>
-    where
-        R: Apply<I> + 'static,
-{ Rule(Box::new(rule)) }
 
 #[cfg(test)]
 mod tests {
