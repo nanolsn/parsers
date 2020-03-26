@@ -12,6 +12,7 @@ use super::{
         fst::Fst,
         snd::Snd,
         range::Range,
+        until::Until,
         and_then::AndThen,
         or_else::OrElse,
         pred::Pred,
@@ -63,10 +64,7 @@ impl<R> Rule<R> {
             F: Fn(R::Err) -> Q,
     { Rule(MapErr(self.0, f)) }
 
-    pub fn into<T, I>(self) -> Rule<Into<T, R>>
-        where
-            R: Apply<I>,
-            R::Res: std::convert::Into<T>,
+    pub fn into<T>(self) -> Rule<Into<T, R>>
     { Rule(Into::new(self.0)) }
 
     pub fn range<C, I, B>(self, rng: B) -> Rule<Range<R, C>>
@@ -76,6 +74,14 @@ impl<R> Rule<R> {
             C: Concat<C, R::Res>,
             B: std::ops::RangeBounds<usize>,
     { Rule(Range::from_range(self.0, rng)) }
+
+    pub fn until<T, I, U>(self, until: U) -> Rule<Until<T, R, U>>
+        where
+            R: Apply<I>,
+            U: Apply<I>,
+            I: Copy,
+            T: Concat<T, R::Res>,
+    { Rule(Until::new(self.0, until)) }
 
     pub fn and_then<I, F, K>(self, f: F) -> Rule<AndThen<R, F>>
         where

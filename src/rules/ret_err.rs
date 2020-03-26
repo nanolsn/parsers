@@ -1,6 +1,7 @@
 use crate::{
     apply::Apply,
     ruled::Ruled,
+    rule::Rule,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -16,10 +17,10 @@ impl<I, E> Apply<I> for RetErr<E>
     fn apply(&self, _: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Err(self.0) }
 }
 
-pub fn ret_err<E>(value: E) -> RetErr<E>
+pub fn ret_err<E>(value: E) -> Rule<RetErr<E>>
     where
         E: Copy,
-{ RetErr(value) }
+{ Rule(RetErr(value)) }
 
 #[cfg(test)]
 mod tests {

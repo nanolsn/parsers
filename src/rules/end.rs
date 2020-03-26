@@ -1,6 +1,7 @@
 use crate::{
     apply::Apply,
     ruled::Ruled,
+    rule::Rule,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -19,8 +20,7 @@ impl<'i> Apply<&'i str> for End {
     }
 }
 
-#[allow(dead_code)]
-pub fn end() -> End { End }
+pub fn end() -> Rule<End> { Rule(End) }
 
 #[cfg(test)]
 mod tests {

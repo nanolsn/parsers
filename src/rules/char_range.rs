@@ -1,6 +1,7 @@
 use crate::{
     apply::Apply,
     ruled::Ruled,
+    rule::Rule,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -39,15 +40,14 @@ fn cloned<T>(bound: std::ops::Bound<&T>) -> std::ops::Bound<T>
     }
 }
 
-#[allow(dead_code)]
-pub fn char_range<R>(rng: R) -> CharRange
+pub fn char_range<R>(rng: R) -> Rule<CharRange>
     where
         R: std::ops::RangeBounds<char>,
 {
-    CharRange {
+    Rule(CharRange {
         from: cloned(rng.start_bound()),
         to: cloned(rng.end_bound()),
-    }
+    })
 }
 
 #[cfg(test)]

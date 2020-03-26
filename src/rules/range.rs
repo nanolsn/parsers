@@ -66,7 +66,7 @@ impl<R, I, C> Apply<I> for Range<R, C>
 
     fn apply(&self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
         let mut count = 0;
-        let mut res = Concat::empty();
+        let mut res = C::empty();
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
