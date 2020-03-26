@@ -7,6 +7,10 @@ use crate::{
 #[derive(Debug)]
 pub struct Cat<A, B, C>(pub A, pub B, pub std::marker::PhantomData<*const C>);
 
+impl<A, B, C> Cat<A, B, C> {
+    pub fn new(a: A, b: B) -> Self { Cat(a, b, std::marker::PhantomData) }
+}
+
 impl<A, B, C> Clone for Cat<A, B, C>
     where
         A: Clone,
@@ -59,8 +63,5 @@ mod tests {
         assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
         assert_eq!(apply(r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
         assert_eq!(apply(r, "123"), Ruled::Err(()));
-
-        let r = rule('@').map(|s| vec![s]).cat('#');
-        assert_eq!(apply(r, "@#"), Ruled::Ok(vec!["@", "#"], ""));
     }
 }

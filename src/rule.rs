@@ -29,12 +29,12 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
-    pub fn cat<I, P, C>(self, rhs: P) -> Rule<Cat<R, P, C>>
+    pub fn cat<I, P>(self, rhs: P) -> Rule<Cat<R, P, String>>
         where
             R: Apply<I>,
             P: Apply<I, Err=R::Err>,
-            C: Concat<R::Res, P::Res>,
-    { Rule(Cat(self.0, rhs, std::marker::PhantomData)) }
+            String: Concat<R::Res, P::Res>,
+    { Rule(Cat::new(self.0, rhs)) }
 
     pub fn or<I, P>(self, rhs: P) -> Rule<Or<R, P>>
         where
@@ -125,7 +125,7 @@ impl<R> std::ops::DerefMut for Rule<R> {
 impl<L, R> std::ops::BitAnd<R> for Rule<L> {
     type Output = Rule<Cat<L, R, String>>;
 
-    fn bitand(self, rhs: R) -> Self::Output { Rule(Cat(self.0, rhs, std::marker::PhantomData)) }
+    fn bitand(self, rhs: R) -> Self::Output { Rule(Cat::new(self.0, rhs)) }
 }
 
 impl<L, R> std::ops::BitOr<R> for Rule<L> {
