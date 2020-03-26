@@ -14,6 +14,7 @@ pub mod rules {
     pub mod char_range;
     pub mod end;
     pub mod fst;
+    pub mod into;
     pub mod map;
     pub mod map_err;
     pub mod not;
@@ -23,5 +24,7 @@ pub mod rules {
     pub mod or_else;
     pub mod pred;
     pub mod range;
+    pub mod ret;
+    pub mod ret_err;
     pub mod snd;
 }

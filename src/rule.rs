@@ -8,6 +8,7 @@ use super::{
         not::Not,
         map::Map,
         map_err::MapErr,
+        into::Into,
         fst::Fst,
         snd::Snd,
         range::Range,
@@ -41,7 +42,7 @@ impl<R> Rule<R> {
             R: Apply<I>,
             P: Apply<I, Err=R::Err>,
             I: Copy,
-            R::Res: Into<P::Res>,
+            R::Res: std::convert::Into<P::Res>,
     { Rule(Or(self.0, rhs)) }
 
     pub fn not<I>(self) -> Rule<Not<R>>
@@ -61,6 +62,12 @@ impl<R> Rule<R> {
             R: Apply<I>,
             F: Fn(R::Err) -> Q,
     { Rule(MapErr(self.0, f)) }
+
+    pub fn into<T, I>(self) -> Rule<Into<T, R>>
+        where
+            R: Apply<I>,
+            R::Res: std::convert::Into<T>,
+    { Rule(Into::new(self.0)) }
 
     pub fn range<C, I, B>(self, rng: B) -> Rule<Range<R, C>>
         where
