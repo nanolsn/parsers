@@ -5,39 +5,39 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Cat<A, B, C>(pub A, pub B, pub std::marker::PhantomData<*const C>);
+pub struct Cat<T, A, B>(pub std::marker::PhantomData<*const T>, pub A, pub B);
 
-impl<A, B, C> Cat<A, B, C> {
-    pub fn new(a: A, b: B) -> Self { Cat(a, b, std::marker::PhantomData) }
+impl<T, A, B> Cat<T, A, B> {
+    pub fn new(a: A, b: B) -> Self { Cat(std::marker::PhantomData, a, b) }
 }
 
-impl<A, B, C> Clone for Cat<A, B, C>
+impl<T, A, B> Clone for Cat<T, A, B>
     where
         A: Clone,
         B: Clone,
 {
-    fn clone(&self) -> Self { Cat::new(self.0.clone(), self.1.clone()) }
+    fn clone(&self) -> Self { Cat::new(self.1.clone(), self.2.clone()) }
 }
 
-impl<A, B, C> Copy for Cat<A, B, C>
+impl<T, A, B> Copy for Cat<T, A, B>
     where
         A: Copy,
         B: Copy,
 {}
 
-impl<I, A, B, C> Apply<I> for Cat<A, B, C>
+impl<I, T, A, B> Apply<I> for Cat<T, A, B>
     where
         A: Apply<I>,
         B: Apply<I, Err=A::Err>,
-        C: Concat<A::Res, B::Res>,
+        T: Concat<A::Res, B::Res>,
 {
     type Err = A::Err;
-    type Res = C;
+    type Res = T;
 
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
-        self.0.apply(input)
-            .and_then(|l, i| self.1.apply(i)
-                .map(|r| C::concat(l, r))
+        self.1.apply(input)
+            .and_then(|l, i| self.2.apply(i)
+                .map(|r| T::concat(l, r))
             )
     }
 }

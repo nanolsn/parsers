@@ -17,11 +17,10 @@ impl<'i> Apply<&'i str> for CharRange {
     fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         use std::ops::RangeBounds;
 
+        let rng = (self.from, self.to);
+
         match input.chars().next() {
-            Some(c) if (self.from, self.to).contains(&c) => {
-                let (l, r) = input.split_at(c.len_utf8());
-                Ruled::Ok(l, r)
-            }
+            Some(c) if rng.contains(&c) => input.split_at(c.len_utf8()).into(),
             _ => Ruled::Err(())
         }
     }

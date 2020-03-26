@@ -31,11 +31,11 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
-    pub fn cat<C, I, P>(self, rhs: P) -> Rule<Cat<R, P, C>>
+    pub fn cat<T, I, P>(self, rhs: P) -> Rule<Cat<T, R, P>>
         where
             R: Apply<I>,
             P: Apply<I, Err=R::Err>,
-            C: Concat<R::Res, P::Res>,
+            T: Concat<R::Res, P::Res>,
     { Rule(Cat::new(self.0, rhs)) }
 
     pub fn or<I, P>(self, rhs: P) -> Rule<Or<R, P>>
@@ -67,11 +67,11 @@ impl<R> Rule<R> {
     pub fn into<T>(self) -> Rule<Into<T, R>>
     { Rule(Into::new(self.0)) }
 
-    pub fn range<C, I, B>(self, rng: B) -> Rule<Range<R, C>>
+    pub fn range<T, I, B>(self, rng: B) -> Rule<Range<T, R>>
         where
             R: Apply<I>,
             I: Copy,
-            C: Concat<C, R::Res>,
+            T: Concat<T, R::Res>,
             B: std::ops::RangeBounds<usize>,
     { Rule(Range::from_range(self.0, rng)) }
 
@@ -144,7 +144,7 @@ impl<R> std::ops::DerefMut for Rule<R> {
 }
 
 impl<L, R> std::ops::BitAnd<R> for Rule<L> {
-    type Output = Rule<Cat<L, R, String>>;
+    type Output = Rule<Cat<String, L, R>>;
 
     fn bitand(self, rhs: R) -> Self::Output { Rule(Cat::new(self.0, rhs)) }
 }
@@ -171,7 +171,7 @@ impl<R, B> std::ops::Mul<B> for Rule<R>
     where
         B: std::ops::RangeBounds<usize>,
 {
-    type Output = Rule<Range<R, String>>;
+    type Output = Rule<Range<String, R>>;
 
     fn mul(self, rhs: B) -> Self::Output { Rule(Range::from_range(self.0, rhs)) }
 }

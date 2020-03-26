@@ -5,14 +5,14 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct Range<R, C> {
+pub struct Range<T, R> {
     pub(crate) rule: R,
     pub(crate) from: usize,
     pub(crate) to: Option<usize>,
-    pub(crate) phantom: std::marker::PhantomData<*const C>,
+    pub(crate) phantom: std::marker::PhantomData<*const T>,
 }
 
-impl<R, C> Range<R, C> {
+impl<T, R> Range<T, R> {
     pub fn new(rule: R, from: usize, to: Option<usize>) -> Self {
         Range {
             rule,
@@ -43,30 +43,30 @@ impl<R, C> Range<R, C> {
     }
 }
 
-impl<R, C> Clone for Range<R, C>
+impl<T, R> Clone for Range<T, R>
     where
         R: Clone,
 {
     fn clone(&self) -> Self { Range::new(self.rule.clone(), self.from, self.to) }
 }
 
-impl<R, C> Copy for Range<R, C>
+impl<T, R> Copy for Range<T, R>
     where
         R: Copy,
 {}
 
-impl<R, I, C> Apply<I> for Range<R, C>
+impl<I, T, R> Apply<I> for Range<T, R>
     where
         R: Apply<I>,
         I: Copy,
-        C: Concat<C, R::Res>,
+        T: Concat<T, R::Res>,
 {
     type Err = R::Err;
-    type Res = C;
+    type Res = T;
 
     fn apply(&self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
         let mut count = 0;
-        let mut res = C::empty();
+        let mut res = T::empty();
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
@@ -77,7 +77,7 @@ impl<R, I, C> Apply<I> for Range<R, C>
                 Ruled::Ok(r, i) => {
                     count += 1;
                     input = i;
-                    res = C::concat(res, r);
+                    res = T::concat(res, r);
                 }
                 Ruled::Err(e) => {
                     break if count >= self.from {

@@ -7,6 +7,19 @@ pub mod rule;
 pub mod ruled;
 pub mod tuple;
 
+pub mod common {
+    pub mod any;
+    pub mod bin;
+    pub mod dec;
+    pub mod good_boy;
+    pub mod hex;
+    pub mod latin;
+    pub mod nl;
+    pub mod oct;
+    pub mod space;
+    pub mod white;
+}
+
 pub mod rules {
     pub mod and_then;
     pub mod boxed;
