@@ -5,6 +5,7 @@ pub mod apply;
 pub mod concat;
 pub mod rule;
 pub mod ruled;
+pub mod tuple;
 
 pub mod rules {
     pub mod and_then;

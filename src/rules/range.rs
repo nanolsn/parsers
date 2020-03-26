@@ -59,7 +59,6 @@ impl<R, I, C> Apply<I> for Range<R, C>
     where
         R: Apply<I>,
         I: Copy,
-        R::Res: AsRef<str>,
         C: Concat<C, R::Res>,
 {
     type Err = R::Err;

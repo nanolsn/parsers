@@ -16,9 +16,7 @@ impl<A, B, C> Clone for Cat<A, B, C>
         A: Clone,
         B: Clone,
 {
-    fn clone(&self) -> Self {
-        Cat(self.0.clone(), self.1.clone(), std::marker::PhantomData)
-    }
+    fn clone(&self) -> Self { Cat::new(self.0.clone(), self.1.clone()) }
 }
 
 impl<A, B, C> Copy for Cat<A, B, C>

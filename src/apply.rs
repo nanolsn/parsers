@@ -62,10 +62,44 @@ impl<F, I, R, E> Apply<I> for F
     fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { self(input) }
 }
 
+impl<I> Apply<I> for () {
+    type Err = ();
+    type Res = ();
+
+    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok((), input) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::rule::rule;
+
+    #[test]
+    fn string() {
+        let hello = "hello".to_string();
+        let r = rule(hello);
+        assert_eq!(apply(r.clone(), "hello!"), Ruled::Ok("hello", "!"));
+        assert_eq!(apply(r, "hi!"), Ruled::Err(()));
+    }
+
+    #[test]
+    fn char() {
+        let r = rule('@');
+        assert_eq!(apply(r, &*"@#".to_owned()), Ruled::Ok("@", "#"));
+        assert_eq!(apply(r, "$"), Ruled::Err(()));
+    }
+
+    #[test]
+    fn tuple() {
+        let r = (rule('@'), '#', "__");
+        assert_eq!(apply(r, "@#__"), Ruled::Ok(("@", "#", "__"), ""));
+        assert_eq!(apply(r, "@#!"), Ruled::Err(()));
+        assert_eq!(apply(r, "#$"), Ruled::Err(()));
+
+        let r = (rule('0'), '1', "23", "4");
+        assert_eq!(apply(r, "012345"), Ruled::Ok(("0", "1", "23", "4"), "5"));
+        assert_eq!(apply(r, "0123"), Ruled::Err(()));
+    }
 
     #[test]
     fn func() {

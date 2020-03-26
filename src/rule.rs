@@ -29,11 +29,11 @@ pub fn rule<R, I>(r: R) -> Rule<R>
 pub struct Rule<R>(pub R);
 
 impl<R> Rule<R> {
-    pub fn cat<I, P>(self, rhs: P) -> Rule<Cat<R, P, String>>
+    pub fn cat<C, I, P>(self, rhs: P) -> Rule<Cat<R, P, C>>
         where
             R: Apply<I>,
             P: Apply<I, Err=R::Err>,
-            String: Concat<R::Res, P::Res>,
+            C: Concat<R::Res, P::Res>,
     { Rule(Cat::new(self.0, rhs)) }
 
     pub fn or<I, P>(self, rhs: P) -> Rule<Or<R, P>>
@@ -61,6 +61,14 @@ impl<R> Rule<R> {
             R: Apply<I>,
             F: Fn(R::Err) -> Q,
     { Rule(MapErr(self.0, f)) }
+
+    pub fn range<C, I, B>(self, rng: B) -> Rule<Range<R, C>>
+        where
+            R: Apply<I>,
+            I: Copy,
+            C: Concat<C, R::Res>,
+            B: std::ops::RangeBounds<usize>,
+    { Rule(Range::from_range(self.0, rng)) }
 
     pub fn and_then<I, F, K>(self, f: F) -> Rule<AndThen<R, F>>
         where
