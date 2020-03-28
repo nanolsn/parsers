@@ -28,11 +28,10 @@ mod tests {
         rule::rule,
     };
 
-    //noinspection RsBorrowChecker
     #[test]
     fn map_err() {
         let r = rule('1').map_err(|_| 1);
-        assert_eq!(apply(r, "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "2"), Ruled::Err(1));
+        assert_eq!(apply(&r, "1"), Ruled::Ok("1", ""));
+        assert_eq!(apply(&r, "2"), Ruled::Err(1));
     }
 }

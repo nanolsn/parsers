@@ -29,15 +29,14 @@ mod tests {
         rule::rule,
     };
 
-    //noinspection RsBorrowChecker
     #[test]
     fn and_then() {
         let r = (rule("qw") | '1')
             .and_then(|s: &str| rule('.') >> s);
 
-        assert_eq!(apply(r, "qw.qw"), Ruled::Ok("qw", ""));
-        assert_eq!(apply(r, "1.1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "qw.1"), Ruled::Err(()));
-        assert_eq!(apply(r, "."), Ruled::Err(()));
+        assert_eq!(apply(&r, "qw.qw"), Ruled::Ok("qw", ""));
+        assert_eq!(apply(&r, "1.1"), Ruled::Ok("1", ""));
+        assert_eq!(apply(&r, "qw.1"), Ruled::Err(()));
+        assert_eq!(apply(&r, "."), Ruled::Err(()));
     }
 }

@@ -36,8 +36,8 @@ mod tests {
         let r = (rule('1') | '2')
             .map(|s: &str| i32::from_str(s).unwrap());
 
-        assert_eq!(apply(r, "1"), Ruled::Ok(1, ""));
-        assert_eq!(apply(r, "2"), Ruled::Ok(2, ""));
-        assert_eq!(apply(r, "3"), Ruled::Err(()));
+        assert_eq!(apply(&r, "1"), Ruled::Ok(1, ""));
+        assert_eq!(apply(&r, "2"), Ruled::Ok(2, ""));
+        assert_eq!(apply(&r, "3"), Ruled::Err(()));
     }
 }

@@ -28,7 +28,7 @@ mod tests {
 
     #[test]
     fn any() {
-        assert_eq!(apply(super::any(), "!@#$"), Ruled::Ok("!", "@#$"));
-        assert_eq!(apply(super::any(), ""), Ruled::Err(()));
+        assert_eq!(apply(&super::any(), "!@#$"), Ruled::Ok("!", "@#$"));
+        assert_eq!(apply(&super::any(), ""), Ruled::Err(()));
     }
 }

@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn into() {
         let r = rule('@').into::<String>();
-        assert_eq!(apply(r, "@"), Ruled::Ok("@".to_owned(), ""));
-        assert_eq!(apply(r, "!"), Ruled::Err(()));
+        assert_eq!(apply(&r, "@"), Ruled::Ok("@".to_owned(), ""));
+        assert_eq!(apply(&r, "!"), Ruled::Err(()));
     }
 }

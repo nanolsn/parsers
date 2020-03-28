@@ -37,9 +37,9 @@ mod tests {
 
     #[test]
     fn white() {
-        assert!(apply(super::white(), " ").is_ok());
-        assert!(apply(super::white(), "\n").is_ok());
-        assert!(apply(super::white(), "\t").is_ok());
-        assert!(apply(super::white(), "!").is_err());
+        assert!(apply(&super::white(), " ").is_ok());
+        assert!(apply(&super::white(), "\n").is_ok());
+        assert!(apply(&super::white(), "\t").is_ok());
+        assert!(apply(&super::white(), "!").is_err());
     }
 }

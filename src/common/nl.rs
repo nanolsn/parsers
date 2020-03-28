@@ -33,9 +33,9 @@ mod tests {
 
     #[test]
     fn nl() {
-        assert!(apply(super::nl(), "\n").is_ok());
-        assert!(apply(super::nl(), "\r").is_ok());
-        assert!(apply(super::nl(), "\r\n").is_ok());
-        assert!(apply(super::nl(), "~").is_err());
+        assert!(apply(&super::nl(), "\n").is_ok());
+        assert!(apply(&super::nl(), "\r").is_ok());
+        assert!(apply(&super::nl(), "\r\n").is_ok());
+        assert!(apply(&super::nl(), "~").is_err());
     }
 }

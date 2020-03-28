@@ -33,12 +33,11 @@ mod tests {
         rule::rule,
     };
 
-    //noinspection RsBorrowChecker
     #[test]
     fn pred() {
         let r = (rule("@") | "#").pred(|s: &&str| *s == "@");
-        assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
-        assert_eq!(apply(r, "#"), Ruled::Err(None));
-        assert_eq!(apply(r, "!"), Ruled::Err(Some(())));
+        assert_eq!(apply(&r, "@"), Ruled::Ok("@", ""));
+        assert_eq!(apply(&r, "#"), Ruled::Err(None));
+        assert_eq!(apply(&r, "!"), Ruled::Err(Some(())));
     }
 }

@@ -67,10 +67,10 @@ mod tests {
     #[test]
     fn until() {
         let r = char_range('0'..='9').until("12");
-        assert_eq!(apply(r, "110211234"), Ruled::Ok(("11021".to_owned(), "12"), "34"));
+        assert_eq!(apply(&r, "110211234"), Ruled::Ok(("11021".to_owned(), "12"), "34"));
 
         let r = rule('.').until("!");
-        assert_eq!(apply(r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
-        assert_eq!(apply(r, "..."), Ruled::Err(()));
+        assert_eq!(apply(&r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
+        assert_eq!(apply(&r, "..."), Ruled::Err(()));
     }
 }

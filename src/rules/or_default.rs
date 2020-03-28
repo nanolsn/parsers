@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn or_default() {
         let r = rule("hello").or_default();
-        assert_eq!(apply(r, "hello"), Ruled::Ok("hello", ""));
-        assert_eq!(apply(r, "hi"), Ruled::Ok("", "hi"));
+        assert_eq!(apply(&r, "hello"), Ruled::Ok("hello", ""));
+        assert_eq!(apply(&r, "hi"), Ruled::Ok("", "hi"));
     }
 }

@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn not() {
         let r = !rule('a');
-        assert_eq!(apply(r, "a"), Ruled::Err("a"));
-        assert_eq!(apply(r, "b"), Ruled::Ok((), "b"));
+        assert_eq!(apply(&r, "a"), Ruled::Err("a"));
+        assert_eq!(apply(&r, "b"), Ruled::Ok((), "b"));
     }
 }

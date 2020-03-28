@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn end() {
         let r = rule('a') << super::end();
-        assert_eq!(apply(r, "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(r, "aa"), Ruled::Err(()));
+        assert_eq!(apply(&r, "a"), Ruled::Ok("a", ""));
+        assert_eq!(apply(&r, "aa"), Ruled::Err(()));
     }
 }

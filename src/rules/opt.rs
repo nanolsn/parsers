@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn opt() {
         let r = rule("q").opt();
-        assert_eq!(apply(r, "qw"), Ruled::Ok(Some("q"), "w"));
-        assert_eq!(apply(r, "w"), Ruled::Ok(None, "w"));
+        assert_eq!(apply(&r, "qw"), Ruled::Ok(Some("q"), "w"));
+        assert_eq!(apply(&r, "w"), Ruled::Ok(None, "w"));
     }
 }

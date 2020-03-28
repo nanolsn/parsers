@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    apply::{Apply, apply},
+    apply::Apply,
     ruled::Ruled,
     rule::rule,
     common::{
@@ -54,6 +54,6 @@ fn read_num(input: &str) -> Ruled<&str, Json, JsonError> {
 
 #[test]
 fn json() {
-    let json = apply(read_num, "-12").result().unwrap();
+    let json = read_num("-12").result().unwrap();
     assert_eq!(json, Json::Num(-12));
 }

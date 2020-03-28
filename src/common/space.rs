@@ -28,5 +28,5 @@ mod tests {
     use crate::apply::apply;
 
     #[test]
-    fn space() { assert!(apply(super::space(), " ").is_ok()) }
+    fn space() { assert!(apply(&super::space(), " ").is_ok()) }
 }

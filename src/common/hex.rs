@@ -32,12 +32,12 @@ mod tests {
 
     #[test]
     fn hex() {
-        assert_eq!(apply(super::hex(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::hex(), "9"), Ruled::Ok("9", ""));
-        assert_eq!(apply(super::hex(), "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(super::hex(), "A"), Ruled::Ok("A", ""));
-        assert_eq!(apply(super::hex(), "f"), Ruled::Ok("f", ""));
-        assert_eq!(apply(super::hex(), "F"), Ruled::Ok("F", ""));
-        assert_eq!(apply(super::hex(), "g"), Ruled::Err(()));
+        assert_eq!(apply(&super::hex(), "0"), Ruled::Ok("0", ""));
+        assert_eq!(apply(&super::hex(), "9"), Ruled::Ok("9", ""));
+        assert_eq!(apply(&super::hex(), "a"), Ruled::Ok("a", ""));
+        assert_eq!(apply(&super::hex(), "A"), Ruled::Ok("A", ""));
+        assert_eq!(apply(&super::hex(), "f"), Ruled::Ok("f", ""));
+        assert_eq!(apply(&super::hex(), "F"), Ruled::Ok("F", ""));
+        assert_eq!(apply(&super::hex(), "g"), Ruled::Err(()));
     }
 }

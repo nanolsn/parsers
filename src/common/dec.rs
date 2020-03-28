@@ -28,8 +28,8 @@ mod tests {
 
     #[test]
     fn dec() {
-        assert_eq!(apply(super::dec(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::dec(), "9"), Ruled::Ok("9", ""));
-        assert_eq!(apply(super::dec(), "a"), Ruled::Err(()));
+        assert_eq!(apply(&super::dec(), "0"), Ruled::Ok("0", ""));
+        assert_eq!(apply(&super::dec(), "9"), Ruled::Ok("9", ""));
+        assert_eq!(apply(&super::dec(), "a"), Ruled::Err(()));
     }
 }

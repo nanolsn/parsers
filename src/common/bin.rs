@@ -28,8 +28,8 @@ mod tests {
 
     #[test]
     fn bin() {
-        assert_eq!(apply(super::bin(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::bin(), "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(super::bin(), "2"), Ruled::Err(()));
+        assert_eq!(apply(&super::bin(), "0"), Ruled::Ok("0", ""));
+        assert_eq!(apply(&super::bin(), "1"), Ruled::Ok("1", ""));
+        assert_eq!(apply(&super::bin(), "2"), Ruled::Err(()));
     }
 }

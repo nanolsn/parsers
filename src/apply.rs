@@ -1,11 +1,11 @@
 use super::ruled::Ruled;
 
-pub fn apply<R, I>(rule: R, input: I) -> Ruled<I, R::Res, R::Err>
+pub fn apply<R, I>(rule: &R, input: I) -> Ruled<I, R::Res, R::Err>
     where
         R: Apply<I>,
 { rule.apply(input) }
 
-pub fn apply_result<R, I>(rule: R, input: I) -> Result<R::Res, R::Err>
+pub fn apply_result<R, I>(rule: &R, input: I) -> Result<R::Res, R::Err>
     where
         R: Apply<I>,
 { apply(rule, input).into() }
@@ -78,28 +78,27 @@ mod tests {
     fn string() {
         let hello = "hello".to_string();
         let r = rule(hello);
-        assert_eq!(apply(r.clone(), "hello!"), Ruled::Ok("hello", "!"));
-        assert_eq!(apply(r, "hi!"), Ruled::Err(()));
+        assert_eq!(apply(&r, "hello!"), Ruled::Ok("hello", "!"));
+        assert_eq!(apply(&r, "hi!"), Ruled::Err(()));
     }
 
     #[test]
     fn char() {
         let r = rule('@');
-        assert_eq!(apply(r, &*"@#".to_owned()), Ruled::Ok("@", "#"));
-        assert_eq!(apply(r, "$"), Ruled::Err(()));
+        assert_eq!(apply(&r, &*"@#".to_owned()), Ruled::Ok("@", "#"));
+        assert_eq!(apply(&r, "$"), Ruled::Err(()));
     }
 
-    //noinspection RsBorrowChecker
     #[test]
     fn tuple() {
         let r = (rule('@'), '#', "__");
-        assert_eq!(apply(r, "@#__"), Ruled::Ok(("@", "#", "__"), ""));
-        assert_eq!(apply(r, "@#!"), Ruled::Err(()));
-        assert_eq!(apply(r, "#$"), Ruled::Err(()));
+        assert_eq!(apply(&r, "@#__"), Ruled::Ok(("@", "#", "__"), ""));
+        assert_eq!(apply(&r, "@#!"), Ruled::Err(()));
+        assert_eq!(apply(&r, "#$"), Ruled::Err(()));
 
         let r = (rule('0').map(|_| 0), '1', "23", "4");
-        assert_eq!(apply(r, "012345"), Ruled::Ok((0, "1", "23", "4"), "5"));
-        assert_eq!(apply(r, "0123"), Ruled::Err(()));
+        assert_eq!(apply(&r, "012345"), Ruled::Ok((0, "1", "23", "4"), "5"));
+        assert_eq!(apply(&r, "0123"), Ruled::Err(()));
     }
 
     #[test]
@@ -110,9 +109,9 @@ mod tests {
             _ => Ruled::Err(()),
         };
 
-        assert_eq!(apply(f, "foo"), Ruled::Ok("ok", "foo"));
-        assert_eq!(apply(f, "test"), Ruled::Ok("test", "test"));
-        assert_eq!(apply(f, "bar"), Ruled::Err(()));
+        assert_eq!(apply(&f, "foo"), Ruled::Ok("ok", "foo"));
+        assert_eq!(apply(&f, "test"), Ruled::Ok("test", "test"));
+        assert_eq!(apply(&f, "bar"), Ruled::Err(()));
     }
 
     #[test]

@@ -28,11 +28,9 @@ mod tests {
 
     #[test]
     fn boxed() {
-        fn get_rule() -> BoxedRule<&'static str, String> {
-            super::boxed(rule("@") & '#')
-        }
+        fn get_rule() -> BoxedRule<&'static str, String> { super::boxed(rule("@") & '#') }
 
         let r = get_rule();
-        assert_eq!(apply(r, "@#"), Ruled::Ok("@#".to_owned(), ""));
+        assert_eq!(apply(&r, "@#"), Ruled::Ok("@#".to_owned(), ""));
     }
 }

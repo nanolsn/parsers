@@ -30,12 +30,11 @@ mod tests {
         rule::rule,
     };
 
-    //noinspection RsBorrowChecker
     #[test]
     fn or_else() {
         let r = rule("qw").or_else(|_| rule('1'));
-        assert_eq!(apply(r, "qw"), Ruled::Ok("qw", ""));
-        assert_eq!(apply(r, "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "."), Ruled::Err(()));
+        assert_eq!(apply(&r, "qw"), Ruled::Ok("qw", ""));
+        assert_eq!(apply(&r, "1"), Ruled::Ok("1", ""));
+        assert_eq!(apply(&r, "."), Ruled::Err(()));
     }
 }

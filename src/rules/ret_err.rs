@@ -30,6 +30,6 @@ mod tests {
     #[test]
     fn ret_err() {
         let r = super::ret_err(12);
-        assert_eq!(apply(r, "hello!"), Ruled::Err(12));
+        assert_eq!(apply(&r, "hello!"), Ruled::Err(12));
     }
 }
