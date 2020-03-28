@@ -1,6 +1,9 @@
 #[macro_use]
 mod macros;
 
+#[cfg(test)]
+mod tests;
+
 pub mod apply;
 pub mod concat;
 pub mod rule;

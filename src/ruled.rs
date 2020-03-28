@@ -5,6 +5,13 @@ pub enum Ruled<I, R, E = ()> {
 }
 
 impl<I, R, E> Ruled<I, R, E> {
+    pub fn from_result(result: Result<R, E>, input: I) -> Self {
+        match result {
+            Ok(o) => Ruled::Ok(o, input),
+            Err(e) => Ruled::Err(e),
+        }
+    }
+
     pub fn is_ok(&self) -> bool {
         match self {
             Ruled::Ok(_, _) => true,
@@ -72,6 +79,15 @@ impl<I, R, E> Ruled<I, R, E> {
         match self {
             Ruled::Ok(ok, _) => Ok(ok),
             Ruled::Err(err) => Err(err),
+        }
+    }
+}
+
+impl<I, R, E> From<Ruled<I, Result<R, E>, E>> for Ruled<I, R, E> {
+    fn from(ruled: Ruled<I, Result<R, E>, E>) -> Self {
+        match ruled {
+            Ruled::Ok(r, i) => Ruled::from_result(r, i),
+            Ruled::Err(e) => Ruled::Err(e),
         }
     }
 }
