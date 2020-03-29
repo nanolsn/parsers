@@ -13,7 +13,7 @@ impl<'i> Apply<&'i str> for Latin {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         let c = match input.chars().next() {
             Some(c @ 'a'..='z') => c,
             Some(c @ 'A'..='Z') => c,
@@ -30,17 +30,17 @@ mod tests {
 
     #[test]
     fn latin() {
-        assert!(apply(&super::latin(), "a").is_ok());
-        assert!(apply(&super::latin(), "b").is_ok());
-        assert!(apply(&super::latin(), "A").is_ok());
-        assert!(apply(&super::latin(), "B").is_ok());
-        assert!(apply(&super::latin(), "q").is_ok());
-        assert!(apply(&super::latin(), "Z").is_ok());
+        assert!(apply(super::latin(), "a").is_ok());
+        assert!(apply(super::latin(), "b").is_ok());
+        assert!(apply(super::latin(), "A").is_ok());
+        assert!(apply(super::latin(), "B").is_ok());
+        assert!(apply(super::latin(), "q").is_ok());
+        assert!(apply(super::latin(), "Z").is_ok());
 
-        assert!(apply(&super::latin(), "").is_err());
-        assert!(apply(&super::latin(), "+").is_err());
-        assert!(apply(&super::latin(), "0").is_err());
-        assert!(apply(&super::latin(), "🐙").is_err());
-        assert!(apply(&super::latin(), "Ш").is_err());
+        assert!(apply(super::latin(), "").is_err());
+        assert!(apply(super::latin(), "+").is_err());
+        assert!(apply(super::latin(), "0").is_err());
+        assert!(apply(super::latin(), "🐙").is_err());
+        assert!(apply(super::latin(), "Ш").is_err());
     }
 }

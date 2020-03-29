@@ -27,15 +27,15 @@ impl<T, R, U> Copy for Until<T, R, U>
 
 impl<I, T, R, U> Apply<I> for Until<T, R, U>
     where
-        R: Apply<I>,
-        U: Apply<I>,
+        R: Apply<I> + Copy,
+        U: Apply<I> + Copy,
         I: Copy,
         T: Concat<T, R::Res>,
 {
     type Err = R::Err;
     type Res = (T, U::Res);
 
-    fn apply(&self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn apply(self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
         let mut res = T::empty();
 
         loop {
@@ -67,10 +67,10 @@ mod tests {
     #[test]
     fn until() {
         let r = char_range('0'..='9').until("12");
-        assert_eq!(apply(&r, "110211234"), Ruled::Ok(("11021".to_owned(), "12"), "34"));
+        assert_eq!(apply(r, "110211234"), Ruled::Ok(("11021".to_owned(), "12"), "34"));
 
         let r = rule('.').until("!");
-        assert_eq!(apply(&r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
-        assert_eq!(apply(&r, "..."), Ruled::Err(()));
+        assert_eq!(apply(r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
+        assert_eq!(apply(r, "..."), Ruled::Err(()));
     }
 }

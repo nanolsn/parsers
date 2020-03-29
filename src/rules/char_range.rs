@@ -24,7 +24,7 @@ impl<'i> Apply<&'i str> for CharRange {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         use std::ops::RangeBounds;
 
         let rng = (self.from, self.to);
@@ -57,20 +57,20 @@ mod tests {
     #[test]
     fn char_range() {
         let r = super::char_range('b'..='d');
-        assert_eq!(apply(&r, "a"), Ruled::Err(()));
-        assert_eq!(apply(&r, "b"), Ruled::Ok("b", ""));
-        assert_eq!(apply(&r, "c"), Ruled::Ok("c", ""));
-        assert_eq!(apply(&r, "d"), Ruled::Ok("d", ""));
-        assert_eq!(apply(&r, "e"), Ruled::Err(()));
+        assert_eq!(apply(r, "a"), Ruled::Err(()));
+        assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
+        assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
+        assert_eq!(apply(r, "d"), Ruled::Ok("d", ""));
+        assert_eq!(apply(r, "e"), Ruled::Err(()));
 
         let r = super::char_range('b'..'d');
-        assert_eq!(apply(&r, "a"), Ruled::Err(()));
-        assert_eq!(apply(&r, "b"), Ruled::Ok("b", ""));
-        assert_eq!(apply(&r, "c"), Ruled::Ok("c", ""));
-        assert_eq!(apply(&r, "d"), Ruled::Err(()));
+        assert_eq!(apply(r, "a"), Ruled::Err(()));
+        assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
+        assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
+        assert_eq!(apply(r, "d"), Ruled::Err(()));
 
         let r = super::char_range(..);
-        assert_eq!(apply(&r, "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(&r, "e"), Ruled::Ok("e", ""));
+        assert_eq!(apply(r, "a"), Ruled::Ok("a", ""));
+        assert_eq!(apply(r, "e"), Ruled::Ok("e", ""));
     }
 }

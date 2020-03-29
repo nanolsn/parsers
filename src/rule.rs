@@ -18,7 +18,6 @@ use super::{
         pred::Pred,
         opt::Opt,
         or_default::OrDefault,
-        boxed::{BoxedRule, boxed},
     },
 };
 
@@ -50,13 +49,13 @@ impl<R> Rule<R> {
     pub fn map<I, F, K>(self, f: F) -> Rule<Map<R, F>>
         where
             R: Apply<I>,
-            F: Fn(R::Res) -> K,
+            F: FnOnce(R::Res) -> K,
     { Rule(Map(self.0, f)) }
 
     pub fn map_err<I, F, Q>(self, f: F) -> Rule<MapErr<R, F>>
         where
             R: Apply<I>,
-            F: Fn(R::Err) -> Q,
+            F: FnOnce(R::Err) -> Q,
     { Rule(MapErr(self.0, f)) }
 
     pub fn into<T>(self) -> Rule<Into<T, R>>
@@ -72,15 +71,15 @@ impl<R> Rule<R> {
 
     pub fn repeat<T, I>(self, times: usize) -> Rule<Range<T, R>>
         where
-            R: Apply<I>,
+            R: Apply<I> + Copy,
             I: Copy,
             T: Concat<T, R::Res>,
     { Rule(Range::from_range(self.0, times..=times)) }
 
     pub fn until<T, I, U>(self, until: U) -> Rule<Until<T, R, U>>
         where
-            R: Apply<I>,
-            U: Apply<I>,
+            R: Apply<I> + Copy,
+            U: Apply<I> + Copy,
             I: Copy,
             T: Concat<T, R::Res>,
     { Rule(Until::new(self.0, until)) }
@@ -88,14 +87,14 @@ impl<R> Rule<R> {
     pub fn and_then<I, F, K>(self, f: F) -> Rule<AndThen<R, F>>
         where
             R: Apply<I>,
-            F: Fn(R::Res) -> K,
+            F: FnOnce(R::Res) -> K,
             K: Apply<I, Err=R::Err>,
     { Rule(AndThen(self.0, f)) }
 
     pub fn or_else<I, F, K>(self, f: F) -> Rule<OrElse<R, F>>
         where
             R: Apply<I>,
-            F: Fn(R::Err) -> K,
+            F: FnOnce(R::Err) -> K,
             K: Apply<I, Res=R::Res>,
             I: Copy,
     { Rule(OrElse(self.0, f)) }
@@ -103,7 +102,7 @@ impl<R> Rule<R> {
     pub fn pred<I, F>(self, f: F) -> Rule<Pred<R, F>>
         where
             R: Apply<I>,
-            F: Fn(&R::Res) -> bool,
+            F: FnOnce(&R::Res) -> bool,
     { Rule(Pred(self.0, f)) }
 
     pub fn opt<I>(self) -> Rule<Opt<R>>
@@ -118,11 +117,6 @@ impl<R> Rule<R> {
             I: Copy,
             R::Res: Default,
     { Rule(OrDefault(self.0)) }
-
-    pub fn boxed<I>(self) -> BoxedRule<I, R::Res, R::Err>
-        where
-            R: Apply<I> + 'static,
-    { boxed(self.0) }
 }
 
 pub fn rule<R, I>(r: R) -> Rule<R>
@@ -137,7 +131,7 @@ impl<R, I> Apply<I> for Rule<R>
     type Err = R::Err;
     type Res = R::Res;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> { self.0.apply(input) }
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { self.0.apply(input) }
 }
 
 impl<R> std::ops::Deref for Rule<R> {

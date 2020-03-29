@@ -13,7 +13,7 @@ impl<'i> Apply<&'i str> for Any {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             None => Ruled::Err(()),
             Some(c) => input.split_at(c.len_utf8()).into(),
@@ -28,7 +28,7 @@ mod tests {
 
     #[test]
     fn any() {
-        assert_eq!(apply(&super::any(), "!@#$"), Ruled::Ok("!", "@#$"));
-        assert_eq!(apply(&super::any(), ""), Ruled::Err(()));
+        assert_eq!(apply(super::any(), "!@#$"), Ruled::Ok("!", "@#$"));
+        assert_eq!(apply(super::any(), ""), Ruled::Err(()));
     }
 }

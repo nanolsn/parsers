@@ -13,7 +13,7 @@ impl<'i> Apply<&'i str> for Nl {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         let nl = "\r\n";
         if input.starts_with(nl) {
             return input.split_at(nl.len()).into();
@@ -33,9 +33,9 @@ mod tests {
 
     #[test]
     fn nl() {
-        assert!(apply(&super::nl(), "\n").is_ok());
-        assert!(apply(&super::nl(), "\r").is_ok());
-        assert!(apply(&super::nl(), "\r\n").is_ok());
-        assert!(apply(&super::nl(), "~").is_err());
+        assert!(apply(super::nl(), "\n").is_ok());
+        assert!(apply(super::nl(), "\r").is_ok());
+        assert!(apply(super::nl(), "\r\n").is_ok());
+        assert!(apply(super::nl(), "~").is_err());
     }
 }

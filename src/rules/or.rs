@@ -16,10 +16,12 @@ impl<I, A, B> Apply<I> for Or<A, B>
     type Err = A::Err;
     type Res = B::Res;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
-        self.0.apply(input)
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+        let Or(a, b) = self;
+
+        a.apply(input)
             .map(|l| l.into())
-            .or_else(|_| self.1.apply(input))
+            .or_else(|_| b.apply(input))
     }
 }
 
@@ -34,14 +36,14 @@ mod tests {
     #[test]
     fn or() {
         let r = rule('@') | '#';
-        assert_eq!(apply(&r, "@"), Ruled::Ok("@", ""));
-        assert_eq!(apply(&r, "#"), Ruled::Ok("#", ""));
-        assert_eq!(apply(&r, "$"), Ruled::Err(()));
+        assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
+        assert_eq!(apply(r, "#"), Ruled::Ok("#", ""));
+        assert_eq!(apply(r, "$"), Ruled::Err(()));
 
         let r = rule("qwe") | "123" | "null";
-        assert_eq!(apply(&r, "qwe"), Ruled::Ok("qwe", ""));
-        assert_eq!(apply(&r, "1234"), Ruled::Ok("123", "4"));
-        assert_eq!(apply(&r, "nullable"), Ruled::Ok("null", "able"));
-        assert_eq!(apply(&r, "qw"), Ruled::Err(()));
+        assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe", ""));
+        assert_eq!(apply(r, "1234"), Ruled::Ok("123", "4"));
+        assert_eq!(apply(r, "nullable"), Ruled::Ok("null", "able"));
+        assert_eq!(apply(r, "qw"), Ruled::Err(()));
     }
 }

@@ -14,7 +14,7 @@ impl<I, R> Apply<I> for Opt<R>
     type Err = R::Err;
     type Res = Option<R::Res>;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         match self.0.apply(input) {
             Ruled::Ok(r, i) => Ruled::Ok(Some(r), i),
             Ruled::Err(_) => Ruled::Ok(None, input),
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn opt() {
         let r = rule("q").opt();
-        assert_eq!(apply(&r, "qw"), Ruled::Ok(Some("q"), "w"));
-        assert_eq!(apply(&r, "w"), Ruled::Ok(None, "w"));
+        assert_eq!(apply(r, "qw"), Ruled::Ok(Some("q"), "w"));
+        assert_eq!(apply(r, "w"), Ruled::Ok(None, "w"));
     }
 }

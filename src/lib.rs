@@ -14,6 +14,7 @@ pub mod common {
     pub mod any;
     pub mod bin;
     pub mod dec;
+    pub mod end;
     pub mod good_boy;
     pub mod hex;
     pub mod latin;
@@ -25,10 +26,8 @@ pub mod common {
 
 pub mod rules {
     pub mod and_then;
-    pub mod boxed;
     pub mod cat;
     pub mod char_range;
-    pub mod end;
     pub mod fst;
     pub mod into;
     pub mod map;

@@ -43,7 +43,7 @@ impl<'i> Apply<&'i str> for GoodBoy {
     type Err = ();
     type Res = String;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         let good = rule(self.user.as_str())
             & " is a good "
             & self.gender.as_str()
@@ -62,10 +62,10 @@ mod tests {
     fn good_boy() {
         let boy = "Nano";
 
-        let result = apply(&super::good_boy(boy, Gender::Boy), "Nano is a good boy!");
+        let result = apply(super::good_boy(boy, Gender::Boy), "Nano is a good boy!");
         assert!(result.is_ok());
 
-        let result = apply(&super::good_boy(boy, Gender::Boy), "Nano is NOT a good boy!");
+        let result = apply(super::good_boy(boy, Gender::Boy), "Nano is NOT a good boy!");
         assert!(result.is_err());
     }
 }

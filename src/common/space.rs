@@ -15,7 +15,7 @@ impl<'i> Apply<&'i str> for Space {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(SPACE) => input.split_at(SPACE.len_utf8()).into(),
             _ => Ruled::Err(()),
@@ -28,5 +28,5 @@ mod tests {
     use crate::apply::apply;
 
     #[test]
-    fn space() { assert!(apply(&super::space(), " ").is_ok()) }
+    fn space() { assert!(apply(super::space(), " ").is_ok()) }
 }

@@ -13,7 +13,7 @@ impl<'i> Apply<&'i str> for Bin {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(a @ '0') | Some(a @ '1') => input.split_at(a.len_utf8()).into(),
             _ => Ruled::Err(()),
@@ -28,8 +28,8 @@ mod tests {
 
     #[test]
     fn bin() {
-        assert_eq!(apply(&super::bin(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(&super::bin(), "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(&super::bin(), "2"), Ruled::Err(()));
+        assert_eq!(apply(super::bin(), "0"), Ruled::Ok("0", ""));
+        assert_eq!(apply(super::bin(), "1"), Ruled::Ok("1", ""));
+        assert_eq!(apply(super::bin(), "2"), Ruled::Err(()));
     }
 }

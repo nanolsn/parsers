@@ -14,7 +14,7 @@ impl<I, A> Apply<I> for Not<A>
     type Err = A::Res;
     type Res = A::Err;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         match self.0.apply(input) {
             Ruled::Ok(r, _) => Ruled::Err(r),
             Ruled::Err(e) => Ruled::Ok(e, input),
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn not() {
         let r = !rule('a');
-        assert_eq!(apply(&r, "a"), Ruled::Err("a"));
-        assert_eq!(apply(&r, "b"), Ruled::Ok((), "b"));
+        assert_eq!(apply(r, "a"), Ruled::Err("a"));
+        assert_eq!(apply(r, "b"), Ruled::Ok((), "b"));
     }
 }

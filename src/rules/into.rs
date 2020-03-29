@@ -30,7 +30,7 @@ impl<I, T, R> Apply<I> for Into<T, R>
     type Err = R::Err;
     type Res = T;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         use std::convert::Into;
 
         self.1.apply(input).map(|r| r.into())
@@ -48,7 +48,7 @@ mod tests {
     #[test]
     fn into() {
         let r = rule('@').into::<String>();
-        assert_eq!(apply(&r, "@"), Ruled::Ok("@".to_owned(), ""));
-        assert_eq!(apply(&r, "!"), Ruled::Err(()));
+        assert_eq!(apply(r, "@"), Ruled::Ok("@".to_owned(), ""));
+        assert_eq!(apply(r, "!"), Ruled::Err(()));
     }
 }

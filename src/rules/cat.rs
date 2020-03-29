@@ -34,9 +34,11 @@ impl<I, T, A, B> Apply<I> for Cat<T, A, B>
     type Err = A::Err;
     type Res = T;
 
-    fn apply(&self, input: I) -> Ruled<I, Self::Res, Self::Err> {
-        self.1.apply(input)
-            .and_then(|l, i| self.2.apply(i)
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+        let Cat(_, a, b) = self;
+
+        a.apply(input)
+            .and_then(|l, i| b.apply(i)
                 .map(|r| T::concat(l, r))
             )
     }
@@ -53,13 +55,13 @@ mod tests {
     #[test]
     fn cat() {
         let r = rule('@') & '#';
-        assert_eq!(apply(&r, "@#"), Ruled::Ok("@#".to_owned(), ""));
-        assert_eq!(apply(&r, "@!"), Ruled::Err(()));
-        assert_eq!(apply(&r, "@"), Ruled::Err(()));
+        assert_eq!(apply(r, "@#"), Ruled::Ok("@#".to_owned(), ""));
+        assert_eq!(apply(r, "@!"), Ruled::Err(()));
+        assert_eq!(apply(r, "@"), Ruled::Err(()));
 
         let r = rule("q") & "w" & "e";
-        assert_eq!(apply(&r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
-        assert_eq!(apply(&r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
-        assert_eq!(apply(&r, "123"), Ruled::Err(()));
+        assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
+        assert_eq!(apply(r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
+        assert_eq!(apply(r, "123"), Ruled::Err(()));
     }
 }

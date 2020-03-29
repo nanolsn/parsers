@@ -13,7 +13,7 @@ impl<'i> Apply<&'i str> for White {
     type Err = ();
     type Res = &'i str;
 
-    fn apply(&self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         let nl = "\r\n";
         if input.starts_with(nl) {
             return input.split_at(nl.len()).into();
@@ -37,9 +37,9 @@ mod tests {
 
     #[test]
     fn white() {
-        assert!(apply(&super::white(), " ").is_ok());
-        assert!(apply(&super::white(), "\n").is_ok());
-        assert!(apply(&super::white(), "\t").is_ok());
-        assert!(apply(&super::white(), "!").is_err());
+        assert!(apply(super::white(), " ").is_ok());
+        assert!(apply(super::white(), "\n").is_ok());
+        assert!(apply(super::white(), "\t").is_ok());
+        assert!(apply(super::white(), "!").is_err());
     }
 }
