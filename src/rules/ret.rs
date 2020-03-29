@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -16,7 +17,7 @@ impl<I, V> Apply<I> for Ret<V>
     where
         V: Copy,
 {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = V;
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok(self.0, input) }

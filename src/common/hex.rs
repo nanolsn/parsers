@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -10,7 +11,7 @@ pub struct Hex;
 pub fn hex() -> Rule<Hex> { Rule(Hex) }
 
 impl<'i> Apply<&'i str> for Hex {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
@@ -18,7 +19,7 @@ impl<'i> Apply<&'i str> for Hex {
             Some(c @ '0'..='9') => c,
             Some(c @ 'a'..='f') => c,
             Some(c @ 'A'..='F') => c,
-            _ => return Ruled::Err(()),
+            _ => return Ruled::Err(Expected::Hex),
         };
 
         input.split_at(c.len_utf8()).into()
@@ -38,6 +39,6 @@ mod tests {
         assert_eq!(apply(super::hex(), "A"), Ruled::Ok("A", ""));
         assert_eq!(apply(super::hex(), "f"), Ruled::Ok("f", ""));
         assert_eq!(apply(super::hex(), "F"), Ruled::Ok("F", ""));
-        assert_eq!(apply(super::hex(), "g"), Ruled::Err(()));
+        assert_eq!(apply(super::hex(), "g"), Ruled::Err(Expected::Hex));
     }
 }

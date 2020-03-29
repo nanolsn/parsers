@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 const SPACE: char = ' ';
@@ -12,13 +13,13 @@ pub struct Space;
 pub fn space() -> Rule<Space> { Rule(Space) }
 
 impl<'i> Apply<&'i str> for Space {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(SPACE) => input.split_at(SPACE.len_utf8()).into(),
-            _ => Ruled::Err(()),
+            _ => Ruled::Err(Expected::Char(SPACE)),
         }
     }
 }

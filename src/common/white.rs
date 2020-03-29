@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -10,7 +11,7 @@ pub struct White;
 pub fn white() -> Rule<White> { Rule(White) }
 
 impl<'i> Apply<&'i str> for White {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
@@ -24,7 +25,7 @@ impl<'i> Apply<&'i str> for White {
             Some(c @ '\n') => c,
             Some(c @ '\r') => c,
             Some(c @ '\t') => c,
-            _ => return Ruled::Err(()),
+            _ => return Ruled::Err(Expected::White),
         };
 
         input.split_at(c.len_utf8()).into()

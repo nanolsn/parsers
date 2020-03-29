@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -10,7 +11,7 @@ pub struct Nl;
 pub fn nl() -> Rule<Nl> { Rule(Nl) }
 
 impl<'i> Apply<&'i str> for Nl {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
@@ -22,7 +23,7 @@ impl<'i> Apply<&'i str> for Nl {
         match input.chars().next() {
             Some(c @ '\n') => input.split_at(c.len_utf8()).into(),
             Some(c @ '\r') => input.split_at(c.len_utf8()).into(),
-            _ => return Ruled::Err(()),
+            _ => return Ruled::Err(Expected::Nl),
         }
     }
 }

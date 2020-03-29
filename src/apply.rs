@@ -69,7 +69,7 @@ impl<F, I, R, E> Apply<I> for F
 }
 
 impl<I> Apply<I> for () {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = ();
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok((), input) }

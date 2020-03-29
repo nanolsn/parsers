@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -10,14 +11,14 @@ pub struct Latin;
 pub fn latin() -> Rule<Latin> { Rule(Latin) }
 
 impl<'i> Apply<&'i str> for Latin {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         let c = match input.chars().next() {
             Some(c @ 'a'..='z') => c,
             Some(c @ 'A'..='Z') => c,
-            _ => return Ruled::Err(()),
+            _ => return Ruled::Err(Expected::Latin),
         };
 
         input.split_at(c.len_utf8()).into()

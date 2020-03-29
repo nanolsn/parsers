@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -10,13 +11,13 @@ pub struct Oct;
 pub fn oct() -> Rule<Oct> { Rule(Oct) }
 
 impl<'i> Apply<&'i str> for Oct {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(c @ '0'..='7') => input.split_at(c.len_utf8()).into(),
-            _ => Ruled::Err(()),
+            _ => Ruled::Err(Expected::Oct),
         }
     }
 }
@@ -30,8 +31,8 @@ mod tests {
     fn oct() {
         assert_eq!(apply(super::oct(), "0"), Ruled::Ok("0", ""));
         assert_eq!(apply(super::oct(), "7"), Ruled::Ok("7", ""));
-        assert_eq!(apply(super::oct(), "8"), Ruled::Err(()));
-        assert_eq!(apply(super::oct(), "a"), Ruled::Err(()));
-        assert_eq!(apply(super::oct(), "A"), Ruled::Err(()));
+        assert_eq!(apply(super::oct(), "8"), Ruled::Err(Expected::Oct));
+        assert_eq!(apply(super::oct(), "a"), Ruled::Err(Expected::Oct));
+        assert_eq!(apply(super::oct(), "A"), Ruled::Err(Expected::Oct));
     }
 }

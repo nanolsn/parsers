@@ -2,6 +2,7 @@ use crate::{
     apply::Apply,
     ruled::Ruled,
     rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug)]
@@ -21,7 +22,7 @@ pub fn char_range<R>(rng: R) -> Rule<CharRange>
 }
 
 impl<'i> Apply<&'i str> for CharRange {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
@@ -31,7 +32,7 @@ impl<'i> Apply<&'i str> for CharRange {
 
         match input.chars().next() {
             Some(c) if rng.contains(&c) => input.split_at(c.len_utf8()).into(),
-            _ => Ruled::Err(())
+            _ => Ruled::Err(Expected::CharRange(self.from, self.to))
         }
     }
 }
@@ -53,21 +54,24 @@ fn cloned<T>(bound: std::ops::Bound<&T>) -> std::ops::Bound<T>
 mod tests {
     use super::*;
     use crate::apply::apply;
+    use std::ops::Bound;
 
     #[test]
     fn char_range() {
         let r = super::char_range('b'..='d');
-        assert_eq!(apply(r, "a"), Ruled::Err(()));
+        let rng = (Bound::Included('b'), Bound::Included('d'));
+        assert_eq!(apply(r, "a"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
         assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
         assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
         assert_eq!(apply(r, "d"), Ruled::Ok("d", ""));
-        assert_eq!(apply(r, "e"), Ruled::Err(()));
+        assert_eq!(apply(r, "e"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
 
         let r = super::char_range('b'..'d');
-        assert_eq!(apply(r, "a"), Ruled::Err(()));
+        let rng = (Bound::Included('b'), Bound::Excluded('d'));
+        assert_eq!(apply(r, "a"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
         assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
         assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
-        assert_eq!(apply(r, "d"), Ruled::Err(()));
+        assert_eq!(apply(r, "d"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
 
         let r = super::char_range(..);
         assert_eq!(apply(r, "a"), Ruled::Ok("a", ""));
