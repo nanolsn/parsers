@@ -2,10 +2,13 @@
 mod macros;
 
 #[cfg(test)]
-mod tests;
+mod tests {
+    // mod json;
+}
 
 pub mod apply;
 pub mod concat;
+pub mod expected;
 pub mod rule;
 pub mod ruled;
 pub mod tuple;

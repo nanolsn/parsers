@@ -28,18 +28,19 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
     fn fst() {
         let r = rule('0') << '1';
         assert_eq!(apply(r, "01."), Ruled::Ok("0", "."));
-        assert_eq!(apply(r, "0!."), Ruled::Err(()));
-        assert_eq!(apply(r, "!1."), Ruled::Err(()));
+        assert_eq!(apply(r, "0!."), Ruled::Err(Expected::Char('1')));
+        assert_eq!(apply(r, "!1."), Ruled::Err(Expected::Char('0')));
 
         let r = rule('q') << 'w' << " " << "e";
         assert_eq!(apply(r, "qw er"), Ruled::Ok("q", "r"));
         assert_eq!(apply(r, "qw e"), Ruled::Ok("q", ""));
-        assert_eq!(apply(r, "qw "), Ruled::Err(()));
+        assert_eq!(apply(r, "qw "), Ruled::Err(Expected::Str("e")));
     }
 }

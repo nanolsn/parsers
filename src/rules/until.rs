@@ -62,6 +62,7 @@ mod tests {
         apply::apply,
         rule::rule,
         rules::char_range::char_range,
+        expected::Expected,
     };
 
     #[test]
@@ -71,6 +72,6 @@ mod tests {
 
         let r = rule('.').until("!");
         assert_eq!(apply(r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
-        assert_eq!(apply(r, "..."), Ruled::Err(()));
+        assert_eq!(apply(r, "..."), Ruled::Err(Expected::Char('.')));
     }
 }

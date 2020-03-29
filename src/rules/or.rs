@@ -31,6 +31,7 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
@@ -38,12 +39,12 @@ mod tests {
         let r = rule('@') | '#';
         assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
         assert_eq!(apply(r, "#"), Ruled::Ok("#", ""));
-        assert_eq!(apply(r, "$"), Ruled::Err(()));
+        assert_eq!(apply(r, "$"), Ruled::Err(Expected::Char('#')));
 
         let r = rule("qwe") | "123" | "null";
         assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe", ""));
         assert_eq!(apply(r, "1234"), Ruled::Ok("123", "4"));
         assert_eq!(apply(r, "nullable"), Ruled::Ok("null", "able"));
-        assert_eq!(apply(r, "qw"), Ruled::Err(()));
+        assert_eq!(apply(r, "qw"), Ruled::Err(Expected::Str("null")));
     }
 }

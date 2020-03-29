@@ -43,12 +43,13 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
     fn into() {
         let r = rule('@').into::<String>();
         assert_eq!(apply(r, "@"), Ruled::Ok("@".to_owned(), ""));
-        assert_eq!(apply(r, "!"), Ruled::Err(()));
+        assert_eq!(apply(r, "!"), Ruled::Err(Expected::Char('@')));
     }
 }

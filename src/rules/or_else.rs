@@ -30,6 +30,7 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     //noinspection RsBorrowChecker
@@ -38,6 +39,6 @@ mod tests {
         let r = rule("qw").or_else(|_| rule('1'));
         assert_eq!(apply(r, "qw"), Ruled::Ok("qw", ""));
         assert_eq!(apply(r, "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "."), Ruled::Err(()));
+        assert_eq!(apply(r, "."), Ruled::Err(Expected::Char('1')));
     }
 }

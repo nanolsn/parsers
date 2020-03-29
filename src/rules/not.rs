@@ -28,12 +28,13 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
     fn not() {
         let r = !rule('a');
         assert_eq!(apply(r, "a"), Ruled::Err("a"));
-        assert_eq!(apply(r, "b"), Ruled::Ok((), "b"));
+        assert_eq!(apply(r, "b"), Ruled::Ok(Expected::Char('a'), "b"));
     }
 }

@@ -1,4 +1,7 @@
-use super::ruled::Ruled;
+use super::{
+    ruled::Ruled,
+    expected::Expected,
+};
 
 pub fn apply<R, I>(rule: R, input: I) -> Ruled<I, R::Res, R::Err>
     where
@@ -18,37 +21,40 @@ pub trait Apply<I> {
 }
 
 impl<'i> Apply<&'i str> for char {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         if input.starts_with(self) {
             input.split_at(self.len_utf8()).into()
         } else {
-            Ruled::Err(())
+            Ruled::Err(Expected::Char(self))
         }
     }
 }
 
-impl<'i> Apply<&'i str> for &str {
-    type Err = ();
+impl<'i, 'r> Apply<&'i str> for &'r str {
+    type Err = Expected<'r>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         if input.starts_with(self) {
             input.split_at(self.len()).into()
         } else {
-            Ruled::Err(())
+            Ruled::Err(Expected::Str(self))
         }
     }
 }
 
 impl<'i> Apply<&'i str> for String {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = &'i str;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
-        self.as_str().apply(input)
+        match (&*self).apply(input) {
+            Ruled::Ok(r, i) => Ruled::Ok(r, i),
+            Ruled::Err(_) => Ruled::Err(Expected::String(self)),
+        }
     }
 }
 
@@ -79,14 +85,14 @@ mod tests {
         let hello = "hello".to_string();
         let r = rule(hello);
         assert_eq!(apply(r.clone(), "hello!"), Ruled::Ok("hello", "!"));
-        assert_eq!(apply(r, "hi!"), Ruled::Err(()));
+        assert_eq!(apply(r, "hi!"), Ruled::Err(Expected::String("hello".to_owned())));
     }
 
     #[test]
     fn char() {
         let r = rule('@');
         assert_eq!(apply(r, &*"@#".to_owned()), Ruled::Ok("@", "#"));
-        assert_eq!(apply(r, "$"), Ruled::Err(()));
+        assert_eq!(apply(r, "$"), Ruled::Err(Expected::Char('@')));
     }
 
     //noinspection RsBorrowChecker
@@ -94,12 +100,12 @@ mod tests {
     fn tuple() {
         let r = (rule('@'), '#', "__");
         assert_eq!(apply(r, "@#__"), Ruled::Ok(("@", "#", "__"), ""));
-        assert_eq!(apply(r, "@#!"), Ruled::Err(()));
-        assert_eq!(apply(r, "#$"), Ruled::Err(()));
+        assert_eq!(apply(r, "@#!"), Ruled::Err(Expected::Str("__")));
+        assert_eq!(apply(r, "#$"), Ruled::Err(Expected::Char('@')));
 
         let r = (rule('0').map(|_| 0), '1', "23", "4");
         assert_eq!(apply(r, "012345"), Ruled::Ok((0, "1", "23", "4"), "5"));
-        assert_eq!(apply(r, "0123"), Ruled::Err(()));
+        assert_eq!(apply(r, "0123"), Ruled::Err(Expected::Str("4")));
     }
 
     #[test]

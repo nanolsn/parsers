@@ -50,18 +50,19 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
     fn cat() {
         let r = rule('@') & '#';
         assert_eq!(apply(r, "@#"), Ruled::Ok("@#".to_owned(), ""));
-        assert_eq!(apply(r, "@!"), Ruled::Err(()));
-        assert_eq!(apply(r, "@"), Ruled::Err(()));
+        assert_eq!(apply(r, "@!"), Ruled::Err(Expected::Char('#')));
+        assert_eq!(apply(r, "@"), Ruled::Err(Expected::Char('#')));
 
         let r = rule("q") & "w" & "e";
         assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
         assert_eq!(apply(r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
-        assert_eq!(apply(r, "123"), Ruled::Err(()));
+        assert_eq!(apply(r, "123"), Ruled::Err(Expected::Str("q")));
     }
 }

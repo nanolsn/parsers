@@ -44,12 +44,12 @@ impl<'i> Apply<&'i str> for GoodBoy {
     type Res = String;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
-        let good = rule(self.user.as_str())
+        let good = rule(self.user)
             & " is a good "
             & self.gender.as_str()
             & '!';
 
-        good.apply(input)
+        good.apply(input).map_err(|_| ())
     }
 }
 

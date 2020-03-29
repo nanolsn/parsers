@@ -33,6 +33,7 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     //noinspection RsBorrowChecker
@@ -41,6 +42,6 @@ mod tests {
         let r = (rule("@") | "#").pred(|s: &&str| *s == "@");
         assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
         assert_eq!(apply(r, "#"), Ruled::Err(None));
-        assert_eq!(apply(r, "!"), Ruled::Err(Some(())));
+        assert_eq!(apply(r, "!"), Ruled::Err(Some(Expected::Str("#"))));
     }
 }

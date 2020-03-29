@@ -97,12 +97,13 @@ mod tests {
     use crate::{
         apply::apply,
         rule::rule,
+        expected::Expected,
     };
 
     #[test]
     fn range() {
         let r = rule("a") * (1..3);
-        assert_eq!(apply(r, "~"), Ruled::Err(()));
+        assert_eq!(apply(r, "~"), Ruled::Err(Expected::Str("a")));
         assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
         assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
         assert_eq!(apply(r, "aaa"), Ruled::Ok("aa".to_owned(), "a"));
@@ -146,8 +147,8 @@ mod tests {
     #[test]
     fn range_from() {
         let r = rule("a") * (2..);
-        assert_eq!(apply(r, ""), Ruled::Err(()));
-        assert_eq!(apply(r, "a"), Ruled::Err(()));
+        assert_eq!(apply(r, ""), Ruled::Err(Expected::Str("a")));
+        assert_eq!(apply(r, "a"), Ruled::Err(Expected::Str("a")));
         assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
         assert_eq!(apply(r, "aaa"), Ruled::Ok("aaa".to_owned(), ""));
     }
