@@ -46,10 +46,10 @@ fn read_num(input: &str) -> Ruled<&str, Json, JsonError> {
             | dec.map(|s| i64::from_str(&*s).map_err(|_| JsonError::IncorrectNum(s)));
 
     num
-        .map(|r| r.map(|n| Json::Num(n)))
         .map_err(|_| JsonError::UndefinedError)
+        .and_then(|r| r)
+        .map(|n| Json::Num(n))
         .apply(input)
-        .into()
 }
 
 #[test]

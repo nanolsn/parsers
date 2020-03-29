@@ -3,7 +3,7 @@ mod macros;
 
 #[cfg(test)]
 mod tests {
-    // mod json;
+    mod json;
 }
 
 pub mod apply;

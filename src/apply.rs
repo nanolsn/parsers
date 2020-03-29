@@ -68,6 +68,18 @@ impl<F, I, R, E> Apply<I> for F
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { self(input) }
 }
 
+impl<I, R, E> Apply<I> for Result<R, E> {
+    type Err = E;
+    type Res = R;
+
+    fn apply(self, input: I) -> Ruled<I, R, E> {
+        match self {
+            Ok(o) => Ruled::Ok(o, input),
+            Err(e) => Ruled::Err(e),
+        }
+    }
+}
+
 impl<I> Apply<I> for () {
     type Err = Expected<'static>;
     type Res = ();
@@ -93,6 +105,15 @@ mod tests {
         let r = rule('@');
         assert_eq!(apply(r, &*"@#".to_owned()), Ruled::Ok("@", "#"));
         assert_eq!(apply(r, "$"), Ruled::Err(Expected::Char('@')));
+    }
+
+    #[test]
+    fn result() {
+        let r = rule::<Result<i64, ()>, &str>(Ok(1));
+        assert_eq!(apply(r, "!"), Ruled::Ok(1, "!"));
+
+        let r = rule::<Result<(), i64>, &str>(Err(1));
+        assert_eq!(apply(r, "!"), Ruled::Err(1));
     }
 
     //noinspection RsBorrowChecker
