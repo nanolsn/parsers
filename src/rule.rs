@@ -121,6 +121,16 @@ impl<R> Rule<R> {
     { Rule(OrDefault(self.0)) }
 }
 
+impl<T, R, P> Rule<Cat<T, R, P>> {
+    pub fn concat<I, K>(self, rhs: K) -> Rule<Cat<T, Cat<T, R, P>, K>>
+        where
+            R: Apply<I>,
+            P: Apply<I, Err=R::Err>,
+            K: Apply<I, Err=R::Err>,
+            T: Concat<T, K::Res>,
+    { Rule(Cat::new(self.0, rhs)) }
+}
+
 pub fn rule<R, I>(r: R) -> Rule<R>
     where
         R: Apply<I>,

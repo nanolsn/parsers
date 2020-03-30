@@ -87,6 +87,34 @@ impl<I> Apply<I> for () {
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok((), input) }
 }
 
+impl<'i, 'r, T> Apply<&'i [T]> for &'r [T]
+    where
+        T: PartialEq,
+{
+    type Err = ();
+    type Res = &'i [T];
+
+    fn apply(self, input: &'i [T]) -> Ruled<&'i [T], Self::Res, Self::Err> {
+        if input.starts_with(self) {
+            input.split_at(self.len()).into()
+        } else {
+            Ruled::Err(())
+        }
+    }
+}
+
+impl<'i, T> Apply<&'i [T]> for Vec<T>
+    where
+        T: PartialEq,
+{
+    type Err = ();
+    type Res = &'i [T];
+
+    fn apply(self, input: &'i [T]) -> Ruled<&'i [T], Self::Res, Self::Err> {
+        self.as_slice().apply(input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,5 +168,11 @@ mod tests {
         assert_eq!(apply(f, "foo"), Ruled::Ok("ok", "foo"));
         assert_eq!(apply(f, "test"), Ruled::Ok("test", "test"));
         assert_eq!(apply(f, "bar"), Ruled::Err(()));
+    }
+
+    #[test]
+    fn slice() {
+        let r = rule(vec![1, 2]);
+        assert_eq!(apply(r, [1, 2, 3].as_ref()), Ruled::Ok([1, 2].as_ref(), [3].as_ref()));
     }
 }
