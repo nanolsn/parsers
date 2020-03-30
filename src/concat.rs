@@ -26,6 +26,7 @@ impl<'l, 'r: 'l> Concat<&'l str, &'r str> for &'l str {
 
     fn concat(l: &'l str, r: &'r str) -> Self {
         if l.len() == 0 { return r }
+        if r.len() == 0 { return l }
 
         if unsafe { l.as_ptr().offset(l.len() as isize) } != r.as_ptr() {
             panic!("The trying to concat not adjacent string slices!")
