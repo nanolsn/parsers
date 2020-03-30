@@ -10,15 +10,17 @@ impl<I, R, F, K> Apply<I> for AndThen<R, F>
     where
         R: Apply<I>,
         F: FnOnce(R::Res) -> K,
-        K: Apply<I, Err=R::Err>,
+        K: Apply<I>,
+        R::Err: Into<K::Err>,
 {
-    type Err = R::Err;
+    type Err = K::Err;
     type Res = K::Res;
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         let AndThen(p, f) = self;
 
         p.apply(input)
+            .map_err(|e| e.into())
             .and_then(|r, i| f(r).apply(i))
     }
 }

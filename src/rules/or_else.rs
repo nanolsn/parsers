@@ -10,16 +10,18 @@ impl<I, R, F, K> Apply<I> for OrElse<R, F>
     where
         R: Apply<I>,
         F: FnOnce(R::Err) -> K,
-        K: Apply<I, Res=R::Res>,
+        K: Apply<I>,
         I: Copy,
+        R::Res: Into<K::Res>,
 {
     type Err = K::Err;
-    type Res = R::Res;
+    type Res = K::Res;
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         let OrElse(p, f) = self;
 
         p.apply(input)
+            .map(|r| r.into())
             .or_else(|e| f(e).apply(input))
     }
 }

@@ -9,15 +9,17 @@ pub struct Snd<A, B>(pub A, pub B);
 impl<A, B, I> Apply<I> for Snd<A, B>
     where
         A: Apply<I>,
-        B: Apply<I, Err=A::Err>,
+        B: Apply<I>,
+        A::Err: Into<B::Err>,
 {
-    type Err = A::Err;
+    type Err = B::Err;
     type Res = B::Res;
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         let Snd(a, b) = self;
 
         a.apply(input)
+            .map_err(|e| e.into())
             .and_then(|_, i| b.apply(i))
     }
 }

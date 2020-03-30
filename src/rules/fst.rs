@@ -9,7 +9,8 @@ pub struct Fst<A, B>(pub A, pub B);
 impl<A, B, I> Apply<I> for Fst<A, B>
     where
         A: Apply<I>,
-        B: Apply<I, Err=A::Err>,
+        B: Apply<I>,
+        B::Err: Into<A::Err>,
 {
     type Err = A::Err;
     type Res = A::Res;
@@ -18,7 +19,11 @@ impl<A, B, I> Apply<I> for Fst<A, B>
         let Fst(a, b) = self;
 
         a.apply(input)
-            .and_then(|r, i| b.apply(i).map(|_| r))
+            .and_then(|r, i| b
+                .apply(i)
+                .map(|_| r)
+                .map_err(|e| e.into())
+            )
     }
 }
 

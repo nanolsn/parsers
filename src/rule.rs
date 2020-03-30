@@ -88,15 +88,17 @@ impl<R> Rule<R> {
         where
             R: Apply<I>,
             F: FnOnce(R::Res) -> K,
-            K: Apply<I, Err=R::Err>,
+            K: Apply<I>,
+            R::Err: std::convert::Into<K::Err>,
     { Rule(AndThen(self.0, f)) }
 
     pub fn or_else<I, F, K>(self, f: F) -> Rule<OrElse<R, F>>
         where
             R: Apply<I>,
             F: FnOnce(R::Err) -> K,
-            K: Apply<I, Res=R::Res>,
+            K: Apply<I>,
             I: Copy,
+            R::Res: std::convert::Into<K::Res>,
     { Rule(OrElse(self.0, f)) }
 
     pub fn pred<I, F>(self, f: F) -> Rule<Pred<R, F>>
@@ -148,6 +150,12 @@ impl<L, R> std::ops::BitAnd<R> for Rule<L> {
     type Output = Rule<Cat<String, L, R>>;
 
     fn bitand(self, rhs: R) -> Self::Output { Rule(Cat::new(self.0, rhs)) }
+}
+
+impl<L, R> std::ops::Add<R> for Rule<L> {
+    type Output = Rule<Cat<&'static str, L, R>>;
+
+    fn add(self, rhs: R) -> Self::Output { Rule(Cat::new(self.0, rhs)) }
 }
 
 impl<L, R> std::ops::BitOr<R> for Rule<L> {
