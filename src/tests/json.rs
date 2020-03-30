@@ -24,7 +24,7 @@ enum Json<'i> {
     Obj(Vec<(&'i str, Json<'i>)>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 enum JsonError {
     IncorrectNum(String),
     Expected(Expected<'static>),
@@ -52,10 +52,10 @@ fn read_num(code: &str) -> Ruled<&str, Json, JsonError> {
     let hex = rule("0x") >> hex() * (1..);
 
     let num =
-        bin.map(|s| i64::from_str_radix(&*s, 2).map_err(|_| JsonError::IncorrectNum(s)))
-            | oct.map(|s| i64::from_str_radix(&*s, 8).map_err(|_| JsonError::IncorrectNum(s)))
-            | hex.map(|s| i64::from_str_radix(&*s, 16).map_err(|_| JsonError::IncorrectNum(s)))
-            | dec.map(|s| i64::from_str(&*s).map_err(|_| JsonError::IncorrectNum(s)));
+          bin.map(|s| i64::from_str_radix(&*s, 2).map_err(|_| JsonError::IncorrectNum(s)))
+        | oct.map(|s| i64::from_str_radix(&*s, 8).map_err(|_| JsonError::IncorrectNum(s)))
+        | hex.map(|s| i64::from_str_radix(&*s, 16).map_err(|_| JsonError::IncorrectNum(s)))
+        | dec.map(|s| i64::from_str(&*s).map_err(|_| JsonError::IncorrectNum(s)));
 
     num
         .and_then(|r| r)
