@@ -96,6 +96,6 @@ impl<I, R, E> From<(R, I)> for Ruled<I, R, E> {
     fn from((l, r): (R, I)) -> Self { Ruled::Ok(l, r) }
 }
 
-impl<I, R, E> Into<Result<R, E>> for Ruled<I, R, E> {
-    fn into(self) -> Result<R, E> { self.result() }
+impl<I, R, E> From<Ruled<I, R, E>> for Result<R, E> {
+    fn from(f: Ruled<I, R, E>) -> Self { f.result() }
 }
