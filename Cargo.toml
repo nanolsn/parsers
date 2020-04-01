@@ -5,5 +5,7 @@ version = "0.3.1"
 authors = ["nanolsn <nanonicholson@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/nanolsn/parsers"
+keywords = ["parser"]
 
 [dependencies]

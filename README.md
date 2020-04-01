@@ -1,3 +1,6 @@
+# parsers
+[![Latest Version]][crates.io]
+
 ## Description
 The library of parser combinators.
 Using rules, you can express a grammar of any language.
