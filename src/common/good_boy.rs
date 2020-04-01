@@ -1,7 +1,8 @@
 use crate::{
     apply::Apply,
     ruled::Ruled,
-    rule::{Rule, rule},
+    rule::Rule,
+    expected::Expected,
 };
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -40,16 +41,12 @@ pub fn good_boy<S>(user: S, gender: Gender) -> Rule<GoodBoy>
 { Rule(GoodBoy::new(user, gender)) }
 
 impl<'i> Apply<&'i str> for GoodBoy {
-    type Err = ();
+    type Err = Expected<'static>;
     type Res = String;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
-        let good = rule(self.user)
-            & " is a good "
-            & self.gender.as_str()
-            & '!';
-
-        good.apply(input).map_err(|_| ())
+        let good = format!("{} is a good {}!", self.user, self.gender.as_str());
+        good.apply(input)
     }
 }
 

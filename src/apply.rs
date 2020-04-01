@@ -48,11 +48,11 @@ impl<'i, 'r> Apply<&'i str> for &'r str {
 
 impl<'i> Apply<&'i str> for String {
     type Err = Expected<'static>;
-    type Res = &'i str;
+    type Res = String;
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match (&*self).apply(input) {
-            Ruled::Ok(r, i) => Ruled::Ok(r, i),
+            Ruled::Ok(_, i) => Ruled::Ok(self, i),
             Ruled::Err(_) => Ruled::Err(Expected::String(self)),
         }
     }
@@ -124,7 +124,7 @@ mod tests {
     fn string() {
         let hello = "hello".to_string();
         let r = rule(hello);
-        assert_eq!(apply(r.clone(), "hello!"), Ruled::Ok("hello", "!"));
+        assert_eq!(apply(r.clone(), "hello!"), Ruled::Ok("hello".to_owned(), "!"));
         assert_eq!(apply(r, "hi!"), Ruled::Err(Expected::String("hello".to_owned())));
     }
 
