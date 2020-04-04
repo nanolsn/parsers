@@ -13,10 +13,57 @@ pub fn apply_result<R, I>(rule: R, input: I) -> Result<R::Res, R::Err>
         R: Apply<I>,
 { apply(rule, input).into() }
 
+/// An interface for applying the rules.
+///
+/// Any rule requires this trait implementation. It takes a rule by value
+/// and some generalized input `I`. As a result the [`apply`] function returns [`Ruled`].
+///
+/// [`Ruled`] is a structure of the rules applying result.
+///
+/// [`apply`]: ./trait.Apply.html#tymethod.apply
+/// [`Ruled`]: ./enum.Ruled.html
 pub trait Apply<I> {
+    /// The type of the error.
+    ///
+    /// It usually contains information about the expected value.
+    /// Contained in the [`Ruled`] structure.
+    ///
+    /// [`Ruled`]: ./enum.Ruled.html
     type Err;
+
+    /// The type of the result.
+    ///
+    /// It is returned when the application of the rules was successful.
+    /// Contained in the [`Ruled`] structure.
+    ///
+    /// [`Ruled`]: ./enum.Ruled.html
     type Res;
 
+    /// Applies the rule to input and returns a result.
+    ///
+    /// If the application of the rules is successful, returns [`Ruled::Ok(Result, Input)`].
+    /// Otherwise, when the application is unsuccessful, returns [`Ruled::Err(Error)`].
+    ///
+    /// [`Ruled::Ok(Result, Input)`]: ./enum.Ruled.html#variant.Ok
+    /// [`Ruled::Err(Error)`]: ./enum.Ruled.html#variant.Err
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use parsers::{Apply, Ruled, Expected};
+    /// // Match letter `A`
+    /// let rule = 'A';
+    ///
+    /// let ok = "A.";
+    /// let fail = "B";
+    ///
+    /// // It returns the `Ok` result, since the input starts with `A`.
+    /// // The result contains parts of the matched input and the remaining input.
+    /// assert_eq!(Ruled::Ok("A", "."), rule.apply(ok));
+    ///
+    /// // It fails. As an error, it returns the expected value.
+    /// assert_eq!(Ruled::Err(Expected::Char('A')), rule.apply(fail));
+    /// ```
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err>;
 }
 

@@ -1,6 +1,25 @@
+
+/// The result of applying the rules
+///
+/// It is [`Ok`] when the application of the rules was successful.
+/// Then it contains a value of type `R` and the remaining input.
+///
+/// If this is [`Err`], then the application failed.
+/// It contains an error information of type `E`.
+///
+/// [`Ok`]: ./enum.Ruled.html#variant.Ok
+/// [`Err`]: ./enum.Ruled.html#variant.Err
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum Ruled<I, R, E = ()> {
+    /// The successful result.
+    ///
+    /// `R` is type of result. It contains the obtained value.
+    /// `I` is type of the input. It contains the remaining input.
     Ok(R, I),
+
+    /// The unsuccessful result.
+    ///
+    /// `E` is type of the error. It usually contains information about the expected value.
     Err(E),
 }
 
