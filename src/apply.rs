@@ -20,12 +20,13 @@ pub fn apply_result<R, I>(rule: R, input: I) -> Result<R::Res, R::Err>
         R: Apply<I>,
 { apply(rule, input).into() }
 
-/// An interface for applying rules.
+/// An interface of rules.
 ///
-/// Any rule requires this trait implementation. It takes a rule by value
-/// and some generalized input `I`. As a result the [`apply`] function returns [`Ruled`].
+/// Something that implements this trait is the rule.
+/// Actually, this trait could be called `Rule`, but it is called as a function of application.
 ///
-/// [`Ruled`] is a structure of the rules applying result.
+/// It takes a rule by value and some generalized input `I`.
+/// As a result the [`apply`] function returns [`Ruled`].
 ///
 /// [`apply`]: ./trait.Apply.html#tymethod.apply
 /// [`Ruled`]: ./enum.Ruled.html

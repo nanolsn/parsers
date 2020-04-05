@@ -13,6 +13,9 @@ mod rule;
 mod ruled;
 mod tuple_impl;
 
+/// The common [rules] such as numbers, letters and signs
+///
+/// [rules]: ./trait.Apply.html
 pub mod common {
     pub(crate) mod any;
     pub(crate) mod bin;
@@ -39,6 +42,10 @@ pub mod common {
     pub use white::{white, White};
 }
 
+/// The [rule] combinators to build complex [rules].
+///
+/// [rule]: ./trait.Apply.html
+/// [rules]: ./trait.Apply.html
 pub mod rules {
     pub(crate) mod and_then;
     pub(crate) mod cat;
