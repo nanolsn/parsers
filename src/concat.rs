@@ -1,3 +1,4 @@
+/// An interface for concatenation of some values.
 pub trait Concat<L, R>
     where
         Self: Sized,

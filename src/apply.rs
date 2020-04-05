@@ -3,17 +3,24 @@ use super::{
     expected::Expected,
 };
 
+/// Applies the input to the [rule] and returns [`Ruled`] struct.
+///
+/// [`Ruled`]: ./enum.Ruled.html
+/// [rule]: ./trait.Apply.html
 pub fn apply<R, I>(rule: R, input: I) -> Ruled<I, R::Res, R::Err>
     where
         R: Apply<I>,
 { rule.apply(input) }
 
+/// Applies the input to the [rule] and returns `Result`.
+///
+/// [rule]: ./trait.Apply.html
 pub fn apply_result<R, I>(rule: R, input: I) -> Result<R::Res, R::Err>
     where
         R: Apply<I>,
 { apply(rule, input).into() }
 
-/// An interface for applying the rules.
+/// An interface for applying rules.
 ///
 /// Any rule requires this trait implementation. It takes a rule by value
 /// and some generalized input `I`. As a result the [`apply`] function returns [`Ruled`].

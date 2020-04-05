@@ -11,7 +11,7 @@ mod concat;
 mod expected;
 mod rule;
 mod ruled;
-mod tuple;
+mod tuple_impl;
 
 pub mod common {
     pub(crate) mod any;
