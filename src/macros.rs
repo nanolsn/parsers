@@ -1,5 +1,5 @@
 #[macro_export]
-/// Still in development...
+/// Still in development.
 macro_rules! rule {
     ( ( $($e:tt)+ ) ) => {
         rule!($($e)+)

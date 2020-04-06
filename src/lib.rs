@@ -68,7 +68,7 @@ pub mod rules {
 
     pub use and_then::*;
     pub use cat::*;
-    pub use char_range::*;
+    pub use char_range::{char_range, CharRange};
     pub use fst::*;
     pub use into::*;
     pub use map::*;
@@ -80,8 +80,8 @@ pub mod rules {
     pub use or_else::*;
     pub use pred::*;
     pub use range::*;
-    pub use ret::*;
-    pub use ret_err::*;
+    pub use ret::{ret, Ret};
+    pub use ret_err::{ret_err, RetErr};
     pub use snd::*;
     pub use until::*;
 }

@@ -5,12 +5,33 @@ use crate::{
     expected::Expected,
 };
 
+/// Char range parser.
+///
+/// Checks that the input `char` is in the specified range.
+/// Use [`char_range`] to create a range.
+///
+/// [`char_range`]: ./fn.char_range.html
+///
+/// # Examples
+///
+/// ```
+/// # use parsers::{rules::char_range, Ruled, Apply, Expected};
+/// // Match any letter from `a` to `f`
+/// let rule = char_range('a'..='f');
+///
+/// assert!(rule.apply("a").is_ok());
+/// assert!(rule.apply("f").is_ok());
+/// assert!(rule.apply("g").is_err());
+/// ```
 #[derive(Copy, Clone, Debug)]
 pub struct CharRange {
     pub(crate) from: std::ops::Bound<char>,
     pub(crate) to: std::ops::Bound<char>,
 }
 
+/// [`CharRange`] constructor. See [`CharRange`] for details.
+///
+/// [`CharRange`]: ./struct.CharRange.html
 pub fn char_range<R>(rng: R) -> Rule<CharRange>
     where
         R: std::ops::RangeBounds<char>,
