@@ -1,5 +1,8 @@
 # parsers
 
+[![crates.io](https://img.shields.io/crates/v/parsers.svg)](https://crates.io/crates/parsers)
+[![docs.rs](https://docs.rs/parsers/badge.svg)](https://docs.rs/parsers/latest/parsers/)
+
 ## Description
 The library of parser combinators.
 Using rules, you can express a grammar of any language.
