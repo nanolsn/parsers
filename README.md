@@ -9,18 +9,19 @@ Using rules, you can express a grammar of any language.
 Here is common rules such as "latin" or "any". Also rule combinators: "or", "cat", "range" and etc.
 
 ## Common rules
-| Type  | Match                                 | Constructor |
-|:------|:--------------------------------------|:------------|
-| Dec   | `0...9`                               | `dec()`     |
-| Bin   | `0` or `1`                            | `bin()`     |
-| Oct   | `0...7`                               | `oct()`     |
-| Hex   | `0...9` or `A...F`                    | `hex()`     |
-| Space | ` `                                   | `space()`   |
-| White | `\r\n` or ` ` or `\n` or `\r` or `\t` | `white()`   |
-| Nl    | `\r\n` or `\n` or `\r`                | `nl()`      |
-| Latin | `a...z` or `A...Z`                    | `latin()`   |
-| Any   | Any char                              | `any()`     |
-| End   | Checks rest input is empty            | `end()`     |
+| Type   | Match                                 | Constructor |
+|:-------|:--------------------------------------|:------------|
+| Dec    | `0...9`                               | `dec()`     |
+| Bin    | `0` or `1`                            | `bin()`     |
+| Oct    | `0...7`                               | `oct()`     |
+| Hex    | `0...9` or `A...F`                    | `hex()`     |
+| Space  | ` `                                   | `space()`   |
+| White  | `\r\n` or ` ` or `\n` or `\r` or `\t` | `white()`   |
+| Whites | Apply `White` multiple times          | `whites()`  |
+| Nl     | `\r\n` or `\n` or `\r`                | `nl()`      |
+| Latin  | `a...z` or `A...Z`                    | `latin()`   |
+| Any    | Any char                              | `any()`     |
+| End    | Checks rest input is empty            | `end()`     |
 
 ## Combinators
 | Type      | Description                                             | Operator / Constructor  |
@@ -38,8 +39,8 @@ Here is common rules such as "latin" or "any". Also rule combinators: "or", "cat
 | Pred      | Applies predicate *p* to char and return it if true     | `x.pred(p)`             |
 | Range     | Parses *x* multiple times                               | `x.range(0..n)`         |
 | Until     | Parses *x* until *y*                                    | `x.until(y)`            |
-| Ret       | Always return value *v*                                 | `ret(v)`                |
-| RetErr    | Always return error *e*                                 | `ret_err(e)`            |
+| Ret       | Always returns value *v*                                | `ret(v)`                |
+| RetErr    | Always returns error *e*                                | `ret_err(e)`            |
 | Map       | Parses *x* then apply function *f* to successful result | `x.map(f)`              |
 | MapErr    | Parses *x* then apply function *f* to error result      | `x.map_err(f)`          |
 | Into      | Parses *x* and convert result to `Type`                 | `into::<Type>(x)`       |

@@ -5,9 +5,30 @@ use crate::{
     expected::Expected,
 };
 
+/// Match a whitespace character.
+///
+/// Match one of ` `, `\n`, `\r`, `\t`, `\r\n`.
+///
+/// # Examples
+///
+/// ```
+/// # use parsers::{Apply, Ruled, Expected, common::white};
+/// let rule = white();
+///
+/// let space = " ";
+/// let nl = "\n";
+/// let letter = "A";
+///
+/// assert_eq!(Ruled::Ok(" ", ""), rule.apply(space));
+/// assert_eq!(Ruled::Ok("\n", ""), rule.apply(nl));
+/// assert_eq!(Ruled::Err(Expected::White), rule.apply(letter));
+/// ```
 #[derive(Copy, Clone, Debug)]
 pub struct White;
 
+/// Constructor of [`White`]
+///
+/// [`White`]: ./struct.White.html
 pub fn white() -> Rule<White> { Rule(White) }
 
 impl<'i> Apply<&'i str> for White {

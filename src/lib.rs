@@ -28,6 +28,7 @@ pub mod common {
     pub(crate) mod oct;
     pub(crate) mod space;
     pub(crate) mod white;
+    pub(crate) mod whites;
 
     pub use any::{any, Any};
     pub use bin::{bin, Bin};
@@ -40,6 +41,7 @@ pub mod common {
     pub use oct::{oct, Oct};
     pub use space::{space, Space};
     pub use white::{white, White};
+    pub use whites::{whites, Whites};
 }
 
 /// The [rule] combinators to build complex [rules].
