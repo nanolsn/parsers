@@ -17,7 +17,7 @@ Here is common rules such as "latin" or "any". Also rule combinators: "or", "cat
 | Hex    | `0...9` or `A...F`                    | `hex()`     |
 | Space  | ` `                                   | `space()`   |
 | White  | `\r\n` or ` ` or `\n` or `\r` or `\t` | `white()`   |
-| Whites | Apply `White` multiple times          | `whites()`  |
+| Whites | Applies `White` multiple times        | `whites()`  |
 | Nl     | `\r\n` or `\n` or `\r`                | `nl()`      |
 | Latin  | `a...z` or `A...Z`                    | `latin()`   |
 | Any    | Any char                              | `any()`     |
