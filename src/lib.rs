@@ -1,3 +1,13 @@
+//! The library of parser combinators.
+//!
+//! Using [rules], you can express a grammar of any language.
+//! Here is [common] rules such as `latin` or `any`.
+//! Also rule [combinators] such as `or`, `cat`, `range` and etc.
+//!
+//! [rules]: ./trait.Apply.html
+//! [common]: ./common/index.html
+//! [combinators]: ./rules/index.html
+
 #[macro_use]
 mod macros;
 
@@ -13,9 +23,7 @@ mod rule;
 mod ruled;
 mod tuple_impl;
 
-/// The common [rules] such as numbers, letters and signs
-///
-/// [rules]: ./trait.Apply.html
+/// The common rules such as numbers, letters and signs
 pub mod common {
     pub(crate) mod any;
     pub(crate) mod bin;
@@ -44,10 +52,7 @@ pub mod common {
     pub use whites::{whites, Whites};
 }
 
-/// The [rule] combinators to build complex [rules].
-///
-/// [rule]: ./trait.Apply.html
-/// [rules]: ./trait.Apply.html
+/// The rule combinators to build complex rules.
 pub mod rules {
     pub(crate) mod and_then;
     pub(crate) mod cat;
