@@ -6,7 +6,7 @@
 ## Description
 The library of parser combinators.
 Using rules, you can express a grammar of any language.
-Here is common rules such as "latin" or "any". Also rule combinators: "or", "cat", "range" and etc.
+Here are common rules such as "latin" or "any". Also, rule combinators: "or", "cat", "range" etc.
 
 ## Common rules
 | Type   | Match                                 | Constructor |

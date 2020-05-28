@@ -27,8 +27,6 @@ impl From<Expected<'static>> for JsonError {
     fn from(err: Expected<'static>) -> Self { JsonError::Expected(err) }
 }
 
-fn whites(code: &str) -> Ruled<&str, &str, Expected<'static>> { white().range(..).apply(code) }
-
 fn str(code: &str) -> Ruled<&str, &str, JsonError> {
     (rule('"') >> (rule("\\\"") | any()).until('"'))
         .map_err(|e| JsonError::Expected(e))
@@ -75,8 +73,8 @@ fn read_bool(code: &str) -> Ruled<&str, Json, JsonError> {
 //noinspection RsBorrowChecker
 fn read_array(code: &str) -> Ruled<&str, Json, JsonError> {
     let el = rule(read_json);
-    let els = (el << whites << ',').range(..).cat(el);
-    let array = rule('[') >> els.or_default() << whites << ']';
+    let els = (el << whites() << ',').range(..).cat(el);
+    let array = rule('[') >> els.or_default() << whites() << ']';
 
     array
         .map(|els| Json::Array(els))
@@ -87,9 +85,9 @@ fn read_array(code: &str) -> Ruled<&str, Json, JsonError> {
 fn read_obj(code: &str) -> Ruled<&str, Json, JsonError> {
     let key = rule(str);
     let value = rule(read_json);
-    let el = rule((key, rule(whites) >> ':' >> value));
-    let els = (el << whites << ',' << whites).range(..).cat(el);
-    let obj = rule('{') >> whites >> els.or_default() << whites << '}';
+    let el = rule((key, rule(whites()) >> ':' >> value));
+    let els = (el << whites() << ',' << whites()).range(..).cat(el);
+    let obj = rule('{') >> whites() >> els.or_default() << whites() << '}';
 
     obj
         .map(|els| Json::Obj(els))
@@ -99,7 +97,7 @@ fn read_obj(code: &str) -> Ruled<&str, Json, JsonError> {
 fn read_json(code: &str) -> Ruled<&str, Json, JsonError> {
     let json = rule(read_num) | read_str | read_bool | read_array | read_obj;
 
-    (rule(whites) >> json)
+    (rule(whites()) >> json)
         .apply(code)
 }
 
