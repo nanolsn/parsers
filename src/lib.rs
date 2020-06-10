@@ -54,24 +54,25 @@ pub mod common {
 
 /// The rule combinators to build complex rules.
 pub mod rules {
-    pub(crate) mod and_then;
-    pub(crate) mod cat;
-    pub(crate) mod char_range;
-    pub(crate) mod fst;
-    pub(crate) mod into;
-    pub(crate) mod map;
-    pub(crate) mod map_err;
-    pub(crate) mod not;
-    pub(crate) mod opt;
-    pub(crate) mod or;
-    pub(crate) mod or_default;
-    pub(crate) mod or_else;
-    pub(crate) mod pred;
-    pub(crate) mod range;
-    pub(crate) mod ret;
-    pub(crate) mod ret_err;
-    pub(crate) mod snd;
-    pub(crate) mod until;
+    mod and_then;
+    mod cat;
+    mod char_range;
+    mod fst;
+    mod into;
+    mod map;
+    mod map_err;
+    mod not;
+    mod one_of;
+    mod opt;
+    mod or;
+    mod or_default;
+    mod or_else;
+    mod pred;
+    mod range;
+    mod ret;
+    mod ret_err;
+    mod snd;
+    mod until;
 
     pub use and_then::*;
     pub use cat::*;
@@ -81,6 +82,7 @@ pub mod rules {
     pub use map::*;
     pub use map_err::*;
     pub use not::*;
+    pub use one_of::*;
     pub use opt::*;
     pub use or::*;
     pub use or_default::*;
