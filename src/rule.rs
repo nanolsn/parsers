@@ -1,7 +1,6 @@
 use super::{
+    prelude::*,
     Concat,
-    Ruled::{self, *},
-    Failed,
     compound::{Cat, Or},
 };
 
@@ -159,5 +158,15 @@ mod tests {
     fn slice() {
         let r = vec![1, 2];
         assert_eq!(r.rule([1, 2, 3].as_ref()), Match([1, 2].as_ref(), [3].as_ref()));
+    }
+
+    #[test]
+    fn ops() {
+        use crate::prelude::*;
+
+        let r = rul("a") | "b" | "c";
+        let r = r & r & r;
+        let r = rul("") >> r << "";
+        assert_eq!(r.rule("abc"), Match("abc", ""));
     }
 }

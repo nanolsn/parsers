@@ -1,7 +1,4 @@
-use super::{
-    Rule,
-    Ruled,
-};
+use super::prelude::*;
 
 impl<'r, I: 'r, P0> Rule<'r, I> for (P0, )
     where

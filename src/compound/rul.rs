@@ -1,8 +1,7 @@
-use super::{
-    Rule,
-    Ruled,
+use crate::{
+    prelude::*,
     IntoRule,
-    compound::{Cat, Or},
+    compound::{Cat, Or, Fst, Snd},
 };
 
 /// The wrapper to provide useful features of [rules].
@@ -13,12 +12,41 @@ use super::{
 ///
 /// * Use rule operators with built-in types.
 /// * Automatically convert types that don't implement [`Rule`] to types that do.
+/// * Prevent accidental calling a method with the same name on the target type
+///   instead of calling a [trait] method.
 ///
-/// [rules]: ./trait.Rule.html
+/// # Example
+///
+/// Call the required method:
+/// ```
+/// # // This is a fake code to pass doc tests. I'm annoyed by "ignored: 1" message.
+/// # struct Fake<T>(T);
+/// # impl<T> Fake<T> {
+/// #     fn or(self, _: Result<i32, ()>) {}
+/// #     fn into_inner(self) -> T { self.0 }
+/// # };
+/// # let rul = |a| Fake(a);
+/// let res: Result<i32, ()> = Ok(1);
+///
+/// res.or(res); // calls `Result::or` function.
+/// rul(res).or(res); // calls `Rule::or` trait function.
+/// rul(res).into_inner().or(res); // calls `Result::or` function.
+/// ```
+///
+/// [rules]: ../trait.Rule.html
 /// [`rul`]: ./fn.rul.html
-/// [`Rule`]: ./trait.Rule.html
+/// [`Rule`]: ../trait.Rule.html
+/// [trait]: ../trait.Rule.html
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub struct Rul<R>(R);
+
+impl<R> Rul<R> {
+    pub fn get(&self) -> &R { &self.0 }
+
+    pub fn get_mut(&mut self) -> &R { &mut self.0 }
+
+    pub fn into_inner(self) -> R { self.0 }
+}
 
 impl<'r, I: 'r, R> Rule<'r, I> for Rul<R>
     where
@@ -39,16 +67,6 @@ pub fn rul<'r, I: 'r, N, R>(rule: N) -> Rul<R>
         R: Rule<'r, I>,
 { Rul(rule.into_rule()) }
 
-impl<R> std::ops::Deref for Rul<R> {
-    type Target = R;
-
-    fn deref(&self) -> &Self::Target { &self.0 }
-}
-
-impl<R> std::ops::DerefMut for Rul<R> {
-    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.0 }
-}
-
 impl<R, T> std::ops::BitOr<T> for Rul<R> {
     type Output = Or<R, T>;
 
@@ -65,4 +83,16 @@ impl<R, T> std::ops::Add<T> for Rul<R> {
     type Output = Cat<R, T, String>;
 
     fn add(self, rhs: T) -> Self::Output { Cat::new(self.0, rhs) }
+}
+
+impl<R, T> std::ops::Shl<T> for Rul<R> {
+    type Output = Fst<R, T>;
+
+    fn shl(self, rhs: T) -> Self::Output { Fst(self.0, rhs) }
+}
+
+impl<R, T> std::ops::Shr<T> for Rul<R> {
+    type Output = Snd<R, T>;
+
+    fn shr(self, rhs: T) -> Self::Output { Snd(self.0, rhs) }
 }

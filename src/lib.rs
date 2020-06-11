@@ -8,10 +8,12 @@
 //! [basic]: ./basic/index.html
 //! [compound]: ./compound/index.html
 
+#[macro_use]
+mod macros;
+
 mod concat;
 mod failed;
 mod into_rule;
-mod rul;
 mod rule;
 mod ruled;
 mod tuple_impl;
@@ -19,9 +21,18 @@ mod tuple_impl;
 pub use concat::*;
 pub use failed::Failed;
 pub use into_rule::*;
-pub use rul::{rul, Rul};
 pub use rule::*;
 pub use ruled::*;
+
+pub mod prelude {
+    #[doc(no_inline)]
+    pub use super::{
+        Rule,
+        Ruled::{self, *},
+        Failed,
+        compound::rul,
+    };
+}
 
 /// Basic rules such as numbers, letters and signs.
 pub mod basic {
@@ -56,7 +67,7 @@ pub mod compound {
     mod cat;
     // mod char_range;
     // mod filter;
-    // mod fst;
+    mod fst;
     // mod into;
     // mod map;
     // mod map_err;
@@ -66,17 +77,18 @@ pub mod compound {
     mod or;
     // mod or_default;
     // mod or_else;
-    // range;
-    // ret;
-    // ret_err;
-    // snd;
-    // until;
+    // mod range;
+    // mod ret;
+    // mod ret_err;
+    mod rul;
+    mod snd;
+    // mod until;
 
     // pub use and_then::*;
     pub use cat::*;
     // pub use char_range::{char_range, CharRange};
     // pub use filter::*;
-    // pub use fst::*;
+    pub use fst::*;
     // pub use into::*;
     // pub use map::*;
     // pub use map_err::*;
@@ -89,6 +101,7 @@ pub mod compound {
     // pub use range::*;
     // pub use ret::{ret, Ret};
     // pub use ret_err::{ret_err, RetErr};
-    // pub use snd::*;
+    pub use rul::{rul, Rul};
+    pub use snd::*;
     // pub use until::*;
 }

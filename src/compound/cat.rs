@@ -1,8 +1,6 @@
 use crate::{
-    Rule,
-    Ruled,
+    prelude::*,
     Concat,
-    compound::Or,
 };
 
 #[derive(Debug)]
@@ -50,11 +48,8 @@ impl<'r, I: 'r, A, B, C> Rule<'r, I> for Cat<A, B, C>
     }
 }
 
-impl<A, B, C, T> std::ops::BitOr<T> for Cat<A, B, C> {
-    type Output = Or<Cat<A, B, C>, T>;
-
-    fn bitor(self, rhs: T) -> Self::Output { Or(self, rhs) }
-}
+impl_or!(Cat<A, B, C>);
+impl_shifts!(Cat<A, B, C>);
 
 impl<A, B, T> std::ops::BitAnd<T> for Cat<A, B, &'static str> {
     type Output = Cat<Cat<A, B, &'static str>, T, &'static str>;
@@ -71,8 +66,6 @@ impl<A, B, T> std::ops::Add<T> for Cat<A, B, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use Ruled::*;
-    use crate::Failed;
 
     #[test]
     fn cat() {

@@ -1,9 +1,4 @@
-use crate::{
-    Rule,
-    Ruled,
-    Concat,
-    compound::Cat,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Or<A, B>(pub A, pub B);
@@ -24,35 +19,11 @@ impl<'r, I: 'r, A, B> Rule<'r, I> for Or<A, B>
     }
 }
 
-impl<A, B, T> std::ops::BitOr<T> for Or<A, B> {
-    type Output = Or<Or<A, B>, T>;
-
-    fn bitor(self, rhs: T) -> Self::Output { Or(self, rhs) }
-}
-
-impl<A, B, T> std::ops::BitAnd<T> for Or<A, B>
-    where
-        &'static str: Concat<A, B>,
-{
-    type Output = Cat<Or<A, B>, T, &'static str>;
-
-    fn bitand(self, rhs: T) -> Self::Output { Cat::new(self, rhs) }
-}
-
-impl<A, B, T> std::ops::Add<T> for Or<A, B>
-    where
-        String: Concat<A, B>,
-{
-    type Output = Cat<Or<A, B>, T, String>;
-
-    fn add(self, rhs: T) -> Self::Output { Cat::new(self, rhs) }
-}
+impl_ops!(Or<A, B>);
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use Ruled::*;
-    use crate::Failed;
 
     #[test]
     fn or() {
