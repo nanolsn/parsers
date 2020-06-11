@@ -16,7 +16,7 @@ impl<'i> Apply<&'i str> for Any {
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
-            None => Ruled::Err(Expected::AnyChar),
+            None => Ruled::Expected(Expected::AnyChar),
             Some(c) => input.split_at(c.len_utf8()).into(),
         }
     }
@@ -29,7 +29,7 @@ mod tests {
 
     #[test]
     fn any() {
-        assert_eq!(apply(super::any(), "!@#$"), Ruled::Ok("!", "@#$"));
-        assert_eq!(apply(super::any(), ""), Ruled::Err(Expected::AnyChar));
+        assert_eq!(apply(super::any(), "!@#$"), Ruled::Match("!", "@#$"));
+        assert_eq!(apply(super::any(), ""), Ruled::Expected(Expected::AnyChar));
     }
 }

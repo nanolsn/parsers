@@ -20,9 +20,9 @@ impl<I, R, F> Apply<I> for Pred<R, F>
         p.apply(input)
             .map_err(|e| Some(e))
             .and_then(|r, i| if f(&r) {
-                Ruled::Ok(r, i)
+                Ruled::Match(r, i)
             } else {
-                Ruled::Err(None)
+                Ruled::Expected(None)
             })
     }
 }
@@ -40,8 +40,8 @@ mod tests {
     #[test]
     fn pred() {
         let r = (rule("@") | "#").pred(|s: &&str| *s == "@");
-        assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
-        assert_eq!(apply(r, "#"), Ruled::Err(None));
-        assert_eq!(apply(r, "!"), Ruled::Err(Some(Expected::Str("#"))));
+        assert_eq!(apply(r, "@"), Ruled::Match("@", ""));
+        assert_eq!(apply(r, "#"), Ruled::Expected(None));
+        assert_eq!(apply(r, "!"), Ruled::Expected(Some(Expected::Str("#"))));
     }
 }

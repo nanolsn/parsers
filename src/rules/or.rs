@@ -37,14 +37,14 @@ mod tests {
     #[test]
     fn or() {
         let r = rule('@') | '#';
-        assert_eq!(apply(r, "@"), Ruled::Ok("@", ""));
-        assert_eq!(apply(r, "#"), Ruled::Ok("#", ""));
-        assert_eq!(apply(r, "$"), Ruled::Err(Expected::Char('#')));
+        assert_eq!(apply(r, "@"), Ruled::Match("@", ""));
+        assert_eq!(apply(r, "#"), Ruled::Match("#", ""));
+        assert_eq!(apply(r, "$"), Ruled::Expected(Expected::Char('#')));
 
         let r = rule("qwe") | "123" | "null";
-        assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe", ""));
-        assert_eq!(apply(r, "1234"), Ruled::Ok("123", "4"));
-        assert_eq!(apply(r, "nullable"), Ruled::Ok("null", "able"));
-        assert_eq!(apply(r, "qw"), Ruled::Err(Expected::Str("null")));
+        assert_eq!(apply(r, "qwe"), Ruled::Match("qwe", ""));
+        assert_eq!(apply(r, "1234"), Ruled::Match("123", "4"));
+        assert_eq!(apply(r, "nullable"), Ruled::Match("null", "able"));
+        assert_eq!(apply(r, "qw"), Ruled::Expected(Expected::Str("null")));
     }
 }

@@ -70,20 +70,20 @@ impl<I, T, R> Apply<I> for Range<T, R>
 
         loop {
             if self.to.is_some() && count >= self.to.unwrap() {
-                break Ruled::Ok(res, input);
+                break Ruled::Match(res, input);
             }
 
             match self.rule.apply(input) {
-                Ruled::Ok(r, i) => {
+                Ruled::Match(r, i) => {
                     count += 1;
                     input = i;
                     res = T::concat(res, r);
                 }
-                Ruled::Err(e) => {
+                Ruled::Expected(e) => {
                     break if count >= self.from {
-                        Ruled::Ok(res, input)
+                        Ruled::Match(res, input)
                     } else {
-                        Ruled::Err(e)
+                        Ruled::Expected(e)
                     };
                 }
             }
@@ -103,63 +103,63 @@ mod tests {
     #[test]
     fn range() {
         let r = rule("a") * (1..3);
-        assert_eq!(apply(r, "~"), Ruled::Err(Expected::Str("a")));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
-        assert_eq!(apply(r, "aaa"), Ruled::Ok("aa".to_owned(), "a"));
+        assert_eq!(apply(r, "~"), Ruled::Expected(Expected::Str("a")));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("aa".to_owned(), ""));
+        assert_eq!(apply(r, "aaa"), Ruled::Match("aa".to_owned(), "a"));
 
         let r = rule("a") * (0..3);
-        assert_eq!(apply(r, "~"), Ruled::Ok("".to_owned(), "~"));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
-        assert_eq!(apply(r, "aaa"), Ruled::Ok("aa".to_owned(), "a"));
+        assert_eq!(apply(r, "~"), Ruled::Match("".to_owned(), "~"));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("aa".to_owned(), ""));
+        assert_eq!(apply(r, "aaa"), Ruled::Match("aa".to_owned(), "a"));
     }
 
     #[test]
     fn range_inclusive() {
         let r = rule("a") * (0..=0);
-        assert_eq!(apply(r, "."), Ruled::Ok("".to_owned(), "."));
-        assert_eq!(apply(r, "a"), Ruled::Ok("".to_owned(), "a"));
+        assert_eq!(apply(r, "."), Ruled::Match("".to_owned(), "."));
+        assert_eq!(apply(r, "a"), Ruled::Match("".to_owned(), "a"));
 
         let r = rule("a") * (0..=2);
-        assert_eq!(apply(r, "~"), Ruled::Ok("".to_owned(), "~"));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
-        assert_eq!(apply(r, "aaa"), Ruled::Ok("aa".to_owned(), "a"));
+        assert_eq!(apply(r, "~"), Ruled::Match("".to_owned(), "~"));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("aa".to_owned(), ""));
+        assert_eq!(apply(r, "aaa"), Ruled::Match("aa".to_owned(), "a"));
     }
 
     #[test]
     fn range_to() {
         let r = rule("a") * ..2;
-        assert_eq!(apply(r, "~"), Ruled::Ok("".to_owned(), "~"));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("a".to_owned(), "a"));
+        assert_eq!(apply(r, "~"), Ruled::Match("".to_owned(), "~"));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("a".to_owned(), "a"));
     }
 
     #[test]
     fn range_to_inclusive() {
         let r = rule("a") * ..=1;
-        assert_eq!(apply(r, "~"), Ruled::Ok("".to_owned(), "~"));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("a".to_owned(), "a"));
+        assert_eq!(apply(r, "~"), Ruled::Match("".to_owned(), "~"));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("a".to_owned(), "a"));
     }
 
     #[test]
     fn range_from() {
         let r = rule("a") * (2..);
-        assert_eq!(apply(r, ""), Ruled::Err(Expected::Str("a")));
-        assert_eq!(apply(r, "a"), Ruled::Err(Expected::Str("a")));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
-        assert_eq!(apply(r, "aaa"), Ruled::Ok("aaa".to_owned(), ""));
+        assert_eq!(apply(r, ""), Ruled::Expected(Expected::Str("a")));
+        assert_eq!(apply(r, "a"), Ruled::Expected(Expected::Str("a")));
+        assert_eq!(apply(r, "aa"), Ruled::Match("aa".to_owned(), ""));
+        assert_eq!(apply(r, "aaa"), Ruled::Match("aaa".to_owned(), ""));
     }
 
     #[test]
     fn range_full() {
         let r = rule("a") * ..;
-        assert_eq!(apply(r, ""), Ruled::Ok("".to_owned(), ""));
-        assert_eq!(apply(r, "~"), Ruled::Ok("".to_owned(), "~"));
-        assert_eq!(apply(r, "a"), Ruled::Ok("a".to_owned(), ""));
-        assert_eq!(apply(r, "aa"), Ruled::Ok("aa".to_owned(), ""));
-        assert_eq!(apply(r, "aaa"), Ruled::Ok("aaa".to_owned(), ""));
+        assert_eq!(apply(r, ""), Ruled::Match("".to_owned(), ""));
+        assert_eq!(apply(r, "~"), Ruled::Match("".to_owned(), "~"));
+        assert_eq!(apply(r, "a"), Ruled::Match("a".to_owned(), ""));
+        assert_eq!(apply(r, "aa"), Ruled::Match("aa".to_owned(), ""));
+        assert_eq!(apply(r, "aaa"), Ruled::Match("aaa".to_owned(), ""));
     }
 }

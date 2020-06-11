@@ -53,7 +53,7 @@ impl<'i> Apply<&'i str> for CharRange {
 
         match input.chars().next() {
             Some(c) if rng.contains(&c) => input.split_at(c.len_utf8()).into(),
-            _ => Ruled::Err(Expected::CharRange(self.from, self.to))
+            _ => Ruled::Expected(Expected::CharRange(self.from, self.to))
         }
     }
 }
@@ -81,21 +81,21 @@ mod tests {
     fn char_range() {
         let r = super::char_range('b'..='d');
         let rng = (Bound::Included('b'), Bound::Included('d'));
-        assert_eq!(apply(r, "a"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
-        assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
-        assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
-        assert_eq!(apply(r, "d"), Ruled::Ok("d", ""));
-        assert_eq!(apply(r, "e"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
+        assert_eq!(apply(r, "a"), Ruled::Expected(Expected::CharRange(rng.0, rng.1)));
+        assert_eq!(apply(r, "b"), Ruled::Match("b", ""));
+        assert_eq!(apply(r, "c"), Ruled::Match("c", ""));
+        assert_eq!(apply(r, "d"), Ruled::Match("d", ""));
+        assert_eq!(apply(r, "e"), Ruled::Expected(Expected::CharRange(rng.0, rng.1)));
 
         let r = super::char_range('b'..'d');
         let rng = (Bound::Included('b'), Bound::Excluded('d'));
-        assert_eq!(apply(r, "a"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
-        assert_eq!(apply(r, "b"), Ruled::Ok("b", ""));
-        assert_eq!(apply(r, "c"), Ruled::Ok("c", ""));
-        assert_eq!(apply(r, "d"), Ruled::Err(Expected::CharRange(rng.0, rng.1)));
+        assert_eq!(apply(r, "a"), Ruled::Expected(Expected::CharRange(rng.0, rng.1)));
+        assert_eq!(apply(r, "b"), Ruled::Match("b", ""));
+        assert_eq!(apply(r, "c"), Ruled::Match("c", ""));
+        assert_eq!(apply(r, "d"), Ruled::Expected(Expected::CharRange(rng.0, rng.1)));
 
         let r = super::char_range(..);
-        assert_eq!(apply(r, "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(r, "e"), Ruled::Ok("e", ""));
+        assert_eq!(apply(r, "a"), Ruled::Match("a", ""));
+        assert_eq!(apply(r, "e"), Ruled::Match("e", ""));
     }
 }

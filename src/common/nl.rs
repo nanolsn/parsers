@@ -23,7 +23,7 @@ impl<'i> Apply<&'i str> for Nl {
         match input.chars().next() {
             Some(c @ '\n') => input.split_at(c.len_utf8()).into(),
             Some(c @ '\r') => input.split_at(c.len_utf8()).into(),
-            _ => return Ruled::Err(Expected::Nl),
+            _ => return Ruled::Expected(Expected::Nl),
         }
     }
 }

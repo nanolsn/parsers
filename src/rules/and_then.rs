@@ -40,9 +40,9 @@ mod tests {
         let r = (rule("qw") | '1')
             .and_then(|s: &str| rule('.') >> s);
 
-        assert_eq!(apply(r, "qw.qw"), Ruled::Ok("qw", ""));
-        assert_eq!(apply(r, "1.1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "qw.1"), Ruled::Err(Expected::Str("qw")));
-        assert_eq!(apply(r, "."), Ruled::Err(Expected::Char('1')));
+        assert_eq!(apply(r, "qw.qw"), Ruled::Match("qw", ""));
+        assert_eq!(apply(r, "1.1"), Ruled::Match("1", ""));
+        assert_eq!(apply(r, "qw.1"), Ruled::Expected(Expected::Str("qw")));
+        assert_eq!(apply(r, "."), Ruled::Expected(Expected::Char('1')));
     }
 }

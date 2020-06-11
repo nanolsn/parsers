@@ -1,159 +1,161 @@
 /// The result of applying the rules.
 ///
-/// It is [`Ruled::Ok(R, I)`] when the application of the rules was successful.
-/// Then it contains a value of type `R` and the remaining input of type `I`.
+/// It's [`Match(M, I)`] when the `rule` matches with input.
+/// Then it contains a value of type `M` and the remaining input of type `I`.
 ///
-/// If this is [`Ruled::Err(E)`], then the application failed.
-/// It contains an error information of type `E`.
+/// If it's [`Expected(E)`], then the application failed.
+/// It contains an expected information of type `E`.
 ///
-/// [`Ruled::Ok(R, I)`]: ./enum.Ruled.html#variant.Ok
-/// [`Ruled::Err(E)`]: ./enum.Ruled.html#variant.Err
+/// [`Match(M, I)`]: ./enum.Ruled.html#variant.Match
+/// [`Expected(E)`]: ./enum.Ruled.html#variant.Expected
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum Ruled<I, R, E> {
-    /// Contains the obtained value and the remaining input.
-    Ok(R, I),
+pub enum Ruled<I, M, E> {
+    /// Contains an obtained value and a remaining input.
+    Match(M, I),
 
-    /// Contains the error value. Usually contains information about the expected value.
-    Err(E),
+    /// Contains an information about expected value.
+    Expected(E),
 }
 
-impl<I, R, E> Ruled<I, R, E> {
-    /// Constructor from the `Result<R, E>` and an input.
-    pub fn from_result(result: Result<R, E>, input: I) -> Self {
+use Ruled::*;
+
+impl<I, M, E> Ruled<I, M, E> {
+    /// Constructor from the `Result<M, E>` and an input.
+    pub fn from_result(result: Result<M, E>, input: I) -> Self {
         match result {
-            Ok(o) => Ruled::Ok(o, input),
-            Err(e) => Ruled::Err(e),
+            Ok(o) => Match(o, input),
+            Err(e) => Expected(e),
         }
     }
 
-    /// Returns `true` if the result is [`Ruled::Ok`].
+    /// Returns `true` if the result is [`Match`].
     ///
-    /// [`Ruled::Ok`]: ./enum.Ruled.html#variant.Ok
+    /// [`Match`]: ./enum.Ruled.html#variant.Match
     pub fn is_ok(&self) -> bool {
         match self {
-            Ruled::Ok(_, _) => true,
-            Ruled::Err(_) => false,
+            Match(_, _) => true,
+            Expected(_) => false,
         }
     }
 
-    /// Returns `true` if the result is [`Ruled::Err`].
+    /// Returns `true` if the result is [`Expected`].
     ///
-    /// [`Ruled::Err`]: ./enum.Ruled.html#variant.Err
+    /// [`Expected`]: ./enum.Ruled.html#variant.Expected
     pub fn is_err(&self) -> bool { !self.is_ok() }
 
-    /// Converts from [`Ruled<I, R, E>`] to `Option<R>`.
+    /// Converts from [`Ruled<I, M, E>`] to `Option<M>`.
     ///
-    /// Converts self into an `Option<R>`, consuming self,
+    /// Converts self into an `Option<M>`, consuming self,
     /// and discarding the error, if any.
     ///
-    /// [`Ruled<I, R, E>`]: ./enum.Ruled.html
-    pub fn ok(self) -> Option<R> {
+    /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
+    pub fn ok(self) -> Option<M> {
         match self {
-            Ruled::Ok(r, _) => Some(r),
-            Ruled::Err(_) => None,
+            Match(r, _) => Some(r),
+            Expected(_) => None,
         }
     }
 
-    /// Converts from [`Ruled<I, R, E>`] to `Option<E>`.
+    /// Converts from [`Ruled<I, M, E>`] to `Option<E>`.
     ///
     /// Converts self into an `Option<E>`, consuming self,
     /// and discarding the success value, if any.
     ///
-    /// [`Ruled<I, R, E>`]: ./enum.Ruled.html
+    /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
     pub fn err(self) -> Option<E> {
         match self {
-            Ruled::Ok(_, _) => None,
-            Ruled::Err(e) => Some(e),
+            Match(_, _) => None,
+            Expected(e) => Some(e),
         }
     }
 
-    /// Maps a [`Ruled<I, R, E>`] to [`Ruled<I, K, E>`] by applying a function to
-    /// a contained [`Ruled::Ok(R, I)`] value, leaving an input
-    /// and an [`Ruled::Err(E)`] untouched.
+    /// Maps a [`Ruled<I, M, E>`] to [`Ruled<I, K, E>`] by applying a function to
+    /// a contained [`Match(M, I)`] value, leaving an input
+    /// and an [`Expected(E)`] untouched.
     ///
-    /// [`Ruled<I, R, E>`]: ./enum.Ruled.html
+    /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
     /// [`Ruled<I, K, E>`]: ./enum.Ruled.html
-    /// [`Ruled::Ok(R, I)`]: ./enum.Ruled.html#variant.Ok
-    /// [`Ruled::Err(E)`]: ./enum.Ruled.html#variant.Err
+    /// [`Match(M, I)`]: ./enum.Ruled.html#variant.Match
+    /// [`Expected(E)`]: ./enum.Ruled.html#variant.Expected
     pub fn map<F, K>(self, f: F) -> Ruled<I, K, E>
         where
-            F: FnOnce(R) -> K,
+            F: FnOnce(M) -> K,
     {
         match self {
-            Ruled::Ok(r, i) => Ruled::Ok(f(r), i),
-            Ruled::Err(e) => Ruled::Err(e),
+            Match(r, i) => Match(f(r), i),
+            Expected(e) => Expected(e),
         }
     }
 
-    /// Maps a [`Ruled<I, R, E>`] to [`Ruled<I, R, Q>`] by applying a function to
-    /// a contained [`Ruled::Err(E)`] error, leaving an [`Ruled::Ok(R, I)`] untouched.
+    /// Maps a [`Ruled<I, M, E>`] to [`Ruled<I, M, Q>`] by applying a function to
+    /// a contained [`Expected(E)`] error, leaving an [`Match(R, I)`] untouched.
     ///
-    /// [`Ruled<I, R, E>`]: ./enum.Ruled.html
-    /// [`Ruled<I, R, Q>`]: ./enum.Ruled.html
-    /// [`Ruled::Ok(R, I)`]: ./enum.Ruled.html#variant.Ok
-    /// [`Ruled::Err(E)`]: ./enum.Ruled.html#variant.Err
-    pub fn map_err<F, Q>(self, f: F) -> Ruled<I, R, Q>
+    /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
+    /// [`Ruled<I, M, Q>`]: ./enum.Ruled.html
+    /// [`Match(M, I)`]: ./enum.Ruled.html#variant.Match
+    /// [`Expected(E)`]: ./enum.Ruled.html#variant.Expected
+    pub fn map_err<F, Q>(self, f: F) -> Ruled<I, M, Q>
         where
             F: FnOnce(E) -> Q,
     {
         match self {
-            Ruled::Ok(r, i) => Ruled::Ok(r, i),
-            Ruled::Err(e) => Ruled::Err(f(e)),
+            Match(r, i) => Match(r, i),
+            Expected(e) => Expected(f(e)),
         }
     }
 
-    /// Calls `f` if the result is [`Ruled::Ok`],
-    /// otherwise returns the [`Ruled::Err`] value of self.
+    /// Calls `f` if the result is [`Match`],
+    /// otherwise returns the [`Expected`] value of self.
     ///
-    /// [`Ruled::Ok`]: ./enum.Ruled.html#variant.Ok
-    /// [`Ruled::Err`]: ./enum.Ruled.html#variant.Err
+    /// [`Match`]: ./enum.Ruled.html#variant.Match
+    /// [`Expected`]: ./enum.Ruled.html#variant.Expected
     pub fn and_then<F, J, K>(self, f: F) -> Ruled<J, K, E>
         where
-            F: FnOnce(R, I) -> Ruled<J, K, E>
+            F: FnOnce(M, I) -> Ruled<J, K, E>
     {
         match self {
-            Ruled::Ok(r, i) => f(r, i),
-            Ruled::Err(e) => Ruled::Err(e),
+            Match(r, i) => f(r, i),
+            Expected(e) => Expected(e),
         }
     }
 
-    /// Calls `f` if the result is [`Ruled::Err`],
-    /// otherwise returns the [`Ruled::Ok`] value of self.
+    /// Calls `f` if the result is [`Expected`],
+    /// otherwise returns the [`Match`] value of self.
     ///
-    /// [`Ruled::Ok`]: ./enum.Ruled.html#variant.Ok
-    /// [`Ruled::Err`]: ./enum.Ruled.html#variant.Err
-    pub fn or_else<F, Q>(self, f: F) -> Ruled<I, R, Q>
+    /// [`Match]: ./enum.Ruled.html#variant.Match
+    /// [`Expected`]: ./enum.Ruled.html#variant.Expected
+    pub fn or_else<F, Q>(self, f: F) -> Ruled<I, M, Q>
         where
-            F: FnOnce(E) -> Ruled<I, R, Q>
+            F: FnOnce(E) -> Ruled<I, M, Q>
     {
         match self {
-            Ruled::Ok(r, i) => Ruled::Ok(r, i),
-            Ruled::Err(e) => f(e),
+            Match(r, i) => Match(r, i),
+            Expected(e) => f(e),
         }
     }
 
-    /// Converts self to `Result<R, E>`.
-    pub fn result(self) -> Result<R, E> {
+    /// Converts self to `Result<M, E>`.
+    pub fn result(self) -> Result<M, E> {
         match self {
-            Ruled::Ok(ok, _) => Ok(ok),
-            Ruled::Err(err) => Err(err),
+            Match(ok, _) => Ok(ok),
+            Expected(err) => Err(err),
         }
     }
 }
 
-impl<I, R, E> From<Ruled<I, Result<R, E>, E>> for Ruled<I, R, E> {
-    fn from(ruled: Ruled<I, Result<R, E>, E>) -> Self {
+impl<I, M, E> From<Ruled<I, Result<M, E>, E>> for Ruled<I, M, E> {
+    fn from(ruled: Ruled<I, Result<M, E>, E>) -> Self {
         match ruled {
-            Ruled::Ok(r, i) => Ruled::from_result(r, i),
-            Ruled::Err(e) => Ruled::Err(e),
+            Match(r, i) => Ruled::from_result(r, i),
+            Expected(e) => Expected(e),
         }
     }
 }
 
-impl<I, R, E> From<(R, I)> for Ruled<I, R, E> {
-    fn from((l, r): (R, I)) -> Self { Ruled::Ok(l, r) }
+impl<I, M, E> From<(M, I)> for Ruled<I, M, E> {
+    fn from((l, r): (M, I)) -> Self { Match(l, r) }
 }
 
-impl<I, R, E> From<Ruled<I, R, E>> for Result<R, E> {
-    fn from(f: Ruled<I, R, E>) -> Self { f.result() }
+impl<I, M, E> From<Ruled<I, M, E>> for Result<M, E> {
+    fn from(f: Ruled<I, M, E>) -> Self { f.result() }
 }

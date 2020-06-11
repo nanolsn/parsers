@@ -18,7 +18,7 @@ impl<'i> Apply<&'i str> for Latin {
         let c = match input.chars().next() {
             Some(c @ 'a'..='z') => c,
             Some(c @ 'A'..='Z') => c,
-            _ => return Ruled::Err(Expected::Latin),
+            _ => return Ruled::Expected(Expected::Latin),
         };
 
         input.split_at(c.len_utf8()).into()

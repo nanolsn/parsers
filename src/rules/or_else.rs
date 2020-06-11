@@ -39,8 +39,8 @@ mod tests {
     #[test]
     fn or_else() {
         let r = rule("qw").or_else(|_| rule('1'));
-        assert_eq!(apply(r, "qw"), Ruled::Ok("qw", ""));
-        assert_eq!(apply(r, "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(r, "."), Ruled::Err(Expected::Char('1')));
+        assert_eq!(apply(r, "qw"), Ruled::Match("qw", ""));
+        assert_eq!(apply(r, "1"), Ruled::Match("1", ""));
+        assert_eq!(apply(r, "."), Ruled::Expected(Expected::Char('1')));
     }
 }

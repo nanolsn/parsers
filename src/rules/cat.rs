@@ -56,25 +56,25 @@ mod tests {
     #[test]
     fn cat() {
         let r = rule('@') & '#';
-        assert_eq!(apply(r, "@#"), Ruled::Ok("@#".to_owned(), ""));
-        assert_eq!(apply(r, "@!"), Ruled::Err(Expected::Char('#')));
-        assert_eq!(apply(r, "@"), Ruled::Err(Expected::Char('#')));
+        assert_eq!(apply(r, "@#"), Ruled::Match("@#".to_owned(), ""));
+        assert_eq!(apply(r, "@!"), Ruled::Expected(Expected::Char('#')));
+        assert_eq!(apply(r, "@"), Ruled::Expected(Expected::Char('#')));
 
         let r = rule("q") & "w" & "e";
-        assert_eq!(apply(r, "qwe"), Ruled::Ok("qwe".to_owned(), ""));
-        assert_eq!(apply(r, "qwe123"), Ruled::Ok("qwe".to_owned(), "123"));
-        assert_eq!(apply(r, "123"), Ruled::Err(Expected::Str("q")));
+        assert_eq!(apply(r, "qwe"), Ruled::Match("qwe".to_owned(), ""));
+        assert_eq!(apply(r, "qwe123"), Ruled::Match("qwe".to_owned(), "123"));
+        assert_eq!(apply(r, "123"), Ruled::Expected(Expected::Str("q")));
     }
 
     #[test]
     fn concat() {
         let r = rule("q").cat("w").concat("e").concat('1');
-        assert_eq!(apply(r, "qwe1"), Ruled::Ok("qwe1".to_owned(), ""));
+        assert_eq!(apply(r, "qwe1"), Ruled::Match("qwe1".to_owned(), ""));
 
         let r = rule("q").cat("w").concat("e").concat('1');
-        assert_eq!(apply(r, "qwe1"), Ruled::Ok("qwe1", ""));
+        assert_eq!(apply(r, "qwe1"), Ruled::Match("qwe1", ""));
 
         let r = rule("q").map(|q| vec![q]).cat("w").concat("e").concat("1");
-        assert_eq!(apply(r, "qwe1"), Ruled::Ok(vec!["q", "w", "e", "1"], ""));
+        assert_eq!(apply(r, "qwe1"), Ruled::Match(vec!["q", "w", "e", "1"], ""));
     }
 }

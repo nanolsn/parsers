@@ -19,7 +19,7 @@ impl<'i> Apply<&'i str> for Hex {
             Some(c @ '0'..='9') => c,
             Some(c @ 'a'..='f') => c,
             Some(c @ 'A'..='F') => c,
-            _ => return Ruled::Err(Expected::Hex),
+            _ => return Ruled::Expected(Expected::Hex),
         };
 
         input.split_at(c.len_utf8()).into()
@@ -33,12 +33,12 @@ mod tests {
 
     #[test]
     fn hex() {
-        assert_eq!(apply(super::hex(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::hex(), "9"), Ruled::Ok("9", ""));
-        assert_eq!(apply(super::hex(), "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(super::hex(), "A"), Ruled::Ok("A", ""));
-        assert_eq!(apply(super::hex(), "f"), Ruled::Ok("f", ""));
-        assert_eq!(apply(super::hex(), "F"), Ruled::Ok("F", ""));
-        assert_eq!(apply(super::hex(), "g"), Ruled::Err(Expected::Hex));
+        assert_eq!(apply(super::hex(), "0"), Ruled::Match("0", ""));
+        assert_eq!(apply(super::hex(), "9"), Ruled::Match("9", ""));
+        assert_eq!(apply(super::hex(), "a"), Ruled::Match("a", ""));
+        assert_eq!(apply(super::hex(), "A"), Ruled::Match("A", ""));
+        assert_eq!(apply(super::hex(), "f"), Ruled::Match("f", ""));
+        assert_eq!(apply(super::hex(), "F"), Ruled::Match("F", ""));
+        assert_eq!(apply(super::hex(), "g"), Ruled::Expected(Expected::Hex));
     }
 }

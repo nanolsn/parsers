@@ -40,14 +40,14 @@ impl<I, T, R, U> Apply<I> for Until<T, R, U>
 
         loop {
             match self.2.apply(input) {
-                Ruled::Ok(u, i) => break Ruled::Ok((res, u), i),
-                Ruled::Err(_) => {
+                Ruled::Match(u, i) => break Ruled::Match((res, u), i),
+                Ruled::Expected(_) => {
                     match self.1.apply(input) {
-                        Ruled::Ok(r, i) => {
+                        Ruled::Match(r, i) => {
                             input = i;
                             res = T::concat(res, r);
                         }
-                        Ruled::Err(e) => break Ruled::Err(e),
+                        Ruled::Expected(e) => break Ruled::Expected(e),
                     }
                 }
             }
@@ -68,10 +68,10 @@ mod tests {
     #[test]
     fn until() {
         let r = char_range('0'..='9').until("12");
-        assert_eq!(apply(r, "110211234"), Ruled::Ok(("11021".to_owned(), "12"), "34"));
+        assert_eq!(apply(r, "110211234"), Ruled::Match(("11021".to_owned(), "12"), "34"));
 
         let r = rule('.').until("!");
-        assert_eq!(apply(r, "...!!"), Ruled::Ok(("...".to_owned(), "!"), "!"));
-        assert_eq!(apply(r, "..."), Ruled::Err(Expected::Char('.')));
+        assert_eq!(apply(r, "...!!"), Ruled::Match(("...".to_owned(), "!"), "!"));
+        assert_eq!(apply(r, "..."), Ruled::Expected(Expected::Char('.')));
     }
 }

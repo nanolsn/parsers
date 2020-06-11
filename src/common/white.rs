@@ -19,9 +19,9 @@ use crate::{
 /// let nl = "\n";
 /// let letter = "A";
 ///
-/// assert_eq!(Ruled::Ok(" ", ""), rule.apply(space));
-/// assert_eq!(Ruled::Ok("\n", ""), rule.apply(nl));
-/// assert_eq!(Ruled::Err(Expected::White), rule.apply(letter));
+/// assert_eq!(Ruled::Match(" ", ""), rule.apply(space));
+/// assert_eq!(Ruled::Match("\n", ""), rule.apply(nl));
+/// assert_eq!(Ruled::Expected(Expected::White), rule.apply(letter));
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct White;
@@ -46,7 +46,7 @@ impl<'i> Apply<&'i str> for White {
             Some(c @ '\n') => c,
             Some(c @ '\r') => c,
             Some(c @ '\t') => c,
-            _ => return Ruled::Err(Expected::White),
+            _ => return Ruled::Expected(Expected::White),
         };
 
         input.split_at(c.len_utf8()).into()

@@ -17,7 +17,7 @@ impl<'i> Apply<&'i str> for Dec {
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(c @ '0'..='9') => input.split_at(c.len_utf8()).into(),
-            _ => Ruled::Err(Expected::Dec),
+            _ => Ruled::Expected(Expected::Dec),
         }
     }
 }
@@ -29,8 +29,8 @@ mod tests {
 
     #[test]
     fn dec() {
-        assert_eq!(apply(super::dec(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::dec(), "9"), Ruled::Ok("9", ""));
-        assert_eq!(apply(super::dec(), "a"), Ruled::Err(Expected::Dec));
+        assert_eq!(apply(super::dec(), "0"), Ruled::Match("0", ""));
+        assert_eq!(apply(super::dec(), "9"), Ruled::Match("9", ""));
+        assert_eq!(apply(super::dec(), "a"), Ruled::Expected(Expected::Dec));
     }
 }

@@ -19,7 +19,7 @@ impl<'i> Apply<&'i str> for Space {
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(SPACE) => input.split_at(SPACE.len_utf8()).into(),
-            _ => Ruled::Err(Expected::Char(SPACE)),
+            _ => Ruled::Expected(Expected::Char(SPACE)),
         }
     }
 }

@@ -16,9 +16,9 @@ impl<'i> Apply<&'i str> for End {
 
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         if input.is_empty() {
-            Ruled::Ok("", "")
+            Ruled::Match("", "")
         } else {
-            Ruled::Err(Expected::AnyChar)
+            Ruled::Expected(Expected::AnyChar)
         }
     }
 }
@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn end() {
         let r = rule('a') << super::end();
-        assert_eq!(apply(r, "a"), Ruled::Ok("a", ""));
-        assert_eq!(apply(r, "aa"), Ruled::Err(Expected::AnyChar));
+        assert_eq!(apply(r, "a"), Ruled::Match("a", ""));
+        assert_eq!(apply(r, "aa"), Ruled::Expected(Expected::AnyChar));
     }
 }

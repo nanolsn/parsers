@@ -36,13 +36,13 @@ mod tests {
     #[test]
     fn snd() {
         let r = rule('0') >> '1';
-        assert_eq!(apply(r, "01."), Ruled::Ok("1", "."));
-        assert_eq!(apply(r, "0!."), Ruled::Err(Expected::Char('1')));
-        assert_eq!(apply(r, "!1."), Ruled::Err(Expected::Char('0')));
+        assert_eq!(apply(r, "01."), Ruled::Match("1", "."));
+        assert_eq!(apply(r, "0!."), Ruled::Expected(Expected::Char('1')));
+        assert_eq!(apply(r, "!1."), Ruled::Expected(Expected::Char('0')));
 
         let r = rule('q') >> 'w' >> " " >> "e";
-        assert_eq!(apply(r, "qw er"), Ruled::Ok("e", "r"));
-        assert_eq!(apply(r, "qw e"), Ruled::Ok("e", ""));
-        assert_eq!(apply(r, "qw "), Ruled::Err(Expected::Str("e")));
+        assert_eq!(apply(r, "qw er"), Ruled::Match("e", "r"));
+        assert_eq!(apply(r, "qw e"), Ruled::Match("e", ""));
+        assert_eq!(apply(r, "qw "), Ruled::Expected(Expected::Str("e")));
     }
 }

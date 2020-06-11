@@ -17,7 +17,7 @@ impl<'i> Apply<&'i str> for Bin {
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(a @ '0') | Some(a @ '1') => input.split_at(a.len_utf8()).into(),
-            _ => Ruled::Err(Expected::Bin),
+            _ => Ruled::Expected(Expected::Bin),
         }
     }
 }
@@ -29,8 +29,8 @@ mod tests {
 
     #[test]
     fn bin() {
-        assert_eq!(apply(super::bin(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::bin(), "1"), Ruled::Ok("1", ""));
-        assert_eq!(apply(super::bin(), "2"), Ruled::Err(Expected::Bin));
+        assert_eq!(apply(super::bin(), "0"), Ruled::Match("0", ""));
+        assert_eq!(apply(super::bin(), "1"), Ruled::Match("1", ""));
+        assert_eq!(apply(super::bin(), "2"), Ruled::Expected(Expected::Bin));
     }
 }

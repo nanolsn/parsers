@@ -19,12 +19,12 @@ impl<'a, I, A> Apply<I> for OneOf<'a, A>
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         for rule in self.0 {
-            if let Ruled::Ok(r, i) = rule.apply(input) {
-                return Ruled::Ok(r, i);
+            if let Ruled::Match(r, i) = rule.apply(input) {
+                return Ruled::Match(r, i);
             }
         }
 
-        Ruled::Err(())
+        Ruled::Expected(())
     }
 }
 
@@ -41,9 +41,9 @@ mod tests {
             "sci",
         ]);
 
-        assert_eq!(apply(r, "hi"), Ruled::Ok("hi", ""));
-        assert_eq!(apply(r, "fi"), Ruled::Ok("fi", ""));
-        assert_eq!(apply(r, "sci"), Ruled::Ok("sci", ""));
-        assert_eq!(apply(r, "lo"), Ruled::Err(()));
+        assert_eq!(apply(r, "hi"), Ruled::Match("hi", ""));
+        assert_eq!(apply(r, "fi"), Ruled::Match("fi", ""));
+        assert_eq!(apply(r, "sci"), Ruled::Match("sci", ""));
+        assert_eq!(apply(r, "lo"), Ruled::Expected(()));
     }
 }

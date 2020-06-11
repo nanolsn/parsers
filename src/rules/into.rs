@@ -49,7 +49,7 @@ mod tests {
     #[test]
     fn into() {
         let r = rule('@').into::<String>();
-        assert_eq!(apply(r, "@"), Ruled::Ok("@".to_owned(), ""));
-        assert_eq!(apply(r, "!"), Ruled::Err(Expected::Char('@')));
+        assert_eq!(apply(r, "@"), Ruled::Match("@".to_owned(), ""));
+        assert_eq!(apply(r, "!"), Ruled::Expected(Expected::Char('@')));
     }
 }

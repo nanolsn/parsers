@@ -22,8 +22,8 @@ use crate::{
 /// let spaces = "  \t ";
 /// let letter = "A";
 ///
-/// assert_eq!(Ruled::Ok("  \t ", ""), rule.apply(spaces));
-/// assert_eq!(Ruled::Ok("", "A"), rule.apply(letter));
+/// assert_eq!(Ruled::Match("  \t ", ""), rule.apply(spaces));
+/// assert_eq!(Ruled::Match("", "A"), rule.apply(letter));
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct Whites;
@@ -49,8 +49,8 @@ mod tests {
 
     #[test]
     fn whites() {
-        assert_eq!(apply(super::whites(), " \n\rq"), Ruled::Ok(" \n\r", "q"));
-        assert_eq!(apply(super::whites(), "    q"), Ruled::Ok("    ", "q"));
-        assert_eq!(apply(super::whites(), "q"), Ruled::Ok("", "q"));
+        assert_eq!(apply(super::whites(), " \n\rq"), Ruled::Match(" \n\r", "q"));
+        assert_eq!(apply(super::whites(), "    q"), Ruled::Match("    ", "q"));
+        assert_eq!(apply(super::whites(), "q"), Ruled::Match("", "q"));
     }
 }

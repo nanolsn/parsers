@@ -20,7 +20,7 @@ impl<I, V> Apply<I> for Ret<V>
     type Err = Expected<'static>;
     type Res = V;
 
-    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Ok(self.0, input) }
+    fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Match(self.0, input) }
 }
 
 #[cfg(test)]
@@ -31,6 +31,6 @@ mod tests {
     #[test]
     fn ret() {
         let r = super::ret(12);
-        assert_eq!(apply(r, "hello!"), Ruled::Ok(12, "hello!"));
+        assert_eq!(apply(r, "hello!"), Ruled::Match(12, "hello!"));
     }
 }

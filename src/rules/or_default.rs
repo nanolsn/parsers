@@ -17,8 +17,8 @@ impl<I, R> Apply<I> for OrDefault<R>
 
     fn apply(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
         match self.0.apply(input) {
-            o @ Ruled::Ok(_, _) => o,
-            Ruled::Err(_) => Ruled::Ok(Default::default(), input),
+            o @ Ruled::Match(_, _) => o,
+            Ruled::Expected(_) => Ruled::Match(Default::default(), input),
         }
     }
 }
@@ -34,7 +34,7 @@ mod tests {
     #[test]
     fn or_default() {
         let r = rule("hello").or_default();
-        assert_eq!(apply(r, "hello"), Ruled::Ok("hello", ""));
-        assert_eq!(apply(r, "hi"), Ruled::Ok("", "hi"));
+        assert_eq!(apply(r, "hello"), Ruled::Match("hello", ""));
+        assert_eq!(apply(r, "hi"), Ruled::Match("", "hi"));
     }
 }

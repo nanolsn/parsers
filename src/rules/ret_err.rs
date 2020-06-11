@@ -19,7 +19,7 @@ impl<I, E> Apply<I> for RetErr<E>
     type Err = E;
     type Res = ();
 
-    fn apply(self, _: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Err(self.0) }
+    fn apply(self, _: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Expected(self.0) }
 }
 
 #[cfg(test)]
@@ -30,6 +30,6 @@ mod tests {
     #[test]
     fn ret_err() {
         let r = super::ret_err(12);
-        assert_eq!(apply(r, "hello!"), Ruled::Err(12));
+        assert_eq!(apply(r, "hello!"), Ruled::Expected(12));
     }
 }

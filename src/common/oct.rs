@@ -17,7 +17,7 @@ impl<'i> Apply<&'i str> for Oct {
     fn apply(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
         match input.chars().next() {
             Some(c @ '0'..='7') => input.split_at(c.len_utf8()).into(),
-            _ => Ruled::Err(Expected::Oct),
+            _ => Ruled::Expected(Expected::Oct),
         }
     }
 }
@@ -29,10 +29,10 @@ mod tests {
 
     #[test]
     fn oct() {
-        assert_eq!(apply(super::oct(), "0"), Ruled::Ok("0", ""));
-        assert_eq!(apply(super::oct(), "7"), Ruled::Ok("7", ""));
-        assert_eq!(apply(super::oct(), "8"), Ruled::Err(Expected::Oct));
-        assert_eq!(apply(super::oct(), "a"), Ruled::Err(Expected::Oct));
-        assert_eq!(apply(super::oct(), "A"), Ruled::Err(Expected::Oct));
+        assert_eq!(apply(super::oct(), "0"), Ruled::Match("0", ""));
+        assert_eq!(apply(super::oct(), "7"), Ruled::Match("7", ""));
+        assert_eq!(apply(super::oct(), "8"), Ruled::Expected(Expected::Oct));
+        assert_eq!(apply(super::oct(), "a"), Ruled::Expected(Expected::Oct));
+        assert_eq!(apply(super::oct(), "A"), Ruled::Expected(Expected::Oct));
     }
 }
