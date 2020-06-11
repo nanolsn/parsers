@@ -50,3 +50,13 @@ impl<T> Concat<Vec<T>, T> for Vec<T> {
         l
     }
 }
+
+impl<T> Concat<T, T> for Vec<T> {
+    fn empty() -> Self { Vec::new() }
+
+    fn concat(l: T, r: T) -> Self {
+        let mut v = vec![l];
+        v.push(r);
+        v
+    }
+}

@@ -4,7 +4,7 @@ use crate::{
     Apply,
     Ruled,
     rule,
-    Expected,
+    SomeOf,
     common::*,
 };
 
@@ -20,11 +20,11 @@ enum Json<'i> {
 #[derive(Debug, Eq, PartialEq)]
 enum JsonError {
     IncorrectNum(String),
-    Expected(Expected<'static>),
+    Expected(SomeOf<'static>),
 }
 
-impl From<Expected<'static>> for JsonError {
-    fn from(err: Expected<'static>) -> Self { JsonError::Expected(err) }
+impl From<SomeOf<'static>> for JsonError {
+    fn from(err: SomeOf<'static>) -> Self { JsonError::Expected(err) }
 }
 
 fn str(code: &str) -> Ruled<&str, &str, JsonError> {

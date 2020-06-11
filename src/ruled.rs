@@ -31,7 +31,7 @@ impl<I, M, E> Ruled<I, M, E> {
     /// Returns `true` if the result is [`Match`].
     ///
     /// [`Match`]: ./enum.Ruled.html#variant.Match
-    pub fn is_ok(&self) -> bool {
+    pub fn is_match(&self) -> bool {
         match self {
             Match(_, _) => true,
             Expected(_) => false,
@@ -41,7 +41,7 @@ impl<I, M, E> Ruled<I, M, E> {
     /// Returns `true` if the result is [`Expected`].
     ///
     /// [`Expected`]: ./enum.Ruled.html#variant.Expected
-    pub fn is_err(&self) -> bool { !self.is_ok() }
+    pub fn is_expected(&self) -> bool { !self.is_match() }
 
     /// Converts from [`Ruled<I, M, E>`] to `Option<M>`.
     ///
@@ -49,7 +49,7 @@ impl<I, M, E> Ruled<I, M, E> {
     /// and discarding the error, if any.
     ///
     /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
-    pub fn ok(self) -> Option<M> {
+    pub fn mat(self) -> Option<M> {
         match self {
             Match(r, _) => Some(r),
             Expected(_) => None,
@@ -62,7 +62,7 @@ impl<I, M, E> Ruled<I, M, E> {
     /// and discarding the success value, if any.
     ///
     /// [`Ruled<I, M, E>`]: ./enum.Ruled.html
-    pub fn err(self) -> Option<E> {
+    pub fn exp(self) -> Option<E> {
         match self {
             Match(_, _) => None,
             Expected(e) => Some(e),
@@ -94,7 +94,7 @@ impl<I, M, E> Ruled<I, M, E> {
     /// [`Ruled<I, M, Q>`]: ./enum.Ruled.html
     /// [`Match(M, I)`]: ./enum.Ruled.html#variant.Match
     /// [`Expected(E)`]: ./enum.Ruled.html#variant.Expected
-    pub fn map_err<F, Q>(self, f: F) -> Ruled<I, M, Q>
+    pub fn map_exp<F, Q>(self, f: F) -> Ruled<I, M, Q>
         where
             F: FnOnce(E) -> Q,
     {
