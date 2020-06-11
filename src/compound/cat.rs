@@ -72,17 +72,18 @@ impl<A, B, T> std::ops::Add<T> for Cat<A, B, String> {
 mod tests {
     use super::*;
     use Ruled::*;
+    use crate::Failed;
 
     #[test]
     fn cat() {
         let r = '@'.cat('#');
         assert_eq!(r.rule("@#"), Match("@#".to_owned(), ""));
-        assert_eq!(r.rule("@!"), Expected('#'));
-        assert_eq!(r.rule("@"), Expected('#'));
+        assert_eq!(r.rule("@!"), Expected(Failed::Char('#')));
+        assert_eq!(r.rule("@"), Expected(Failed::Char('#')));
 
         let r = "q".cat("w").cat("e");
         assert_eq!(r.rule("qwe"), Match("qwe".to_owned(), ""));
         assert_eq!(r.rule("qwe123"), Match("qwe".to_owned(), "123"));
-        assert_eq!(r.rule("123"), Expected("q"));
+        assert_eq!(r.rule("123"), Expected(Failed::Str("q")));
     }
 }

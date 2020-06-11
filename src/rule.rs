@@ -1,8 +1,8 @@
 use super::{
     Concat,
     Ruled::{self, *},
-    SomeOf,
-    compound::*,
+    Failed,
+    compound::{Cat, Or},
 };
 
 pub trait Rule<'r, I: 'r> {
@@ -37,33 +37,33 @@ impl<'r, I: 'r, T> Rule<'r, I> for &T
 
 impl<'r, 'i: 'r> Rule<'r, &'i str> for char {
     type Mat = &'i str;
-    type Exp = char;
+    type Exp = Failed<'r>;
 
     fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         if input.starts_with(*self) {
             input.split_at(self.len_utf8()).into()
         } else {
-            Expected(*self)
+            Expected(Failed::Char(*self))
         }
     }
 }
 
 impl<'r, 'i: 'r> Rule<'r, &'i str> for str {
     type Mat = &'i str;
-    type Exp = &'r str;
+    type Exp = Failed<'r>;
 
     fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         if input.starts_with(self) {
             input.split_at(self.len()).into()
         } else {
-            Expected(self)
+            Expected(Failed::Str(self))
         }
     }
 }
 
 impl<'r, 'i: 'r> Rule<'r, &'i str> for String {
     type Mat = &'i str;
-    type Exp = &'r str;
+    type Exp = Failed<'r>;
 
     fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         self.as_str().rule(input)
@@ -88,7 +88,7 @@ impl<'r, I: 'r, R, E> Rule<'r, I> for Result<R, E>
 
 impl<'r, I: 'r> Rule<'r, I> for () {
     type Mat = ();
-    type Exp = SomeOf<'static>;
+    type Exp = Failed<'r>;
 
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { Match((), input) }
 }
@@ -98,13 +98,13 @@ impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for [T]
         T: PartialEq,
 {
     type Mat = &'i [T];
-    type Exp = ();
+    type Exp = &'r [T];
 
     fn rule(&'r self, input: &'i [T]) -> Ruled<&'i [T], Self::Mat, Self::Exp> {
         if input.starts_with(self) {
             input.split_at(self.len()).into()
         } else {
-            Expected(())
+            Expected(self)
         }
     }
 }
@@ -114,7 +114,7 @@ impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for Vec<T>
         T: PartialEq,
 {
     type Mat = &'i [T];
-    type Exp = ();
+    type Exp = &'r [T];
 
     fn rule(&'r self, input: &'i [T]) -> Ruled<&'i [T], Self::Mat, Self::Exp> {
         self.as_slice().rule(input)
@@ -124,21 +124,18 @@ impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for Vec<T>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rul::rul;
 
     #[test]
     fn string() {
-        let hello = "hello".to_string();
-        let r = rul(hello);
-        assert_eq!(r.clone().rule("hello!"), Match("hello", "!"));
-        assert_eq!(r.rule("hi!"), Expected("hello"));
+        assert_eq!("hello".to_string().rule("hello!"), Match("hello", "!"));
+        assert_eq!("hello".to_string().rule("hi!"), Expected(Failed::Str("hello")));
     }
 
     #[test]
     fn char() {
-        let r = rul('@');
+        let r = '@';
         assert_eq!(r.rule(&*"@#".to_owned()), Match("@", "#"));
-        assert_eq!(r.rule("$"), Expected('@'));
+        assert_eq!(r.rule("$"), Expected(Failed::Char('@')));
     }
 
     #[test]
@@ -150,21 +147,17 @@ mod tests {
         assert_eq!(err.rule("!"), Expected(1));
     }
 
-    // #[test]
-    // fn tuple() {
-    //     let r = (rul('@'), '#', "__");
-    //     assert_eq!(r.rule("@#__"), Match(("@", "#", "__"), ""));
-    //     assert_eq!(r.rule("@#!"), Expected(SomeOf::Str("__")));
-    //     assert_eq!(r.rule("#$"), Expected(SomeOf::Char('@')));
-    //
-    //     let r = (rul('0').map(|_| 0), '1', "23", "4");
-    //     assert_eq!(r.rule("012345"), Match((0, "1", "23", "4"), "5"));
-    //     assert_eq!(r.rule("0123"), Expected(SomeOf::Str("4")));
-    // }
+    #[test]
+    fn tuple() {
+        let r = ('@', '#', "__");
+        assert_eq!(r.rule("@#__"), Match(("@", "#", "__"), ""));
+        assert_eq!(r.rule("@#!"), Expected(Failed::Str("__")));
+        assert_eq!(r.rule("#$"), Expected(Failed::Char('@')));
+    }
 
     #[test]
     fn slice() {
-        let r = rul(vec![1, 2]);
+        let r = vec![1, 2];
         assert_eq!(r.rule([1, 2, 3].as_ref()), Match([1, 2].as_ref(), [3].as_ref()));
     }
 }

@@ -52,18 +52,19 @@ impl<A, B, T> std::ops::Add<T> for Or<A, B>
 mod tests {
     use super::*;
     use Ruled::*;
+    use crate::Failed;
 
     #[test]
     fn or() {
         let r = '@'.or('#');
         assert_eq!(r.rule("@"), Match("@", ""));
         assert_eq!(r.rule("#"), Match("#", ""));
-        assert_eq!(r.rule("$"), Expected('#'));
+        assert_eq!(r.rule("$"), Expected(Failed::Char('#')));
 
         let r = "qwe".or("123").or("null");
         assert_eq!(r.rule("qwe"), Match("qwe", ""));
         assert_eq!(r.rule("1234"), Match("123", "4"));
         assert_eq!(r.rule("nullable"), Match("null", "able"));
-        assert_eq!(r.rule("qw"), Expected("null"));
+        assert_eq!(r.rule("qw"), Expected(Failed::Str("null")));
     }
 }

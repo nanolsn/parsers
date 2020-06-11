@@ -9,19 +9,19 @@
 //! [compound]: ./compound/index.html
 
 mod concat;
+mod failed;
 mod into_rule;
 mod rul;
 mod rule;
 mod ruled;
-mod some_of;
-// mod tuple_impl;
+mod tuple_impl;
 
 pub use concat::*;
+pub use failed::Failed;
 pub use into_rule::*;
 pub use rul::{rul, Rul};
 pub use rule::*;
 pub use ruled::*;
-pub use some_of::*;
 
 /// Basic rules such as numbers, letters and signs.
 pub mod basic {
