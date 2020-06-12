@@ -1,26 +1,23 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Bin;
 
-pub fn bin() -> Rul<Bin> { Rul(Bin) }
+pub fn bin() -> Bin { Bin }
 
-impl<'i> Rule<&'i str> for Bin {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for Bin {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         match input.chars().next() {
             Some(a @ '0') | Some(a @ '1') => input.split_at(a.len_utf8()).into(),
-            _ => Ruled::Expected(SomeOf::Bin),
+            _ => Expected(Failed::Bin),
         }
     }
 }
+
+impl_ops!(Bin);
 
 #[cfg(test)]
 mod tests {
@@ -28,8 +25,9 @@ mod tests {
 
     #[test]
     fn bin() {
-        assert_eq!(super::bin().rule("0"), Ruled::Match("0", ""));
-        assert_eq!(super::bin().rule("1"), Ruled::Match("1", ""));
-        assert_eq!(super::bin().rule("2"), Ruled::Expected(SomeOf::Bin));
+        assert!(super::bin().test("0"));
+        assert_eq!(super::bin().rule("0"), Match("0", ""));
+        assert_eq!(super::bin().rule("1"), Match("1", ""));
+        assert_eq!(super::bin().rule("2"), Expected(Failed::Bin));
     }
 }

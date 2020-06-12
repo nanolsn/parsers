@@ -1,8 +1,5 @@
 use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    SomeOf,
+    prelude::*,
     basic::white,
 };
 
@@ -16,14 +13,9 @@ use crate::{
 /// # Examples
 ///
 /// ```
-/// # use parsers::{Rule, Ruled::*, SomeOf, basic::whites};
-/// let rule = whites();
-///
-/// let spaces = "  \t ";
-/// let letter = "A";
-///
-/// assert_eq!(Match("  \t ", ""), rule.rule(spaces));
-/// assert_eq!(Match("", "A"), rule.rule(letter));
+/// # use parsers::{prelude::*, basic::whites};
+/// assert!(whites().test("  \t "));
+/// assert!(!whites().test("A"));
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct Whites;
@@ -31,16 +23,18 @@ pub struct Whites;
 /// Constructor of [`Whites`]
 ///
 /// [`Whites`]: ./struct.Whites.html
-pub fn whites() -> Rul<Whites> { Rul(Whites) }
+pub fn whites() -> Whites { Whites }
 
-impl<'i> Rule<&'i str> for Whites {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for Whites {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         white().range(..).rule(input)
     }
 }
+
+impl_ops!(Whites);
 
 #[cfg(test)]
 mod tests {

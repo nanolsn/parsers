@@ -1,26 +1,23 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Any;
 
-pub fn any() -> Rul<Any> { Rul(Any) }
+pub fn any() -> Any { Any }
 
-impl<'i> Rule<&'i str> for Any {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for Any {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         match input.chars().next() {
-            None => Ruled::Expected(SomeOf::AnyChar),
+            None => Expected(Failed::AnyChar),
             Some(c) => input.split_at(c.len_utf8()).into(),
         }
     }
 }
+
+impl_ops!(Any);
 
 #[cfg(test)]
 mod tests {
@@ -28,7 +25,8 @@ mod tests {
 
     #[test]
     fn any() {
-        assert_eq!(super::any().rule("!@#$"), Ruled::Match("!", "@#$"));
-        assert_eq!(super::any().rule(""), Ruled::Expected(SomeOf::AnyChar));
+        assert!(super::any().test("q"));
+        assert_eq!(super::any().rule("!@#$"), Match("!", "@#$"));
+        assert_eq!(super::any().rule(""), Expected(Failed::AnyChar));
     }
 }

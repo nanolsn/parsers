@@ -1,9 +1,4 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 /// Match a whitespace character.
 ///
@@ -12,16 +7,10 @@ use crate::{
 /// # Examples
 ///
 /// ```
-/// # use parsers::{Rule, Ruled::*, SomeOf, basic::white};
-/// let rule = white();
-///
-/// let space = " ";
-/// let nl = "\n";
-/// let letter = "A";
-///
-/// assert_eq!(Match(" ", ""), rule.rule(space));
-/// assert_eq!(Match("\n", ""), rule.rule(nl));
-/// assert_eq!(Expected(SomeOf::White), rule.rule(letter));
+/// # use parsers::{prelude::*, basic::white};
+/// assert!(white().test(" "));
+/// assert!(white().test("\n"));
+/// assert!(!white().test("A"));
 /// ```
 #[derive(Copy, Clone, Debug)]
 pub struct White;
@@ -29,13 +18,13 @@ pub struct White;
 /// Constructor of [`White`]
 ///
 /// [`White`]: ./struct.White.html
-pub fn white() -> Rul<White> { Rul(White) }
+pub fn white() -> White { White }
 
-impl<'i> Rule<&'i str> for White {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for White {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         let nl = "\r\n";
         if input.starts_with(nl) {
             return input.split_at(nl.len()).into();
@@ -46,12 +35,14 @@ impl<'i> Rule<&'i str> for White {
             Some(c @ '\n') => c,
             Some(c @ '\r') => c,
             Some(c @ '\t') => c,
-            _ => return Ruled::Expected(SomeOf::White),
+            _ => return Expected(Failed::White),
         };
 
         input.split_at(c.len_utf8()).into()
     }
 }
+
+impl_ops!(White);
 
 #[cfg(test)]
 mod tests {
@@ -59,9 +50,9 @@ mod tests {
 
     #[test]
     fn white() {
-        assert!(super::white().rule(" ").is_match());
-        assert!(super::white().rule("\n").is_match());
-        assert!(super::white().rule("\t").is_match());
-        assert!(super::white().rule("!").is_expected());
+        assert!(super::white().test(" "));
+        assert!(super::white().test("\n"));
+        assert!(super::white().test("\t"));
+        assert!(!super::white().test("!"));
     }
 }

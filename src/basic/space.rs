@@ -1,28 +1,25 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 const SPACE: char = ' ';
 
 #[derive(Copy, Clone, Debug)]
 pub struct Space;
 
-pub fn space() -> Rul<Space> { Rul(Space) }
+pub fn space() -> Space { Space }
 
-impl<'i> Rule<&'i str> for Space {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for Space {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         match input.chars().next() {
             Some(SPACE) => input.split_at(SPACE.len_utf8()).into(),
-            _ => Ruled::Expected(SomeOf::Char(SPACE)),
+            _ => Expected(Failed::Char(SPACE)),
         }
     }
 }
+
+impl_ops!(Space);
 
 #[cfg(test)]
 mod tests {
@@ -30,7 +27,7 @@ mod tests {
 
     #[test]
     fn space() {
-        assert!(super::space().rule(" ").is_match());
-        assert!(super::space().rule("q").is_expected());
+        assert!(super::space().test(" "));
+        assert!(!super::space().test("q"));
     }
 }

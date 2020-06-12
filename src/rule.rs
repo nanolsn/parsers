@@ -1,6 +1,7 @@
 use super::{
     prelude::*,
     Concat,
+    IsEmpty,
     compound::*,
 };
 
@@ -9,6 +10,16 @@ pub trait Rule<'r, I: 'r> {
     type Exp;
 
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp>;
+
+    fn test(&'r self, input: I) -> bool
+        where
+            I: IsEmpty,
+    {
+        match self.rule(input) {
+            Match(_, i) if i.is_empty() => true,
+            _ => false,
+        }
+    }
 
     fn cat<C, R>(self, rhs: R) -> Cat<Self, R, C>
         where
@@ -103,6 +114,13 @@ pub trait Rule<'r, I: 'r> {
             C: Concat<C, Self::Mat>,
             Self: Sized,
     { Until::new(self, until) }
+
+    fn end(self) -> End<Self>
+        where
+            Self::Exp: Into<Failed<'r>>,
+            I: IsEmpty,
+            Self: Sized,
+    { End(self) }
 }
 
 impl<'r, I: 'r, T> Rule<'r, I> for &T
@@ -112,7 +130,27 @@ impl<'r, I: 'r, T> Rule<'r, I> for &T
     type Mat = T::Mat;
     type Exp = T::Exp;
 
-    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (*self).rule(input) }
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
+}
+
+impl<'r, I: 'r, T> Rule<'r, I> for &mut T
+    where
+        T: Rule<'r, I> + ?Sized,
+{
+    type Mat = T::Mat;
+    type Exp = T::Exp;
+
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
+}
+
+impl<'r, I: 'r, T> Rule<'r, I> for Box<T>
+    where
+        T: Rule<'r, I> + ?Sized,
+{
+    type Mat = T::Mat;
+    type Exp = T::Exp;
+
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
 }
 
 impl<'r, 'i: 'r> Rule<'r, &'i str> for char {

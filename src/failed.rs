@@ -7,7 +7,7 @@
 /// [`Rule`]: ./trait.Rule.html
 /// [rules]: ./trait.Rule.html
 #[derive(Debug, Eq, PartialEq)]
-pub enum Failed<'r> {
+pub enum Failed<'r, U = ()> {
     /// The `char` value.
     Char(char),
 
@@ -44,8 +44,14 @@ pub enum Failed<'r> {
     /// Any whitespace char.
     White,
 
+    /// End of input.
+    End,
+
     /// Nothing.
     Nothing,
+
+    /// Custom value.
+    User(U),
 }
 
 impl From<char> for Failed<'_> {

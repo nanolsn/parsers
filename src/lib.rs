@@ -15,6 +15,7 @@ mod char_range;
 mod concat;
 mod failed;
 mod into_rule;
+mod is_empty;
 mod rule;
 mod ruled;
 mod tuple_impl;
@@ -23,6 +24,7 @@ pub use char_range::*;
 pub use concat::*;
 pub use failed::Failed;
 pub use into_rule::*;
+pub use is_empty::*;
 pub use rule::*;
 pub use ruled::*;
 
@@ -37,36 +39,35 @@ pub mod prelude {
     };
 }
 
-/// Basic rules such as numbers, letters and signs.
+/// Basic rules such as numbers, letters and spaces.
 pub mod basic {
-    // mod any;
-    // mod bin;
-    // mod dec;
-    // mod end;
-    // mod hex;
-    // mod latin;
-    // mod nl;
-    // mod oct;
-    // mod space;
-    // mod white;
-    // mod whites;
-    //
-    // pub use any::*;
-    // pub use bin::*;
-    // pub use dec::*;
-    // pub use end::*;
-    // pub use hex::*;
-    // pub use latin::*;
-    // pub use nl::*;
-    // pub use oct::*;
-    // pub use space::*;
-    // pub use white::*;
-    // pub use whites::*;
+    mod any;
+    mod bin;
+    mod dec;
+    mod hex;
+    mod latin;
+    mod nl;
+    mod oct;
+    mod space;
+    mod white;
+    mod whites;
+
+    pub use any::{any, Any};
+    pub use bin::{bin, Bin};
+    pub use dec::{dec, Dec};
+    pub use hex::{hex, Hex};
+    pub use latin::{latin, Latin};
+    pub use nl::{nl, Nl};
+    pub use oct::{oct, Oct};
+    pub use space::{space, Space};
+    pub use white::{white, White};
+    pub use whites::{whites, Whites};
 }
 
 /// The compound rules to build complex rules.
 pub mod compound {
     mod cat;
+    mod end;
     mod filter;
     mod fst;
     mod map;
@@ -85,12 +86,13 @@ pub mod compound {
     mod until;
 
     pub use cat::*;
+    pub use end::*;
     pub use filter::*;
     pub use fst::*;
     pub use map::*;
     pub use map_exp::*;
     pub use not::*;
-    pub use one_of::*;
+    pub use one_of::{one_of, OneOf};
     pub use opt::*;
     pub use or::*;
     pub use or_default::*;

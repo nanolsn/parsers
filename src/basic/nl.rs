@@ -1,20 +1,15 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Nl;
 
-pub fn nl() -> Rul<Nl> { Rul(Nl) }
+pub fn nl() -> Nl { Nl }
 
-impl<'i> Rule<&'i str> for Nl {
-    type Exp = SomeOf<'static>;
+impl<'r, 'i: 'r> Rule<'r, &'i str> for Nl {
     type Mat = &'i str;
+    type Exp = Failed<'static>;
 
-    fn rule(self, input: &'i str) -> Ruled<&'i str, Self::Res, Self::Err> {
+    fn rule(&'r self, input: &'i str) -> Ruled<&'i str, Self::Mat, Self::Exp> {
         let nl = "\r\n";
         if input.starts_with(nl) {
             return input.split_at(nl.len()).into();
@@ -23,10 +18,12 @@ impl<'i> Rule<&'i str> for Nl {
         match input.chars().next() {
             Some(c @ '\n') => input.split_at(c.len_utf8()).into(),
             Some(c @ '\r') => input.split_at(c.len_utf8()).into(),
-            _ => return Ruled::Expected(SomeOf::Nl),
+            _ => return Expected(Failed::Nl),
         }
     }
 }
+
+impl_ops!(Nl);
 
 #[cfg(test)]
 mod tests {
@@ -34,9 +31,9 @@ mod tests {
 
     #[test]
     fn nl() {
-        assert!(super::nl().rule("\n").is_match());
-        assert!(super::nl().rule("\r").is_match());
-        assert!(super::nl().rule("\r\n").is_match());
-        assert!(super::nl().rule("~").is_expected());
+        assert!(super::nl().test("\n"));
+        assert!(super::nl().test("\r"));
+        assert!(super::nl().test("\r\n"));
+        assert!(!super::nl().test("~"));
     }
 }
