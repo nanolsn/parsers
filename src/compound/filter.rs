@@ -1,28 +1,24 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Filter<R, F>(pub R, pub F);
 
-impl<I, R, F> Rule<I> for Filter<R, F>
+impl<'r, I: 'r, R, F> Rule<'r, I> for Filter<R, F>
     where
-        R: Rule<I>,
-        F: FnOnce(&R::Mat) -> bool,
+        R: Rule<'r, I>,
+        R::Exp: Into<Failed<'r>>,
+        F: Fn(&R::Mat) -> bool,
 {
-    type Exp = Option<R::Exp>;
     type Mat = R::Mat;
+    type Exp = Failed<'r>;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
-        let Filter(p, f) = self;
-
-        p.rule(input)
-            .map_exp(|e| Some(e))
-            .and_then(|r, i| if f(&r) {
-                Ruled::Match(r, i)
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
+        self.0.rule(input)
+            .map_exp(|e| e.into())
+            .and_then(|r, i| if (self.1)(&r) {
+                Match(r, i)
             } else {
-                Ruled::Expected(None)
+                Expected(Failed::Predicate)
             })
     }
 }
@@ -30,16 +26,12 @@ impl<I, R, F> Rule<I> for Filter<R, F>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        rul::rul,
-        SomeOf,
-    };
 
     #[test]
     fn filter() {
-        let r = (rul("@") | "#").filter(|s: &&str| *s == "@");
-        assert_eq!(r.rule("@"), Ruled::Match("@", ""));
-        assert_eq!(r.rule("#"), Ruled::Expected(None));
-        assert_eq!(r.rule("!"), Ruled::Expected(Some(SomeOf::Str("#"))));
+        let r = "@".or("#").filter(|&s| s == "@");
+        assert_eq!(r.rule("@"), Match("@", ""));
+        assert_eq!(r.rule("#"), Expected(Failed::Predicate));
+        assert_eq!(r.rule("!"), Expected(Failed::Str("#")));
     }
 }

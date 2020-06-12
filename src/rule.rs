@@ -1,7 +1,7 @@
 use super::{
     prelude::*,
     Concat,
-    compound::{Cat, Or},
+    compound::{Cat, Or, Fst, Snd, Filter},
 };
 
 pub trait Rule<'r, I: 'r> {
@@ -22,6 +22,27 @@ pub trait Rule<'r, I: 'r> {
             R: Rule<'r, I, Exp=Self::Exp>,
             Self: Sized,
     { Or(self, rhs) }
+
+    fn fst<R>(self, rhs: R) -> Fst<Self, R>
+        where
+            R: Rule<'r, I>,
+            R::Exp: Into<Self::Exp>,
+            Self: Sized,
+    { Fst(self, rhs) }
+
+    fn snd<R>(self, rhs: R) -> Snd<Self, R>
+        where
+            R: Rule<'r, I>,
+            Self::Exp: Into<R::Exp>,
+            Self: Sized,
+    { Snd(self, rhs) }
+
+    fn filter<F>(self, f: F) -> Filter<Self, F>
+        where
+            F: Fn(&Self::Mat) -> bool,
+            Self::Exp: Into<Failed<'r>>,
+            Self: Sized,
+    { Filter(self, f) }
 }
 
 impl<'r, I: 'r, T> Rule<'r, I> for &T
@@ -139,10 +160,10 @@ mod tests {
 
     #[test]
     fn result() {
-        let ok: Result<_, ()> = Ok(1);
+        let ok: Result<i32, ()> = Ok(1);
         assert_eq!(ok.rule("!"), Match(1, "!"));
 
-        let err: Result<(), _> = Err(1);
+        let err: Result<(), i32> = Err(1);
         assert_eq!(err.rule("!"), Expected(1));
     }
 
@@ -166,7 +187,7 @@ mod tests {
 
         let r = rul("a") | "b" | "c";
         let r = r & r & r;
-        let r = rul("") >> r << "";
+        let r = rul("") >> "" >> r << "";
         assert_eq!(r.rule("abc"), Match("abc", ""));
     }
 }

@@ -1,6 +1,4 @@
-use crate::{
-    prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Snd<A, B>(pub A, pub B);
@@ -29,7 +27,7 @@ mod tests {
 
     #[test]
     fn snd() {
-        let r = rul('0') >> '1';
+        let r = '0'.snd('1');
         assert_eq!(r.rule("01."), Match("1", "."));
         assert_eq!(r.rule("0!."), Expected(Failed::Char('1')));
         assert_eq!(r.rule("!1."), Expected(Failed::Char('0')));

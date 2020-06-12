@@ -17,6 +17,9 @@ pub enum Failed<'r> {
     /// The char range.
     CharRange(std::ops::Bound<char>, std::ops::Bound<char>),
 
+    /// Predicate checked.
+    Predicate,
+
     /// Any char.
     AnyChar,
 

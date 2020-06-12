@@ -1,6 +1,4 @@
-use crate::{
-    prelude::*,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Fst<A, B>(pub A, pub B);
@@ -25,25 +23,13 @@ impl<'r, I: 'r, A, B> Rule<'r, I> for Fst<A, B>
 
 impl_ops!(Fst<A, B>);
 
-// impl<A, B, T> std::ops::Shl<T> for Fst<A, B> {
-//     type Output = crate::compound::Fst<Fst<A, B>, T>;
-//
-//     fn shl(self, rhs: T) -> Self::Output { crate::compound::Fst(self, rhs) }
-// }
-//
-// impl<A, B, T> std::ops::Shr<T> for Fst<A, B> {
-//     type Output = crate::compound::Snd<Fst<A, B>, T>;
-//
-//     fn shr(self, rhs: T) -> Self::Output { crate::compound::Snd(self, rhs) }
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn fst() {
-        let r = rul('0') << '1';
+        let r = '0'.fst('1');
         assert_eq!(r.rule("01."), Match("0", "."));
         assert_eq!(r.rule("0!."), Expected(Failed::Char('1')));
         assert_eq!(r.rule("!1."), Expected(Failed::Char('0')));

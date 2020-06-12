@@ -11,6 +11,7 @@
 #[macro_use]
 mod macros;
 
+mod char_range;
 mod concat;
 mod failed;
 mod into_rule;
@@ -18,6 +19,7 @@ mod rule;
 mod ruled;
 mod tuple_impl;
 
+pub use char_range::*;
 pub use concat::*;
 pub use failed::Failed;
 pub use into_rule::*;
@@ -31,6 +33,7 @@ pub mod prelude {
         Ruled::{self, *},
         Failed,
         compound::rul,
+        char_range,
     };
 }
 
@@ -63,10 +66,8 @@ pub mod basic {
 
 /// The compound rules to build complex rules.
 pub mod compound {
-    // mod and_then;
     mod cat;
-    // mod char_range;
-    // mod filter;
+    mod filter;
     mod fst;
     // mod into;
     // mod map;
@@ -76,7 +77,6 @@ pub mod compound {
     // mod opt;
     mod or;
     // mod or_default;
-    // mod or_else;
     // mod range;
     // mod ret;
     // mod ret_err;
@@ -84,10 +84,8 @@ pub mod compound {
     mod snd;
     // mod until;
 
-    // pub use and_then::*;
     pub use cat::*;
-    // pub use char_range::{char_range, CharRange};
-    // pub use filter::*;
+    pub use filter::*;
     pub use fst::*;
     // pub use into::*;
     // pub use map::*;
@@ -97,7 +95,6 @@ pub mod compound {
     // pub use opt::*;
     pub use or::*;
     // pub use or_default::*;
-    // pub use or_else::*;
     // pub use range::*;
     // pub use ret::{ret, Ret};
     // pub use ret_err::{ret_err, RetErr};
