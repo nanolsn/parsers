@@ -23,6 +23,8 @@ impl<'r, I: 'r, R, F> Rule<'r, I> for Filter<R, F>
     }
 }
 
+impl_ops!(Filter<R, F>);
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,21 +1,18 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct OrDefault<R>(pub R);
 
-impl<I, R> Rule<I> for OrDefault<R>
+impl<'r, I: 'r, R> Rule<'r, I> for OrDefault<R>
     where
-        R: Rule<I>,
+        R: Rule<'r, I>,
         I: Copy,
         R::Mat: Default,
 {
-    type Exp = R::Exp;
     type Mat = R::Mat;
+    type Exp = R::Exp;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
         match self.0.rule(input) {
             o @ Ruled::Match(_, _) => o,
             Ruled::Expected(_) => Ruled::Match(Default::default(), input),
@@ -23,15 +20,16 @@ impl<I, R> Rule<I> for OrDefault<R>
     }
 }
 
+impl_ops!(OrDefault<R>);
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rul::rul;
 
     #[test]
     fn or_default() {
-        let r = rul("hello").or_default();
-        assert_eq!(r.rule("hello"), Ruled::Match("hello", ""));
-        assert_eq!(r.rule("hi"), Ruled::Match("", "hi"));
+        let r = "hello".or_default();
+        assert_eq!(r.rule("hello"), Match("hello", ""));
+        assert_eq!(r.rule("hi"), Match("", "hi"));
     }
 }

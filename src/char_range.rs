@@ -66,6 +66,8 @@ impl<'r, 'i: 'r> Rule<'r, &'i str> for CharRange {
     }
 }
 
+impl_ops!(CharRange);
+
 #[cfg(test)]
 mod tests {
     use super::*;

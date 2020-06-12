@@ -1,32 +1,30 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct OneOf<'a, A>(pub &'a [A]);
 
-pub fn one_of<A>(rules: &[A]) -> Rul<OneOf<A>> { Rul(OneOf(rules)) }
+pub fn one_of<A>(rules: &[A]) -> OneOf<A> { OneOf(rules) }
 
-impl<'a, I, A> Rule<I> for OneOf<'a, A>
+impl<'r, 'a, I: 'r, A> Rule<'r, I> for OneOf<'a, A>
     where
-        A: Rule<I> + Copy,
+        A: Rule<'r, I>,
         I: Copy,
 {
-    type Exp = ();
     type Mat = A::Mat;
+    type Exp = ();
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
         for rule in self.0 {
-            if let Ruled::Match(r, i) = rule.rule(input) {
-                return Ruled::Match(r, i);
+            if let Match(r, i) = rule.rule(input) {
+                return Match(r, i);
             }
         }
 
-        Ruled::Expected(())
+        Expected(())
     }
 }
+
+impl_ops!(OneOf<'a, A>);
 
 #[cfg(test)]
 mod tests {
@@ -40,9 +38,9 @@ mod tests {
             "sci",
         ]);
 
-        assert_eq!(r.rule("hi"), Ruled::Match("hi", ""));
-        assert_eq!(r.rule("fi"), Ruled::Match("fi", ""));
-        assert_eq!(r.rule("sci"), Ruled::Match("sci", ""));
-        assert_eq!(r.rule("lo"), Ruled::Expected(()));
+        assert_eq!(r.rule("hi"), Match("hi", ""));
+        assert_eq!(r.rule("fi"), Match("fi", ""));
+        assert_eq!(r.rule("sci"), Match("sci", ""));
+        assert_eq!(r.rule("lo"), Expected(()));
     }
 }

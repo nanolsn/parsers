@@ -1,36 +1,34 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Opt<R>(pub R);
 
-impl<I, R> Rule<I> for Opt<R>
+impl<'r, I: 'r, R> Rule<'r, I> for Opt<R>
     where
-        R: Rule<I>,
+        R: Rule<'r, I>,
         I: Copy,
 {
-    type Exp = R::Exp;
     type Mat = Option<R::Mat>;
+    type Exp = R::Exp;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
         match self.0.rule(input) {
-            Ruled::Match(r, i) => Ruled::Match(Some(r), i),
-            Ruled::Expected(_) => Ruled::Match(None, input),
+            Match(r, i) => Match(Some(r), i),
+            Expected(_) => Match(None, input),
         }
     }
 }
 
+impl_ops!(Opt<R>);
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rul::rul;
 
     #[test]
     fn opt() {
-        let r = rul("q").opt();
-        assert_eq!(r.rule("qw"), Ruled::Match(Some("q"), "w"));
-        assert_eq!(r.rule("w"), Ruled::Match(None, "w"));
+        let r = "q".opt();
+        assert_eq!(r.rule("q"), Match(Some("q"), ""));
+        assert_eq!(r.rule("w"), Match(None, "w"));
     }
 }

@@ -1,27 +1,24 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    rul::Rul,
-    some_of::SomeOf,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Ret<V>(pub V);
 
-pub fn ret<V>(value: V) -> Rul<Ret<V>>
+pub fn ret<V>(value: V) -> Ret<V>
     where
         V: Copy,
-{ Rul(Ret(value)) }
+{ Ret(value) }
 
-impl<I, V> Rule<I> for Ret<V>
+impl<'r, I: 'r, V> Rule<'r, I> for Ret<V>
     where
         V: Copy,
 {
-    type Exp = SomeOf<'static>;
     type Mat = V;
+    type Exp = Failed<'r>;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> { Ruled::Match(self.0, input) }
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { Match(self.0, input) }
 }
+
+impl_ops!(Ret<V>);
 
 #[cfg(test)]
 mod tests {
@@ -30,6 +27,6 @@ mod tests {
     #[test]
     fn ret() {
         let r = super::ret(12);
-        assert_eq!(r.rule("hello!"), Ruled::Match(12, "hello!"));
+        assert_eq!(r.rule("hello!"), Match(12, "hello!"));
     }
 }

@@ -50,6 +50,7 @@ impl<'r, I: 'r, A, B, C> Rule<'r, I> for Cat<A, B, C>
 
 impl_or!(Cat<A, B, C>);
 impl_shifts!(Cat<A, B, C>);
+impl_not!(Cat<A, B, C>);
 
 impl<A, B, T> std::ops::BitAnd<T> for Cat<A, B, &'static str> {
     type Output = Cat<Cat<A, B, &'static str>, T, &'static str>;

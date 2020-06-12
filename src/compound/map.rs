@@ -1,45 +1,35 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Map<R, F>(pub R, pub F);
 
-impl<I, R, F, K> Rule<I> for Map<R, F>
+impl<'r, I: 'r, R, F, K> Rule<'r, I> for Map<R, F>
     where
-        R: Rule<I>,
-        F: FnOnce(R::Mat) -> K,
+        R: Rule<'r, I>,
+        F: Fn(R::Mat) -> K,
 {
-    type Exp = R::Exp;
     type Mat = K;
+    type Exp = R::Exp;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
-        let Map(p, f) = self;
-
-        p.rule(input)
-            .map(|r| f(r))
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
+        self.0.rule(input)
+            .map(|r| (self.1)(r))
     }
 }
+
+impl_ops!(Map<R, F>);
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        rul::rul,
-        some_of::SomeOf,
-    };
 
-    //noinspection RsBorrowChecker
     #[test]
     fn map() {
         use std::str::FromStr;
 
-        let r = (rul('1') | '2')
-            .map(|s: &str| i32::from_str(s).unwrap());
-
-        assert_eq!(r.rule("1"), Ruled::Match(1, ""));
-        assert_eq!(r.rule("2"), Ruled::Match(2, ""));
-        assert_eq!(r.rule("3"), Ruled::Expected(SomeOf::Char('2')));
+        let r = '1'.or('2').map(|s| i32::from_str(s).unwrap());
+        assert_eq!(r.rule("1"), Match(1, ""));
+        assert_eq!(r.rule("2"), Match(2, ""));
+        assert_eq!(r.rule("3"), Expected(Failed::Char('2')));
     }
 }

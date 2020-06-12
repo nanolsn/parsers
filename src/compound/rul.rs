@@ -1,7 +1,7 @@
 use crate::{
     prelude::*,
     IntoRule,
-    compound::{Cat, Or, Fst, Snd},
+    compound::{Cat, Or, Fst, Snd, Not},
 };
 
 /// The wrapper to provide useful features of [rules].
@@ -95,4 +95,10 @@ impl<R, T> std::ops::Shr<T> for Rul<R> {
     type Output = Snd<R, T>;
 
     fn shr(self, rhs: T) -> Self::Output { Snd(self.0, rhs) }
+}
+
+impl<R> std::ops::Not for Rul<R> {
+    type Output = Not<R>;
+
+    fn not(self) -> Self::Output { Not(self.0) }
 }

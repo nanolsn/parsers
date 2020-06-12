@@ -43,6 +43,9 @@ pub enum Failed<'r> {
 
     /// Any whitespace char.
     White,
+
+    /// Nothing.
+    Nothing,
 }
 
 impl From<char> for Failed<'_> {
@@ -51,4 +54,8 @@ impl From<char> for Failed<'_> {
 
 impl<'r> From<&'r str> for Failed<'r> {
     fn from(s: &'r str) -> Self { Failed::Str(s) }
+}
+
+impl From<()> for Failed<'_> {
+    fn from(_: ()) -> Self { Failed::Nothing }
 }

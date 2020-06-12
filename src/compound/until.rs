@@ -1,53 +1,52 @@
 use crate::{
-    rule::Rule,
-    ruled::Ruled,
-    concat::Concat,
+    prelude::*,
+    Concat,
 };
 
 #[derive(Debug)]
-pub struct Until<T, R, U>(pub std::marker::PhantomData<*const T>, pub R, pub U);
+pub struct Until<R, U, C>(R, U, std::marker::PhantomData<C>);
 
-impl<T, R, U> Until<T, R, U> {
-    pub fn new(rule: R, until: U) -> Self { Until(std::marker::PhantomData, rule, until) }
+impl<R, U, C> Until<R, U, C> {
+    pub fn new(rule: R, until: U) -> Self { Until(rule, until, std::marker::PhantomData) }
 }
 
-impl<T, R, U> Clone for Until<T, R, U>
+impl<R, U, C> Clone for Until<R, U, C>
     where
         R: Clone,
         U: Clone,
 {
-    fn clone(&self) -> Self { Until::new(self.1.clone(), self.2.clone()) }
+    fn clone(&self) -> Self { Until::new(self.0.clone(), self.1.clone()) }
 }
 
-impl<T, R, U> Copy for Until<T, R, U>
+impl<R, U, C> Copy for Until<R, U, C>
     where
         R: Copy,
         U: Copy,
 {}
 
-impl<I, T, R, U> Rule<I> for Until<T, R, U>
+impl<'r, I: 'r, R, U, C> Rule<'r, I> for Until<R, U, C>
     where
-        R: Rule<I> + Copy,
-        U: Rule<I> + Copy,
+        R: Rule<'r, I>,
+        U: Rule<'r, I>,
         I: Copy,
-        T: Concat<T, R::Mat>,
+        C: Concat<C, R::Mat>,
 {
+    type Mat = (C, U::Mat);
     type Exp = R::Exp;
-    type Mat = (T, U::Mat);
 
-    fn rule(self, mut input: I) -> Ruled<I, Self::Res, Self::Err> {
-        let mut res = T::empty();
+    fn rule(&'r self, mut input: I) -> Ruled<I, Self::Mat, Self::Exp> {
+        let mut res = C::empty();
 
         loop {
-            match self.2.rule(input) {
-                Ruled::Match(u, i) => break Ruled::Match((res, u), i),
-                Ruled::Expected(_) => {
-                    match self.1.rule(input) {
-                        Ruled::Match(r, i) => {
+            match self.1.rule(input) {
+                Match(u, i) => break Ruled::Match((res, u), i),
+                Expected(_) => {
+                    match self.0.rule(input) {
+                        Match(r, i) => {
                             input = i;
-                            res = T::concat(res, r);
+                            res = C::concat(res, r);
                         }
-                        Ruled::Expected(e) => break Ruled::Expected(e),
+                        Expected(e) => break Expected(e),
                     }
                 }
             }
@@ -55,22 +54,33 @@ impl<I, T, R, U> Rule<I> for Until<T, R, U>
     }
 }
 
+impl_or!(Until<R, U, C>);
+impl_shifts!(Until<R, U, C>);
+impl_not!(Until<R, U, C>);
+
+impl<R, U, T> std::ops::BitAnd<T> for Until<R, U, &'static str> {
+    type Output = super::Cat<Until<R, U, &'static str>, T, &'static str>;
+
+    fn bitand(self, rhs: T) -> Self::Output { super::Cat::new(self, rhs) }
+}
+
+impl<R, U, T> std::ops::Add<T> for Until<R, U, String> {
+    type Output = super::Cat<Until<R, U, String>, T, String>;
+
+    fn add(self, rhs: T) -> Self::Output { super::Cat::new(self, rhs) }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        rul::rul,
-        compound::char_range::char_range,
-        SomeOf,
-    };
 
     #[test]
     fn until() {
         let r = char_range('0'..='9').until("12");
-        assert_eq!(r.rule("110211234"), Ruled::Match(("11021".to_owned(), "12"), "34"));
+        assert_eq!(r.rule("110211234"), Match(("11021".to_owned(), "12"), "34"));
 
         let r = rul('.').until("!");
-        assert_eq!(r.rule("...!!"), Ruled::Match(("...".to_owned(), "!"), "!"));
-        assert_eq!(r.rule("..."), Ruled::Expected(SomeOf::Char('.')));
+        assert_eq!(r.rule("...!!"), Match(("...".to_owned(), "!"), "!"));
+        assert_eq!(r.rule("..."), Expected(Failed::Char('.')));
     }
 }

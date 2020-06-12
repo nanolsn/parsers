@@ -1,7 +1,7 @@
 use super::{
     prelude::*,
     Concat,
-    compound::{Cat, Or, Fst, Snd, Filter},
+    compound::*,
 };
 
 pub trait Rule<'r, I: 'r> {
@@ -43,6 +43,66 @@ pub trait Rule<'r, I: 'r> {
             Self::Exp: Into<Failed<'r>>,
             Self: Sized,
     { Filter(self, f) }
+
+    fn to<T>(self) -> To<Self, T>
+        where
+            Self::Mat: Into<T>,
+            Self: Sized,
+    { To::new(self) }
+
+    fn map<F, K>(self, f: F) -> Map<Self, F>
+        where
+            F: Fn(Self::Mat) -> K,
+            Self: Sized,
+    { Map(self, f) }
+
+    fn map_exp<F, Q>(self, f: F) -> MapExp<Self, F>
+        where
+            F: Fn(Self::Exp) -> Q,
+            Self: Sized,
+    { MapExp(self, f) }
+
+    fn not(self) -> Not<Self>
+        where
+            I: Copy,
+            Self: Sized,
+    { Not(self) }
+
+    fn opt(self) -> Opt<Self>
+        where
+            I: Copy,
+            Self: Sized,
+    { Opt(self) }
+
+    fn or_default(self) -> OrDefault<Self>
+        where
+            I: Copy,
+            Self::Mat: Default,
+            Self: Sized,
+    { OrDefault(self) }
+
+    fn range<C, B>(self, rng: B) -> Range<Self, C>
+        where
+            B: std::ops::RangeBounds<usize>,
+            I: Copy,
+            C: Concat<C, Self::Mat>,
+            Self: Sized,
+    { Range::from_range(self, rng) }
+
+    fn repeat<C>(self, times: usize) -> Range<Self, C>
+        where
+            I: Copy,
+            C: Concat<C, Self::Mat>,
+            Self: Sized,
+    { Range::from_range(self, times..=times) }
+
+    fn until<C, U>(self, until: U) -> Until<Self, U, C>
+        where
+            U: Rule<'r, I>,
+            I: Copy,
+            C: Concat<C, Self::Mat>,
+            Self: Sized,
+    { Until::new(self, until) }
 }
 
 impl<'r, I: 'r, T> Rule<'r, I> for &T
@@ -187,7 +247,7 @@ mod tests {
 
         let r = rul("a") | "b" | "c";
         let r = r & r & r;
-        let r = rul("") >> "" >> r << "";
+        let r = !!rul("") >> "" >> r << "";
         assert_eq!(r.rule("abc"), Match("abc", ""));
     }
 }

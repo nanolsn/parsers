@@ -1,39 +1,34 @@
-use crate::{
-    rule::Rule,
-    ruled::Ruled,
-};
+use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Not<A>(pub A);
 
-impl<I, A> Rule<I> for Not<A>
+impl<'r, I: 'r, A> Rule<'r, I> for Not<A>
     where
-        A: Rule<I>,
+        A: Rule<'r, I>,
         I: Copy,
 {
-    type Exp = A::Mat;
     type Mat = A::Exp;
+    type Exp = A::Mat;
 
-    fn rule(self, input: I) -> Ruled<I, Self::Res, Self::Err> {
+    fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> {
         match self.0.rule(input) {
-            Ruled::Match(r, _) => Ruled::Expected(r),
-            Ruled::Expected(e) => Ruled::Match(e, input),
+            Match(r, _) => Expected(r),
+            Expected(e) => Match(e, input),
         }
     }
 }
 
+impl_ops!(Not<A>);
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{
-        rul::rul,
-        SomeOf,
-    };
 
     #[test]
     fn not() {
         let r = !rul('a');
-        assert_eq!(r.rule("a"), Ruled::Expected("a"));
-        assert_eq!(r.rule("b"), Ruled::Match(SomeOf::Char('a'), "b"));
+        assert_eq!(r.rule("a"), Expected("a"));
+        assert_eq!(r.rule("b"), Match(Failed::Char('a'), "b"));
     }
 }
