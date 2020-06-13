@@ -5,7 +5,7 @@ pub struct Oct;
 
 pub fn oct() -> Oct { Oct }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Oct {
+impl<'r, 'i> Rule<'r, &'i str> for Oct {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

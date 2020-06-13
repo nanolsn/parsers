@@ -5,7 +5,7 @@ pub struct OneOf<'a, A>(pub &'a [A]);
 
 pub fn one_of<A>(rules: &[A]) -> OneOf<A> { OneOf(rules) }
 
-impl<'r, 'a, I: 'r, A> Rule<'r, I> for OneOf<'a, A>
+impl<'r, 'a, I, A> Rule<'r, I> for OneOf<'a, A>
     where
         A: Rule<'r, I>,
         I: Copy,

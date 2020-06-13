@@ -5,7 +5,7 @@ pub struct Hex;
 
 pub fn hex() -> Hex { Hex }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Hex {
+impl<'r, 'i> Rule<'r, &'i str> for Hex {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

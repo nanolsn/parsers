@@ -25,7 +25,7 @@ pub struct Whites;
 /// [`Whites`]: ./struct.Whites.html
 pub fn whites() -> Whites { Whites }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Whites {
+impl<'r, 'i> Rule<'r, &'i str> for Whites {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

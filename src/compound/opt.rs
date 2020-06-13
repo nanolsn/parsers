@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Opt<R>(pub R);
 
-impl<'r, I: 'r, R> Rule<'r, I> for Opt<R>
+impl<'r, I, R> Rule<'r, I> for Opt<R>
     where
         R: Rule<'r, I>,
         I: Copy,

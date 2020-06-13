@@ -31,7 +31,7 @@ impl<A, B, C> Cat<A, B, C> {
     { Cat::new(self, rhs) }
 }
 
-impl<'r, I: 'r, A, B, C> Rule<'r, I> for Cat<A, B, C>
+impl<'r, I, A, B, C> Rule<'r, I> for Cat<A, B, C>
     where
         A: Rule<'r, I>,
         B: Rule<'r, I, Exp=A::Exp>,

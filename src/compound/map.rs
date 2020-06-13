@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Map<R, F>(pub R, pub F);
 
-impl<'r, I: 'r, R, F, K> Rule<'r, I> for Map<R, F>
+impl<'r, I, R, F, K> Rule<'r, I> for Map<R, F>
     where
         R: Rule<'r, I>,
         F: Fn(R::Mat) -> K,

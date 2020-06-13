@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Or<A, B>(pub A, pub B);
 
-impl<'r, I: 'r, A, B> Rule<'r, I> for Or<A, B>
+impl<'r, I, A, B> Rule<'r, I> for Or<A, B>
     where
         A: Rule<'r, I>,
         B: Rule<'r, I, Mat=A::Mat, Exp=A::Exp>,

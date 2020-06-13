@@ -8,7 +8,7 @@ pub fn ret<V>(value: V) -> Ret<V>
         V: Copy,
 { Ret(value) }
 
-impl<'r, I: 'r, V> Rule<'r, I> for Ret<V>
+impl<'r, I, V> Rule<'r, I> for Ret<V>
     where
         V: Copy,
 {

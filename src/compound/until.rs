@@ -24,7 +24,7 @@ impl<R, U, C> Copy for Until<R, U, C>
         U: Copy,
 {}
 
-impl<'r, I: 'r, R, U, C> Rule<'r, I> for Until<R, U, C>
+impl<'r, I, R, U, C> Rule<'r, I> for Until<R, U, C>
     where
         R: Rule<'r, I>,
         U: Rule<'r, I>,

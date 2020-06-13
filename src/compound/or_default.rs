@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct OrDefault<R>(pub R);
 
-impl<'r, I: 'r, R> Rule<'r, I> for OrDefault<R>
+impl<'r, I, R> Rule<'r, I> for OrDefault<R>
     where
         R: Rule<'r, I>,
         I: Copy,

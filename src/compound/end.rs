@@ -6,7 +6,7 @@ use crate::{
 #[derive(Copy, Clone, Debug)]
 pub struct End<R>(pub R);
 
-impl<'r, I: 'r, R> Rule<'r, I> for End<R>
+impl<'r, I, R> Rule<'r, I> for End<R>
     where
         R: Rule<'r, I>,
         R::Exp: Into<Failed<'r>>,

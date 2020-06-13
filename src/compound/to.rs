@@ -19,7 +19,7 @@ impl<R, T> Copy for To<R, T>
         R: Copy,
 {}
 
-impl<'r, I: 'r, R, T> Rule<'r, I> for To<R, T>
+impl<'r, I, R, T> Rule<'r, I> for To<R, T>
     where
         R: Rule<'r, I>,
         R::Mat: std::convert::Into<T>,

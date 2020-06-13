@@ -5,7 +5,7 @@ pub struct Bin;
 
 pub fn bin() -> Bin { Bin }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Bin {
+impl<'r, 'i> Rule<'r, &'i str> for Bin {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

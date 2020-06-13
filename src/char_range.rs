@@ -50,7 +50,7 @@ pub fn char_range<R>(rng: R) -> CharRange
     }
 }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for CharRange {
+impl<'r, 'i> Rule<'r, &'i str> for CharRange {
     type Mat = &'i str;
     type Exp = Failed<'r>;
 

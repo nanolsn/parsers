@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Filter<R, F>(pub R, pub F);
 
-impl<'r, I: 'r, R, F> Rule<'r, I> for Filter<R, F>
+impl<'r, I, R, F> Rule<'r, I> for Filter<R, F>
     where
         R: Rule<'r, I>,
         R::Exp: Into<Failed<'r>>,

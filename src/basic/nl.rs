@@ -5,7 +5,7 @@ pub struct Nl;
 
 pub fn nl() -> Nl { Nl }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Nl {
+impl<'r, 'i> Rule<'r, &'i str> for Nl {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

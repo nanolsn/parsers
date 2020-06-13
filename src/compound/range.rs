@@ -54,7 +54,7 @@ impl<R, C> Copy for Range<R, C>
         R: Copy,
 {}
 
-impl<'r, I: 'r, R, C> Rule<'r, I> for Range<R, C>
+impl<'r, I, R, C> Rule<'r, I> for Range<R, C>
     where
         R: Rule<'r, I>,
         I: Copy,

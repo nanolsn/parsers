@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-impl<'r, I: 'r, P0> Rule<'r, I> for (P0, )
+impl<'r, I, P0> Rule<'r, I> for (P0, )
     where
         P0: Rule<'r, I>,
 {
@@ -10,7 +10,7 @@ impl<'r, I: 'r, P0> Rule<'r, I> for (P0, )
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { self.0.rule(input) }
 }
 
-impl<'r, I: 'r, P0, P1> Rule<'r, I> for (P0, P1)
+impl<'r, I, P0, P1> Rule<'r, I> for (P0, P1)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,
@@ -26,7 +26,7 @@ impl<'r, I: 'r, P0, P1> Rule<'r, I> for (P0, P1)
     }
 }
 
-impl<'r, I: 'r, P0, P1, P2> Rule<'r, I> for (P0, P1, P2)
+impl<'r, I, P0, P1, P2> Rule<'r, I> for (P0, P1, P2)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,
@@ -46,7 +46,7 @@ impl<'r, I: 'r, P0, P1, P2> Rule<'r, I> for (P0, P1, P2)
     }
 }
 
-impl<'r, I: 'r, P0, P1, P2, P3> Rule<'r, I> for (P0, P1, P2, P3)
+impl<'r, I, P0, P1, P2, P3> Rule<'r, I> for (P0, P1, P2, P3)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,
@@ -70,7 +70,7 @@ impl<'r, I: 'r, P0, P1, P2, P3> Rule<'r, I> for (P0, P1, P2, P3)
     }
 }
 
-impl<'r, I: 'r, P0, P1, P2, P3, P4> Rule<'r, I> for (P0, P1, P2, P3, P4)
+impl<'r, I, P0, P1, P2, P3, P4> Rule<'r, I> for (P0, P1, P2, P3, P4)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,
@@ -98,7 +98,7 @@ impl<'r, I: 'r, P0, P1, P2, P3, P4> Rule<'r, I> for (P0, P1, P2, P3, P4)
     }
 }
 
-impl<'r, I: 'r, P0, P1, P2, P3, P4, P5> Rule<'r, I> for (P0, P1, P2, P3, P4, P5)
+impl<'r, I, P0, P1, P2, P3, P4, P5> Rule<'r, I> for (P0, P1, P2, P3, P4, P5)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,
@@ -130,7 +130,7 @@ impl<'r, I: 'r, P0, P1, P2, P3, P4, P5> Rule<'r, I> for (P0, P1, P2, P3, P4, P5)
     }
 }
 
-impl<'r, I: 'r, P0, P1, P2, P3, P4, P5, P6> Rule<'r, I> for (P0, P1, P2, P3, P4, P5, P6)
+impl<'r, I, P0, P1, P2, P3, P4, P5, P6> Rule<'r, I> for (P0, P1, P2, P3, P4, P5, P6)
     where
         P0: Rule<'r, I>,
         P1: Rule<'r, I, Exp=P0::Exp>,

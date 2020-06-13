@@ -7,7 +7,7 @@ pub struct Space;
 
 pub fn space() -> Space { Space }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Space {
+impl<'r, 'i> Rule<'r, &'i str> for Space {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

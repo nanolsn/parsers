@@ -8,7 +8,7 @@ pub fn ret_exp<E>(value: E) -> RetExp<E>
         E: Copy,
 { RetExp(value) }
 
-impl<'r, I: 'r, E> Rule<'r, I> for RetExp<E>
+impl<'r, I, E> Rule<'r, I> for RetExp<E>
     where
         E: Copy,
 {

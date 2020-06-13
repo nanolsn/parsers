@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct MapExp<R, F>(pub R, pub F);
 
-impl<'r, I: 'r, R, F, Q> Rule<'r, I> for MapExp<R, F>
+impl<'r, I, R, F, Q> Rule<'r, I> for MapExp<R, F>
     where
         R: Rule<'r, I>,
         F: Fn(R::Exp) -> Q,

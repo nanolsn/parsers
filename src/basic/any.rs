@@ -5,7 +5,7 @@ pub struct Any;
 
 pub fn any() -> Any { Any }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Any {
+impl<'r, 'i> Rule<'r, &'i str> for Any {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

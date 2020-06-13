@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Snd<A, B>(pub A, pub B);
 
-impl<'r, I: 'r, A, B> Rule<'r, I> for Snd<A, B>
+impl<'r, I, A, B> Rule<'r, I> for Snd<A, B>
     where
         A: Rule<'r, I>,
         B: Rule<'r, I>,

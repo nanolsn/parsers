@@ -5,7 +5,7 @@ pub struct Dec;
 
 pub fn dec() -> Dec { Dec }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Dec {
+impl<'r, 'i> Rule<'r, &'i str> for Dec {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

@@ -5,7 +5,7 @@ use super::{
     compound::*,
 };
 
-pub trait Rule<'r, I: 'r> {
+pub trait Rule<'r, I> {
     type Mat;
     type Exp;
 
@@ -123,7 +123,7 @@ pub trait Rule<'r, I: 'r> {
     { End(self) }
 }
 
-impl<'r, I: 'r, T> Rule<'r, I> for &T
+impl<'r, I, T> Rule<'r, I> for &T
     where
         T: Rule<'r, I> + ?Sized,
 {
@@ -133,7 +133,7 @@ impl<'r, I: 'r, T> Rule<'r, I> for &T
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
 }
 
-impl<'r, I: 'r, T> Rule<'r, I> for &mut T
+impl<'r, I, T> Rule<'r, I> for &mut T
     where
         T: Rule<'r, I> + ?Sized,
 {
@@ -143,7 +143,7 @@ impl<'r, I: 'r, T> Rule<'r, I> for &mut T
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
 }
 
-impl<'r, I: 'r, T> Rule<'r, I> for Box<T>
+impl<'r, I, T> Rule<'r, I> for Box<T>
     where
         T: Rule<'r, I> + ?Sized,
 {
@@ -153,7 +153,7 @@ impl<'r, I: 'r, T> Rule<'r, I> for Box<T>
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { (**self).rule(input) }
 }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for char {
+impl<'r, 'i> Rule<'r, &'i str> for char {
     type Mat = &'i str;
     type Exp = Failed<'r>;
 
@@ -166,7 +166,7 @@ impl<'r, 'i: 'r> Rule<'r, &'i str> for char {
     }
 }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for str {
+impl<'r, 'i> Rule<'r, &'i str> for str {
     type Mat = &'i str;
     type Exp = Failed<'r>;
 
@@ -179,7 +179,7 @@ impl<'r, 'i: 'r> Rule<'r, &'i str> for str {
     }
 }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for String {
+impl<'r, 'i> Rule<'r, &'i str> for String {
     type Mat = &'i str;
     type Exp = Failed<'r>;
 
@@ -188,7 +188,7 @@ impl<'r, 'i: 'r> Rule<'r, &'i str> for String {
     }
 }
 
-impl<'r, I: 'r, R, E> Rule<'r, I> for Result<R, E>
+impl<'r, I, R, E> Rule<'r, I> for Result<R, E>
     where
         R: Copy,
         E: Copy,
@@ -204,14 +204,14 @@ impl<'r, I: 'r, R, E> Rule<'r, I> for Result<R, E>
     }
 }
 
-impl<'r, I: 'r> Rule<'r, I> for () {
+impl<'r, I> Rule<'r, I> for () {
     type Mat = ();
     type Exp = Failed<'r>;
 
     fn rule(&'r self, input: I) -> Ruled<I, Self::Mat, Self::Exp> { Match((), input) }
 }
 
-impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for [T]
+impl<'r, 'i, T: 'r> Rule<'r, &'i [T]> for [T]
     where
         T: PartialEq,
 {
@@ -227,7 +227,7 @@ impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for [T]
     }
 }
 
-impl<'r, 'i: 'r, T> Rule<'r, &'i [T]> for Vec<T>
+impl<'r, 'i, T: 'r> Rule<'r, &'i [T]> for Vec<T>
     where
         T: PartialEq,
 {

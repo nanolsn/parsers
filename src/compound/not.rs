@@ -3,7 +3,7 @@ use crate::prelude::*;
 #[derive(Copy, Clone, Debug)]
 pub struct Not<A>(pub A);
 
-impl<'r, I: 'r, A> Rule<'r, I> for Not<A>
+impl<'r, I, A> Rule<'r, I> for Not<A>
     where
         A: Rule<'r, I>,
         I: Copy,

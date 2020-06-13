@@ -5,7 +5,7 @@ pub struct Latin;
 
 pub fn latin() -> Latin { Latin }
 
-impl<'r, 'i: 'r> Rule<'r, &'i str> for Latin {
+impl<'r, 'i> Rule<'r, &'i str> for Latin {
     type Mat = &'i str;
     type Exp = Failed<'static>;
 

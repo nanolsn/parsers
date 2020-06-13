@@ -48,7 +48,7 @@ impl<R> Rul<R> {
     pub fn into_inner(self) -> R { self.0 }
 }
 
-impl<'r, I: 'r, R> Rule<'r, I> for Rul<R>
+impl<'r, I, R> Rule<'r, I> for Rul<R>
     where
         R: Rule<'r, I>,
 {
@@ -61,7 +61,7 @@ impl<'r, I: 'r, R> Rule<'r, I> for Rul<R>
 /// The constructor of [`Rul`].
 ///
 /// [`Rul`]: ./struct.Rul.html
-pub fn rul<'r, I: 'r, N, R>(rule: N) -> Rul<R>
+pub fn rul<'r, I, N, R>(rule: N) -> Rul<R>
     where
         N: IntoRule<R, I>,
         R: Rule<'r, I>,
