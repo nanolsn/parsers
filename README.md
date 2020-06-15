@@ -21,7 +21,6 @@ Here are common rules such as "latin" or "any". Also, rule combinators: "or", "c
 | Nl     | `\r\n` or `\n` or `\r`                | `nl()`      |
 | Latin  | `a...z` or `A...Z`                    | `latin()`   |
 | Any    | Any char                              | `any()`     |
-| End    | Checks rest input is empty            | `end()`     |
 
 ## Combinators
 | Type      | Description                                             | Operator / Constructor  |
@@ -36,11 +35,12 @@ Here are common rules such as "latin" or "any". Also, rule combinators: "or", "c
 | Not       | Parses *x* and reverse result                           | `!x`                    |
 | Opt       | Makes rule *x* optional and return `Option`             | `x.opt()`               |
 | OrDefault | Makes rule *x* optional and return default              | `x.or_default()`        |
-| Pred      | Applies predicate *p* to char and return it if true     | `x.pred(p)`             |
+| Filter    | Applies predicate *p* to char and return it if true     | `x.filter(p)`           |
 | Range     | Parses *x* multiple times                               | `x.range(0..n)`         |
 | Until     | Parses *x* until *y*                                    | `x.until(y)`            |
 | Ret       | Always returns value *v*                                | `ret(v)`                |
-| RetErr    | Always returns error *e*                                | `ret_err(e)`            |
+| RetExp    | Always returns error *e*                                | `ret_exp(e)`            |
 | Map       | Parses *x* then apply function *f* to successful result | `x.map(f)`              |
-| MapErr    | Parses *x* then apply function *f* to error result      | `x.map_err(f)`          |
-| Into      | Parses *x* and convert result to `Type`                 | `into::<Type>(x)`       |
+| MapExp    | Parses *x* then apply function *f* to error result      | `x.map_exp(f)`          |
+| To        | Parses *x* and convert result to `Type`                 | `to::<Type>(x)`         |
+| End       | Checks rest input is empty                              | `x.end()`               |
